@@ -20,9 +20,6 @@ object NavigationBar {
     val mutableNavBarState = MutableStateFlow(true)
     @Composable
     fun ShowCurvedNavBar(navController: NavHostController) {
-        val defaultBackground = Brush.linearGradient(
-            listOf(Color(0xFFF5F5F5), Color(0xFFFFFFFF))
-        )
         AndroidView(
             factory = { context ->
                 CurvedBottomNavigationView(context).apply {
@@ -33,6 +30,7 @@ object NavigationBar {
                             destinationId = screen.id
                         )
                     }
+
                     layoutDirection = View.LAYOUT_DIRECTION_LTR
                     setMenuItems(cbnMenuItems.toTypedArray(), 0)
                     setOnMenuItemClickListener { cbnMenuItem, i ->
@@ -46,6 +44,7 @@ object NavigationBar {
                 .height(70.dp)
                 .background(color = Color.Transparent)
         )
+
     }
 
 }

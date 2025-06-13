@@ -25,11 +25,12 @@ import com.example.buyva.R
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.ubuntuItalic
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 @Composable
-fun SplashScreen() {
+fun SplashScreen(onCompletion: () -> Unit) {
     val buyOffset = remember { Animatable(-300f) }
     val vaOffset = remember { Animatable(300f) }
     val alphaAnim = remember { Animatable(0f) }
@@ -51,6 +52,13 @@ fun SplashScreen() {
             targetValue = 1f, animationSpec = tween(durationMillis = 1000, delayMillis = 1000)
         )
     }
+
+    LaunchedEffect(Unit) {
+        delay(3000)
+        onCompletion()
+    }
+
+
 
     Box(
         modifier = Modifier
