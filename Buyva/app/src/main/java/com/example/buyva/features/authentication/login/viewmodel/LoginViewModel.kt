@@ -1,6 +1,7 @@
 package com.example.buyva.features.authentication.login.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.buyva.features.authentication.repository.AuthRepository
 import com.google.firebase.auth.FirebaseUser
@@ -20,5 +21,17 @@ class LoginViewModel(
             val user = authRepository.signInWithEmail(email, password)
             _loginState.value = user
         }
+    }
+}
+class LoginViewModelFactory(
+    private val authRepository: AuthRepository
+) : ViewModelProvider.Factory {
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return LoginViewModel(authRepository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

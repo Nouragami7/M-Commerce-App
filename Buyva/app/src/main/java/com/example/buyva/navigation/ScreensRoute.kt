@@ -5,6 +5,15 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class ScreensRoute{
     @Serializable
+    data object WelcomeScreen : ScreensRoute()
+
+    @Serializable
+    data object LoginScreen : ScreensRoute()
+
+    @Serializable
+    data object SignUpScreen : ScreensRoute()
+
+    @Serializable
     data object HomeScreen: ScreensRoute()
     @Serializable
     data object CartScreen: ScreensRoute()

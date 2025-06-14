@@ -164,10 +164,9 @@ fun SignupScreen(
 
                 Button(
                     onClick = {
-                        if (password == confirmPassword) {
-                            viewModel.signUp(email, password)
-                        }
-                    },
+                        viewModel.signUp(fullName, email, password, confirmPassword)
+                    }
+                    ,
                     modifier = Modifier
                         .width(280.dp)
                         .height(50.dp),
