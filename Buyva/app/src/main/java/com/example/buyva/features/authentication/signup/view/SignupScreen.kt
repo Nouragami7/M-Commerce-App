@@ -28,7 +28,9 @@ import com.example.buyva.features.authentication.signup.viewmodel.SignupViewMode
 fun SignupScreen(
     viewModel: SignupViewModel,
     onSignInClick: () -> Unit = {},
-    onSuccess: () -> Unit = {}
+    onSuccess: () -> Unit = {},
+    onGoogleClick: () -> Unit = {}
+
 ) {
     val user by viewModel.user.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -111,53 +113,11 @@ fun SignupScreen(
 
                 Spacer(Modifier.height(20.dp))
 
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text("Password", fontSize = 18.sp) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp),
-                    textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        val icon = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(imageVector = icon, contentDescription = null)
-                        }
-                    },
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF006A71),
-                        unfocusedBorderColor = Color.Gray
-                    )
-                )
+                PasswordTextField(label = "Password", value = password, onValueChange = { password = it })
 
                 Spacer(Modifier.height(20.dp))
 
-                OutlinedTextField(
-                    value = confirmPassword,
-                    onValueChange = { confirmPassword = it },
-                    label = { Text("Confirm Password", fontSize = 18.sp) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp),
-                    textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
-                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    trailingIcon = {
-                        val icon = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                            Icon(imageVector = icon, contentDescription = null)
-                        }
-                    },
-                    singleLine = true,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color(0xFF006A71),
-                        unfocusedBorderColor = Color.Gray
-                    )
-                )
+                PasswordTextField(label = "Password", value = password, onValueChange = { password = it })
 
                 Spacer(modifier = Modifier.height(40.dp))
 
@@ -196,7 +156,7 @@ fun SignupScreen(
                 Spacer(Modifier.height(5.dp))
 
                 OutlinedButton(
-                    onClick = { /* Handle Google Sign-Up */ },
+                    onClick = onGoogleClick,
                     modifier = Modifier
                         .width(280.dp)
                         .height(50.dp),
@@ -235,15 +195,17 @@ fun SignupScreen(
         }
     }
 }
-
 @Composable
-fun PasswordTextField(label: String) {
-    var password by remember { mutableStateOf("") }
+fun PasswordTextField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit
+) {
     var passwordVisible by remember { mutableStateOf(false) }
 
     OutlinedTextField(
-        value = password,
-        onValueChange = { password = it },
+        value = value,
+        onValueChange = onValueChange,
         label = { Text(label, fontSize = 18.sp) },
         modifier = Modifier
             .fillMaxWidth()

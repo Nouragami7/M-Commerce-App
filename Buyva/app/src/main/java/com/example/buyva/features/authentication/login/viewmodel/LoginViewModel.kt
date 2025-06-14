@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.buyva.features.authentication.repository.AuthRepository
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.firebase.auth.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,36 +38,38 @@ class LoginViewModel(
                 _errorMessage.value = null
             } catch (e: Exception) {
                 _errorMessage.value = when (e) {
-                    is FirebaseAuthInvalidCredentialsException -> {
-                        "Incorrect password or email"
-                    }
-                    is FirebaseAuthInvalidUserException -> {
-                        "User not found"
-                    }
-                    is FirebaseAuthEmailException -> {
-                        "Invalid email format"
-                    }
-                    is FirebaseAuthException -> {
-                        // General Firebase Auth error
-                        "Authentication failed: ${e.message}"
-                    }
-                    else -> {
-                        e.message ?: "Login failed"
-                    }
+                    is FirebaseAuthInvalidCredentialsException -> "Incorrect password or email"
+                    is FirebaseAuthInvalidUserException -> "User not found"
+                    is FirebaseAuthEmailException -> "Invalid email format"
+                    is FirebaseAuthException -> "Authentication failed: ${e.message}"
+                    else -> e.message ?: "Login failed"
                 }
             }
         }
     }
-}
 
-class LoginViewModelFactory(
+    fun signInWithGoogle(account: GoogleSignInAccount) {
+        viewModelScope.launch {
+            try {
+                val user = authRepository.signInWithGoogle(account)
+                _loginState.value = user
+                _errorMessage.value = null
+            } catch (e: Exception) {
+                _errorMessage.value = "Google Sign-In failed: ${e.message}"
+            }
+        }
+    }
+
+
+    class LoginViewModelFactory(
     private val authRepository: AuthRepository
 ) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return LoginViewModel(authRepository) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
+                @Suppress("UNCHECKED_CAST")
+                return LoginViewModel(authRepository) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

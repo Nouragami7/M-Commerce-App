@@ -3,13 +3,16 @@ package com.example.buyva.features.authentication.signup.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseUser
 import com.example.buyva.features.authentication.repository.AuthRepository
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.firebase.auth.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class SignupViewModel(private val repository: AuthRepository) : ViewModel() {
+class SignupViewModel(
+    private val repository: AuthRepository
+) : ViewModel() {
 
     private val _user = MutableStateFlow<FirebaseUser?>(null)
     val user: StateFlow<FirebaseUser?> = _user
@@ -39,15 +42,12 @@ class SignupViewModel(private val repository: AuthRepository) : ViewModel() {
             return
         }
 
-        val hasUpperCase = password.any { it.isUpperCase() }
-        val hasDigit = password.any { it.isDigit() }
-
-        if (!hasUpperCase) {
+        if (!password.any { it.isUpperCase() }) {
             _error.value = "Password must contain at least one uppercase letter"
             return
         }
 
-        if (!hasDigit) {
+        if (!password.any { it.isDigit() }) {
             _error.value = "Password must contain at least one number"
             return
         }
@@ -58,12 +58,29 @@ class SignupViewModel(private val repository: AuthRepository) : ViewModel() {
         }
 
         viewModelScope.launch {
-            val result = repository.signUpWithEmail(email, password)
-            if (result != null) {
+            try {
+                val result = repository.signUpWithEmail(email, password)
                 _user.value = result
                 _error.value = null
-            } else {
-                _error.value = "Sign up failed"
+            } catch (e: Exception) {
+                _error.value = when (e) {
+                    is FirebaseAuthUserCollisionException -> "Email already in use"
+                    is FirebaseAuthWeakPasswordException -> "Weak password: ${e.reason}"
+                    is FirebaseAuthException -> "Signup failed: ${e.message}"
+                    else -> e.message ?: "Signup failed"
+                }
+            }
+        }
+    }
+
+    fun signUpWithGoogle(account: GoogleSignInAccount) {
+        viewModelScope.launch {
+            try {
+                val result = repository.signInWithGoogle(account)
+                _user.value = result
+                _error.value = null
+            } catch (e: Exception) {
+                _error.value = e.message ?: "Google Sign-up failed"
             }
         }
     }
