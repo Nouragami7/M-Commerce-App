@@ -11,9 +11,6 @@ import androidx.compose.ui.graphics.Color
 
 @Composable
 fun HomeScreen(){
-    //    LaunchedEffect(Unit) {
-//        NavBar.mutableNavBarState.value = false
-//    }
     Box(
         modifier = Modifier
             .fillMaxSize(),
