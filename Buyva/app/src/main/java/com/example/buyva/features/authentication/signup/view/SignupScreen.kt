@@ -113,11 +113,53 @@ fun SignupScreen(
 
                 Spacer(Modifier.height(20.dp))
 
-                PasswordTextField(label = "Password", value = password, onValueChange = { password = it })
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password", fontSize = 18.sp) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val icon = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(imageVector = icon, contentDescription = null)
+                        }
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF006A71),
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
 
                 Spacer(Modifier.height(20.dp))
 
-                PasswordTextField(label = "Password", value = password, onValueChange = { password = it })
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label = { Text("Confirm Password", fontSize = 18.sp) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val icon = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                            Icon(imageVector = icon, contentDescription = null)
+                        }
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF006A71),
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
 
                 Spacer(modifier = Modifier.height(40.dp))
 

@@ -60,6 +60,13 @@ class SignupViewModel(
         viewModelScope.launch {
             try {
                 val result = repository.signUpWithEmail(email, password)
+
+                result?.sendEmailVerification()?.addOnCompleteListener { task ->
+                    if (!task.isSuccessful) {
+                        _error.value = "Failed to send verification email"
+                    }
+                }
+
                 _user.value = result
                 _error.value = null
             } catch (e: Exception) {

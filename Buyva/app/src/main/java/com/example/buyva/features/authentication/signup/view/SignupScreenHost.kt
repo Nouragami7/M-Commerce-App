@@ -16,7 +16,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.youssef.SignupScreen
-
 @Composable
 fun SignupScreenHost(
     onSignInClick: () -> Unit,
@@ -53,8 +52,10 @@ fun SignupScreenHost(
         onSignInClick = onSignInClick,
         onSuccess = onSuccess,
         onGoogleClick = {
-            val intent = googleSignInClient.signInIntent
-            launcher.launch(intent)
+            googleSignInClient.signOut().addOnCompleteListener {
+                val intent = googleSignInClient.signInIntent
+                launcher.launch(intent)
+            }
         }
     )
 }
