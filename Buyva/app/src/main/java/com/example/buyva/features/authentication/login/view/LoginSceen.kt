@@ -38,6 +38,8 @@ fun LoginScreen(
     var password by rememberSaveable { mutableStateOf("") }
 
     val loginState by viewModel.loginState.collectAsState()
+    val error = viewModel.errorMessage.collectAsState().value
+
 
     // Handle login success
     LaunchedEffect(loginState) {
@@ -125,7 +127,8 @@ fun LoginScreen(
                     shape = RoundedCornerShape(30.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                     contentPadding = PaddingValues()
-                ) {
+                )
+                {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -147,6 +150,20 @@ fun LoginScreen(
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                error?.let {
+                    Text(
+                        text = it,
+                        color = Color.Red,
+                        fontSize = 14.sp,
+                        modifier = Modifier
+                            .padding(bottom = 8.dp)
+                            .align(Alignment.CenterHorizontally)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
 
                 OutlinedButton(
                     onClick = onGoogleClick,

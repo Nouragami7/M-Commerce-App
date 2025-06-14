@@ -28,8 +28,27 @@ class SignupViewModel(private val repository: AuthRepository) : ViewModel() {
             return
         }
 
+        val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
+        if (!emailRegex.matches(email)) {
+            _error.value = "Invalid email format"
+            return
+        }
+
         if (password.length < 6) {
             _error.value = "Password must be at least 6 characters"
+            return
+        }
+
+        val hasUpperCase = password.any { it.isUpperCase() }
+        val hasDigit = password.any { it.isDigit() }
+
+        if (!hasUpperCase) {
+            _error.value = "Password must contain at least one uppercase letter"
+            return
+        }
+
+        if (!hasDigit) {
+            _error.value = "Password must contain at least one number"
             return
         }
 

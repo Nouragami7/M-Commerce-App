@@ -33,7 +33,6 @@ fun SignupScreen(
     val user by viewModel.user.collectAsState()
     val error by viewModel.error.collectAsState()
 
-    // ✅ لما التسجيل ينجح نروح للشاشة الرئيسية
     LaunchedEffect(user) {
         if (user != null) {
             onSuccess()

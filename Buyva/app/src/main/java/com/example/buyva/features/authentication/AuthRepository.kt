@@ -14,13 +14,13 @@ class AuthRepository(private val auth: FirebaseAuth) {
             null
         }
     }
-    suspend fun signInWithEmail(email: String, password: String): FirebaseUser? {
-        return try {
-            val result = auth.signInWithEmailAndPassword(email, password).await()
-            result.user
-        } catch (e: Exception) {
-            null
-        }
+
+    suspend fun signInWithEmail(email: String, password: String): FirebaseUser {
+        val result = auth.signInWithEmailAndPassword(email, password).await()
+        return result.user ?: throw Exception("User is null")
     }
+
+
+
 
 }
