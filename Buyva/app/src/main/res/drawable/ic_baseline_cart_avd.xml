@@ -1,0 +1,7 @@
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/baseline_shopping_cart_24">
+
+    <target
+        android:name="cartGroup"
+        android:animation="@animator/vector_animation" />
+</animated-vector>

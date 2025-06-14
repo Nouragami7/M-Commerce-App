@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "498555602527",
+    "project_id": "buyva-45d82",
+    "storage_bucket": "buyva-45d82.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:498555602527:android:92023443df6fb88d623dea",
+        "android_client_info": {
+          "package_name": "com.example.buyva"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "498555602527-ba1rsgp1cns64ho9sub3blsqe69ho2rn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.buyva",
+            "certificate_hash": "d22060d8d97d03188fd10d8a27e67ba0ebd589d5"
+          }
+        },
+        {
+          "client_id": "498555602527-ntnfbggn7fm3db43c7294qv0m7s449dm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClVX5F37KTor5VXlX7GBdv_3McXN-brS8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "498555602527-ntnfbggn7fm3db43c7294qv0m7s449dm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
