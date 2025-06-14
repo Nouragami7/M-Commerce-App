@@ -133,6 +133,6 @@ fun PreviewWelcomeScreen() {
     WelcomeScreen(
         onSignInClick = {},
         onSignUpClick = {},
-        onSkipClick = {} 
+        onSkipClick = {}
     )
 }
