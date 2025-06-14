@@ -11,7 +11,7 @@ import com.example.buyva.features.cart.view.CartScreen
 import com.example.buyva.features.categories.view.CategoryScreen
 import com.example.buyva.features.favourite.view.FavouriteScreen
 import com.example.buyva.features.home.view.HomeScreen
-import com.example.buyva.features.profile.view.ProfileScreen
+import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 
 @Composable
 fun SetupNavHost(
