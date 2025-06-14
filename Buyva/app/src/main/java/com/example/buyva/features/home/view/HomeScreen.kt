@@ -1,6 +1,7 @@
 package com.example.buyva.features.home.view
 
 import OfferBanner
+import ProductSection
 import SearchBar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.buyva.R
+import com.example.buyva.data.model.Brand
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
 
@@ -43,6 +46,26 @@ fun HomeScreen(){
         Spacer(modifier = Modifier.height(16.dp))
 
         OfferBanner()
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        BrandSection(
+            brands = listOf(
+                Brand("Adidas", R.drawable.adidas),
+                Brand("Adidas", R.drawable.adidas),
+                Brand("Adidas", R.drawable.adidas),
+                Brand("Adidas", R.drawable.adidas),
+                Brand("Adidas", R.drawable.adidas),
+                Brand("Adidas", R.drawable.adidas),
+                Brand("Adidas", R.drawable.adidas),
+                Brand("Adidas", R.drawable.adidas),
+
+
+                )
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ProductSection()
 
     }
 
