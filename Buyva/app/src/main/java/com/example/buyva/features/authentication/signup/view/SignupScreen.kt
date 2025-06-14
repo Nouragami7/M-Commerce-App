@@ -21,9 +21,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.buyva.R
+import com.example.buyva.features.authentication.signup.viewmodel.SignupViewModel
 
 @Composable
-fun SignupScreen(onSignInClick: () -> Unit = {}) {
+
+fun SignupScreen(
+    viewModel: SignupViewModel,
+    onSignInClick: () -> Unit = {},
+    onSuccess: () -> Unit = {}
+) {
+    val user by viewModel.user.collectAsState()
+    val error by viewModel.error.collectAsState()
+
+    // ✅ لما التسجيل ينجح نروح للشاشة الرئيسية
+    LaunchedEffect(user) {
+        if (user != null) {
+            onSuccess()
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -60,6 +76,12 @@ fun SignupScreen(onSignInClick: () -> Unit = {}) {
                 Spacer(modifier = Modifier.height(40.dp))
 
                 var fullName by remember { mutableStateOf("") }
+                var email by remember { mutableStateOf("") }
+                var password by remember { mutableStateOf("") }
+                var confirmPassword by remember { mutableStateOf("") }
+                var passwordVisible by remember { mutableStateOf(false) }
+                var confirmPasswordVisible by remember { mutableStateOf(false) }
+
                 OutlinedTextField(
                     value = fullName,
                     onValueChange = { fullName = it },
@@ -75,7 +97,6 @@ fun SignupScreen(onSignInClick: () -> Unit = {}) {
 
                 Spacer(Modifier.height(10.dp))
 
-                var email by remember { mutableStateOf("") }
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
@@ -91,14 +112,62 @@ fun SignupScreen(onSignInClick: () -> Unit = {}) {
 
                 Spacer(Modifier.height(20.dp))
 
-                PasswordTextField(label = "Password")
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password", fontSize = 18.sp) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val icon = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(imageVector = icon, contentDescription = null)
+                        }
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF006A71),
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
+
                 Spacer(Modifier.height(20.dp))
-                PasswordTextField(label = "Confirm Password")
+
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label = { Text("Confirm Password", fontSize = 18.sp) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val icon = if (confirmPasswordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
+                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                            Icon(imageVector = icon, contentDescription = null)
+                        }
+                    },
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color(0xFF006A71),
+                        unfocusedBorderColor = Color.Gray
+                    )
+                )
 
                 Spacer(modifier = Modifier.height(40.dp))
 
                 Button(
-                    onClick = { /* Handle Sign-Up */ },
+                    onClick = {
+                        if (password == confirmPassword) {
+                            viewModel.signUp(email, password)
+                        }
+                    },
                     modifier = Modifier
                         .width(280.dp)
                         .height(50.dp),
@@ -146,7 +215,13 @@ fun SignupScreen(onSignInClick: () -> Unit = {}) {
                     Text("Sign up with Google", color = Color.Black, fontSize = 16.sp)
                 }
 
-                Spacer(Modifier.height(50.dp))
+                Spacer(Modifier.height(30.dp))
+
+                error?.let {
+                    Text(text = it, color = Color.Red)
+                }
+
+                Spacer(Modifier.height(20.dp))
 
                 Row {
                     Text("Already have an account?", color = Color.Gray)
@@ -195,5 +270,9 @@ fun PasswordTextField(label: String) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewSignUpScreen() {
-    SignupScreen()
+    SignupScreen(
+        viewModel = TODO(),
+        onSignInClick = TODO(),
+        onSuccess = TODO()
+    )
 }
