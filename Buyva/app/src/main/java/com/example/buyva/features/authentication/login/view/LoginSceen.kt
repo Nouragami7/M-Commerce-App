@@ -1,4 +1,4 @@
-package com.youssef
+package com.example.buyva.features.authentication.login.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -20,15 +21,31 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.buyva.R
+import com.example.buyva.features.authentication.login.viewmodel.LoginViewModel
+import kotlinx.coroutines.flow.collectLatest
+
 @Composable
 fun LoginScreen(
+    viewModel: LoginViewModel,
     onSignUpClick: () -> Unit = {},
-    onGoogleClick: () -> Unit = {}
+    onGoogleClick: () -> Unit = {},
+    onLoginSuccess: () -> Unit = {}
 ) {
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+
+    val loginState by viewModel.loginState.collectAsState()
+
+    // Handle login success
+    LaunchedEffect(loginState) {
+        if (loginState != null) {
+            onLoginSuccess()
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -38,7 +55,6 @@ fun LoginScreen(
                 )
             )
     ) {
-        // Header Text
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -49,7 +65,6 @@ fun LoginScreen(
             Text("Sign in!", color = Color.White, fontSize = 35.sp)
         }
 
-        // Card Content
         Card(
             modifier = Modifier
                 .fillMaxSize()
@@ -66,8 +81,6 @@ fun LoginScreen(
             ) {
                 Spacer(modifier = Modifier.height(40.dp))
 
-                // Email Field
-                var email by remember { mutableStateOf("") }
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
@@ -83,12 +96,10 @@ fun LoginScreen(
 
                 Spacer(Modifier.height(20.dp))
 
-                // Password Field with Eye Icon
-                PasswordTextField()
+                PasswordTextField(password = password, onPasswordChange = { password = it })
 
                 Spacer(Modifier.height(10.dp))
 
-                // Forgot Password Text
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
@@ -104,9 +115,10 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(50.dp))
 
-                // Sign In Button
                 Button(
-                    onClick = { /* Handle Sign-In */ },
+                    onClick = {
+                        viewModel.signIn(email.trim(), password.trim())
+                    },
                     modifier = Modifier
                         .width(280.dp)
                         .height(60.dp),
@@ -136,7 +148,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Continue with Google Button
                 OutlinedButton(
                     onClick = onGoogleClick,
                     modifier = Modifier
@@ -166,10 +177,8 @@ fun LoginScreen(
                     }
                 }
 
-
                 Spacer(Modifier.height(100.dp))
 
-                // Sign Up Text
                 Row {
                     Text("Don't have an account?", color = Color.Gray)
                     Spacer(modifier = Modifier.width(8.dp))
@@ -186,12 +195,11 @@ fun LoginScreen(
 }
 
 @Composable
-fun PasswordTextField() {
-    var password by remember { mutableStateOf("") }
+fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
     var passwordVisible by remember { mutableStateOf(false) }
     OutlinedTextField(
         value = password,
-        onValueChange = { password = it },
+        onValueChange = onPasswordChange,
         label = { Text("Password", fontSize = 18.sp) },
         modifier = Modifier
             .fillMaxWidth()
@@ -211,10 +219,4 @@ fun PasswordTextField() {
         singleLine = true,
         shape = RoundedCornerShape(12.dp)
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewSignInScreen() {
-    LoginScreen()
 }
