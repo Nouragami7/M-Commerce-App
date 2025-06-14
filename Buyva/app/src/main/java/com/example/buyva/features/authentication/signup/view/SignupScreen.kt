@@ -37,7 +37,10 @@ fun SignupScreen(
 
     LaunchedEffect(user) {
         if (user != null) {
-            onSuccess()
+            if (user?.isEmailVerified == true) {
+                onSuccess()
+            } else {
+            }
         }
     }
 

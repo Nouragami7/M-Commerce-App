@@ -22,13 +22,12 @@ class AuthRepository(private val auth: FirebaseAuth) {
         val result = auth.signInWithEmailAndPassword(email, password).await()
         return result.user ?: throw Exception("User is null")
     }
+
     suspend fun signInWithGoogle(account: GoogleSignInAccount): FirebaseUser? {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         val result = auth.signInWithCredential(credential).await()
         return result.user
     }
-
-
 
 
 }
