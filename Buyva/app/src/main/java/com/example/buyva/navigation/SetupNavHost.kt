@@ -20,13 +20,16 @@ import com.example.buyva.features.profile.addressdetails.view.AddressDetails
 import com.example.buyva.features.profile.addresseslist.view.DeliveryAddressListScreen
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
+import com.example.buyva.features.profile.map.view.MapScreen
+import com.example.buyva.features.profile.map.viewmodel.MapViewModel
+
 @Composable
 fun SetupNavHost(
     navController: NavHostController
 ) {
     NavHost(
         navController = navController,
-        startDestination = ScreensRoute.WelcomeScreen
+        startDestination = ScreensRoute.ProfileScreen
     ) {
         composable<ScreensRoute.WelcomeScreen> {
             WelcomeScreen(
@@ -78,6 +81,9 @@ fun SetupNavHost(
         }
         composable<ScreensRoute.AddressDetails> {
             AddressDetails(
+                lat = it.arguments?.getDouble("lat") ?: 0.0,
+                lon = it.arguments?.getDouble("lon") ?: 0.0,
+                address = it.arguments?.getString("address") ?: "",
                 onBackClick = { navController.popBackStack() },
                 onSaveClick = { navController.popBackStack() }
                 )
@@ -86,7 +92,18 @@ fun SetupNavHost(
             DeliveryAddressListScreen(
                 onBackClick = { navController.popBackStack() },
                 onAddressClick = {
-                    navController.navigate(ScreensRoute.AddressDetails)
+                    navController.navigate(ScreensRoute.MapScreen)
+                }
+
+            )
+        }
+        composable<ScreensRoute.MapScreen> {
+            val mapViewModel = MapViewModel()
+            MapScreen(
+                back = { navController.popBackStack() },
+                mapViewModel = mapViewModel,
+                onSelected = { lat, lon, address ->
+                    navController.navigate(ScreensRoute.AddressDetails(lat, lon, address ?: ""))
                 }
 
             )

@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Buyva"
         tools:targetApi="31">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyASPTItqNeWifC1NO4nUdCwQ-fLHeg-lx4" />
         <activity
             android:name=".features.mainactivity.view.MainActivity"
             android:exported="true"

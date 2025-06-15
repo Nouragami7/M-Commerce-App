@@ -70,6 +70,8 @@ fun DeliveryAddressListScreen(
             FloatingActionButton(
 
                 onClick = { onAddressClick() },
+                modifier = Modifier
+                    .offset(y = (-70).dp),
                 containerColor = Color(0xFF006A71),
                 contentColor = Color.White
 
@@ -82,7 +84,7 @@ fun DeliveryAddressListScreen(
             contentPadding = paddingValues,
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFF5F5F5))
+                .padding(top = 16.dp)
         ) {
             items(addresses) { address ->
                 AddressItem(

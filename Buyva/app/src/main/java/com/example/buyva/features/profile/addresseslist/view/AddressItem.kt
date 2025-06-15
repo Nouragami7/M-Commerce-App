@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import com.example.buyva.data.model.Address
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
@@ -39,46 +40,54 @@ fun AddressItem(
 ) {
     Card(
         modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 12.dp, vertical = 6.dp)
             .fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Gray)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-
-            Text(
-                text = "${address.firstName} ${address.lastName}",
-                style = MaterialTheme.typography.titleMedium,
-                color = Cold
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = address.address,
-                style = MaterialTheme.typography.bodyMedium,
-                color = Color.DarkGray
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
-                horizontalArrangement = Arrangement.End
+        Row(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
-                OutlinedButton(
-                    onClick = onDeleteClick,
-                    border = BorderStroke(1.dp, Cold),
-                    shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Cold)
-                ) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete")
-                    Spacer(Modifier.width(6.dp))
-                    Text("Delete")
-                }
+                Text(
+                    text = "${address.firstName} ${address.lastName}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Sea
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = address.address,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.DarkGray,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            IconButton(
+                onClick = onDeleteClick,
+                modifier = Modifier
+                    .size(32.dp)
+                    .padding(start = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete",
+                    tint = Sea,
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
     }
 }
+
 
