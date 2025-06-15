@@ -23,5 +23,9 @@ sealed class ScreensRoute{
     data object FavouritesScreen: ScreensRoute()
     @Serializable
     data object ProfileScreen: ScreensRoute()
+    @Serializable
+    data object AddressDetails: ScreensRoute()
+    @Serializable
+    data object  DeliveryAddressListScreen: ScreensRoute()
 
 }

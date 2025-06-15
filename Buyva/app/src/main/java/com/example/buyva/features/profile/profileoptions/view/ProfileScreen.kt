@@ -26,7 +26,10 @@ import com.example.buyva.ui.theme.Sea
 import com.example.buyva.ui.theme.Teal
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    onSettingsClick: () -> Unit = {},
+    onAddressClick: () -> Unit = {}
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -73,17 +76,17 @@ fun ProfileScreen() {
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            ProfileOption(Icons.Default.LocalShipping, "My Orders", Sea)
-            ProfileOption(Icons.Default.FavoriteBorder, "My Wishlist", Sea)
-            ProfileOption(Icons.Default.LocationOn, "Delivery Address", Sea)
-            ProfileOption(Icons.Default.Settings, "Settings", Sea)
+            ProfileOption(Icons.Default.LocalShipping, "My Orders", Sea, onAddressClick)
+            ProfileOption(Icons.Default.FavoriteBorder, "My Wishlist", Sea, onAddressClick)
+            ProfileOption(Icons.Default.LocationOn, "Delivery Address", Sea, onAddressClick)
+            ProfileOption(Icons.Default.Settings, "Settings", Sea, onSettingsClick)
         }
         Spacer(modifier = Modifier.height(30.dp))
 
         OutlinedButton(
             onClick = { },
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = Cold),
-            border = BorderStroke(1.dp, Cold)
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = Sea),
+            border = BorderStroke(1.dp, Sea)
         ) {
             Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
             Spacer(Modifier.width(8.dp))
@@ -95,7 +98,7 @@ fun ProfileScreen() {
     }
 }
 @Composable
-fun ProfileOption(icon: ImageVector, title: String, iconColor: Color) {
+fun ProfileOption(icon: ImageVector, title: String, iconColor: Color, onAddressClick: () -> Unit = {}) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -108,7 +111,7 @@ fun ProfileOption(icon: ImageVector, title: String, iconColor: Color) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .clickable { }
+                .clickable { onAddressClick() }
                 .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {

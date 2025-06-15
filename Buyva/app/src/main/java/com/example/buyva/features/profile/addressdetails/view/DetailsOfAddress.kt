@@ -30,6 +30,8 @@ import com.example.buyva.ui.theme.Teal
 
 @Composable
 fun AddressDetails(
+    onBackClick: () -> Unit = {},
+    onSaveClick: () -> Unit = {}
 ) {
     val firstName = remember { mutableStateOf("") }
     val lastName = remember { mutableStateOf("") }
@@ -175,7 +177,7 @@ fun AddressDetails(
         Spacer(modifier = Modifier.height(70.dp))
 
         Button(
-            onClick = {  },
+            onClick = {  onSaveClick()},
             modifier = Modifier
                 .width(280.dp)
                 .height(60.dp),
