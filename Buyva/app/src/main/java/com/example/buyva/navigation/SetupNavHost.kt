@@ -12,13 +12,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.buyva.features.authentication.login.view.LoginScreenHost
 import com.example.buyva.features.authentication.login.view.WelcomeScreen
-import com.example.buyva.features.authentication.signup.view.SignupScreenHost
 import com.example.buyva.features.cart.view.CartScreen
 import com.example.buyva.features.categories.view.CategoryScreen
 import com.example.buyva.features.favourite.view.FavouriteScreen
 import com.example.buyva.features.home.view.HomeScreen
-import com.example.buyva.features.profile.view.ProfileScreen
-
+import com.example.buyva.features.profile.addressdetails.view.AddressDetails
+import com.example.buyva.features.profile.addresseslist.view.DeliveryAddressListScreen
+import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
+import com.example.buyva.features.authentication.signup.view.SignupScreenHost
 @Composable
 fun SetupNavHost(
     navController: NavHostController
@@ -65,7 +66,33 @@ fun SetupNavHost(
         composable<ScreensRoute.CartScreen> { CartScreen() }
         composable<ScreensRoute.CategoriesScreen> { CategoryScreen() }
         composable<ScreensRoute.FavouritesScreen> { FavouriteScreen() }
-        composable<ScreensRoute.ProfileScreen> { ProfileScreen() }
+        composable<ScreensRoute.ProfileScreen> {
+            ProfileScreen(
+                onSettingsClick = {
+                    //navController.navigate(ScreensRoute.AddressDetailsScreen)
+                },
+                onAddressClick = {
+                    navController.navigate(ScreensRoute.DeliveryAddressListScreen)
+                }
+            )
+        }
+        composable<ScreensRoute.AddressDetails> {
+            AddressDetails(
+                onBackClick = { navController.popBackStack() },
+                onSaveClick = { navController.popBackStack() }
+                )
+        }
+        composable<ScreensRoute.DeliveryAddressListScreen> {
+            DeliveryAddressListScreen(
+                onBackClick = { navController.popBackStack() },
+                onAddressClick = {
+                    navController.navigate(ScreensRoute.AddressDetails)
+                }
+
+            )
+        }
+
+
     }
 }
 
