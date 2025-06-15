@@ -26,46 +26,59 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
+import com.example.buyva.data.model.Address
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
 import com.example.buyva.ui.theme.Teal
 
-//@Composable
-//fun AddressItem(
-//  //  address: Address,
-//    onEditClick: () -> Unit,
-//    onDeleteClick: () -> Unit
-//) {
-//    Card(
-//        modifier = Modifier
-//            .padding(12.dp)
-//            .fillMaxWidth(),
-//        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-//        shape = RoundedCornerShape(12.dp)
-//    ) {
-//        Column(modifier = Modifier.padding(16.dp)) {
-//            Text(address.placeName, style = MaterialTheme.typography.titleMedium)
-//            Text("${address.city}, ${address.country}", style = MaterialTheme.typography.bodyMedium)
-//            Text(address.fullAddress, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
-//
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(top = 8.dp),
-//                horizontalArrangement = Arrangement.End
-//            ) {
-//                TextButton(onClick = onEditClick) {
-//                    Icon(Icons.Default.Edit, contentDescription = "Edit")
-//                    Spacer(Modifier.width(4.dp))
-//                    Text("Edit")
-//                }
-//                TextButton(onClick = onDeleteClick) {
-//                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
-//                    Spacer(Modifier.width(4.dp))
-//                    Text("Delete", color = Color.Red)
-//                }
-//            }
-//        }
-//    }
-//}
+@Composable
+fun AddressItem(
+    address: Address,
+    onDeleteClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Gray)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+
+            Text(
+                text = "${address.firstName} ${address.lastName}",
+                style = MaterialTheme.typography.titleMedium,
+                color = Cold
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = address.address,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.DarkGray
+            )
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                OutlinedButton(
+                    onClick = onDeleteClick,
+                    border = BorderStroke(1.dp, Cold),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Cold)
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    Spacer(Modifier.width(6.dp))
+                    Text("Delete")
+                }
+            }
+        }
+    }
+}
+
