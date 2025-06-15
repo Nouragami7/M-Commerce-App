@@ -68,10 +68,13 @@ dependencies {
     //Curved bottom navigation bar
     implementation ("np.com.susanthapa:curved_bottom_navigation:0.7.0")
     implementation("androidx.compose.material:material-icons-extended")
+    // Firebase auth
     implementation(platform("com.google.firebase:firebase-bom:33.15.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
     implementation("com.google.android.gms:play-services-auth:21.0.0")
+
+
 
 
 

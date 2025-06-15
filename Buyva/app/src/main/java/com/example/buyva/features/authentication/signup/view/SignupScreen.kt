@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.buyva.R
+import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.features.authentication.signup.viewmodel.SignupViewModel
 
 @Composable
@@ -32,6 +33,11 @@ fun SignupScreen(
     onGoogleClick: () -> Unit = {}
 
 ) {
+    //Hide nav bar
+    LaunchedEffect(Unit) {
+        NavigationBar.mutableNavBarState.value = false
+    }
+
     val user by viewModel.user.collectAsState()
     val error by viewModel.error.collectAsState()
 

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.buyva.R
 import com.example.buyva.features.authentication.login.viewmodel.LoginViewModel
+import com.example.buyva.navigation.navbar.NavigationBar
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -34,6 +35,11 @@ fun LoginScreen(
     onGoogleClick: () -> Unit = {},
     onLoginSuccess: () -> Unit = {}
 ) {
+    //Hide nav bar
+    LaunchedEffect(Unit) {
+        NavigationBar.mutableNavBarState.value = false
+    }
+
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
