@@ -1,5 +1,6 @@
 package com.example.buyva.features.profile.addressdetails.view
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,9 +31,13 @@ import com.example.buyva.ui.theme.Teal
 
 @Composable
 fun AddressDetails(
+    lat: Double,
+    lon: Double,
+    address: String?,
     onBackClick: () -> Unit = {},
     onSaveClick: () -> Unit = {}
 ) {
+    Log.d("AddressDetails", "lat: $lat, lon: $lon, address: $address")
     val firstName = remember { mutableStateOf("") }
     val lastName = remember { mutableStateOf("") }
     val phoneNumber = remember { mutableStateOf("") }
@@ -48,7 +53,6 @@ fun AddressDetails(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .background(Gray)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

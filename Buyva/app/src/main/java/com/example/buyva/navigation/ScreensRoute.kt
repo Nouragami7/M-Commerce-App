@@ -24,8 +24,11 @@ sealed class ScreensRoute{
     @Serializable
     data object ProfileScreen: ScreensRoute()
     @Serializable
-    data object AddressDetails: ScreensRoute()
+    data class AddressDetails(val lat: Double, val lon: Double, val address: String): ScreensRoute()
     @Serializable
     data object  DeliveryAddressListScreen: ScreensRoute()
+    @Serializable
+    data object  MapScreen: ScreensRoute()
+
 
 }
