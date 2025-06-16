@@ -84,6 +84,11 @@ dependencies {
 
 
 
+    //ui
+    implementation ("androidx.compose.material:material:1.6.1")
+
+
+
 
 
 }
