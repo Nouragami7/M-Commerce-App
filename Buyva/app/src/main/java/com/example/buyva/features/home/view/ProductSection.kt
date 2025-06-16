@@ -1,8 +1,5 @@
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -18,7 +15,11 @@ import com.example.buyva.ui.theme.ubuntuMedium
 
 @Composable
 fun ProductSection() {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
         Text(
             text = "For You",
             style = MaterialTheme.typography.headlineSmall,
@@ -26,25 +27,33 @@ fun ProductSection() {
             fontFamily = ubuntuMedium,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
+
         Spacer(modifier = Modifier.height(12.dp))
 
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp)
-        )
+        val rows = productList.chunked(2)
+        rows.forEach { row ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                row.forEach { product ->
+                    ProductCard(
+                        product = product,
+                        modifier = Modifier
+                            .weight(1f)
+                    )
+                }
 
-        {
-            items(productList) { product ->
-                ProductCard(product)
+                if (row.size == 1) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
             }
         }
     }
 }
+
 
 data class Product(val name: String, val price: String, val imageRes: Int)
 
@@ -58,11 +67,10 @@ val productList = listOf(
 )
 
 @Composable
-fun ProductCard(product: Product) {
+fun ProductCard(product: Product, modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp)
+        modifier = modifier
+            .padding(vertical = 4.dp)
             .height(200.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),

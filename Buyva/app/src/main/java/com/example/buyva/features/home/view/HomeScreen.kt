@@ -3,8 +3,6 @@ package com.example.buyva.features.home.view
 import OfferBanner
 import ProductSection
 import SearchBar
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
