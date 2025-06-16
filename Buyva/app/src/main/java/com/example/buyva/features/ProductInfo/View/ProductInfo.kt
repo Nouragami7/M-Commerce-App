@@ -1,38 +1,20 @@
 package com.example.buyva.features.ProductInfo.View
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -43,12 +25,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.buyva.R
 
 @Composable
-fun ProductInfoScreen() {
+fun ProductInfoScreen(modifier: Modifier = Modifier) {
     var selectedImage by remember { mutableStateOf<Int?>(null) }
     var isFavorite by remember { mutableStateOf(false) }
     var showAllReviews by remember { mutableStateOf(false) }
+    var isAddedToCart by remember { mutableStateOf(false) }
+
 
     val allReviews = listOf(
         Review("Youssef", 5, "Amazing quality!"),
@@ -60,141 +45,164 @@ fun ProductInfoScreen() {
         Review("Salma", 5, "My son loves it."),
         Review("Tarek", 4, "Worth the price."),
         Review("Mona", 3, "Good quality."),
-        Review("Ahmed", 5, "Highly recommended."),
+        Review("Ahmed", 5, "Highly recommended.")
     )
 
     val reviewsToShow = if (showAllReviews) allReviews else allReviews.take(2)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-        Spacer(modifier = Modifier.height(16.dp))
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 80.dp)
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Box(modifier = Modifier.fillMaxWidth()) {
-            ImageCarousel(
-                images = listOf(
-               com.example.buyva.R.drawable.shoe_placeholder,
-               com.example.buyva.R.drawable.shoe_placeholder,
-               com.example.buyva.R.drawable.shoe_placeholder,
-               com.example.buyva.R.drawable.shoe_placeholder,
-                ),
-                onImageClick = { clickedImage ->
-                    selectedImage = clickedImage
-                }
-            )
+            Box(modifier = Modifier.fillMaxWidth()) {
+                ImageCarousel(
+                    images = listOf(
+                       R.drawable.shoe_placeholder,
+                        R.drawable.shoe_placeholder,
+                        R.drawable.shoe_placeholder
+                    ),
+                    onImageClick = { clickedImage -> selectedImage = clickedImage }
+                )
 
-            Icon(
-                imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                contentDescription = "Favorite",
-                tint = if (isFavorite) Color.Red else Color.Gray,
+                Icon(
+                    imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = "Favorite",
+                    tint = if (isFavorite) Color.Red else Color.Gray,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(16.dp)
+                        .size(28.dp)
+                        .clickable { isFavorite = !isFavorite }
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.LightGray),
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(16.dp)
-                    .size(28.dp)
-                    .clickable {
-                        isFavorite = !isFavorite
-                    }
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Card(
-            shape = RoundedCornerShape(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.LightGray),
-
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("ADIDAS | KID'S STAN SMITH", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("ADIDAS", color = Color.Gray)
-                Text("2000.0 EGP", color = Color(0xFF9C27B0), fontWeight = FontWeight.Bold)
-                Text("In Stock", color = Color(0xFF4CAF50), fontSize = 12.sp)
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    "The Stan Smith owned the tennis court in the '70s. Today it runs the streets with the same clean, classic style...",
-                    fontSize = 14.sp
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Select Size",
-            modifier = Modifier.padding(start = 16.dp),
-            fontWeight = FontWeight.SemiBold
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            listOf("1", "2", "3", "4").forEach { size ->
-                OutlinedButton(
-                    onClick = { },
-                    modifier = Modifier.defaultMinSize(minWidth = 48.dp)
-                ) {
-                    Text(size)
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        "ADIDAS | KID'S STAN SMITH",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp
+                    )
+                    Text("ADIDAS", color = Color.Gray)
+                    Text("2000.0 EGP", color = Color(0xFF9C27B0), fontWeight = FontWeight.Bold)
+                    Text("In Stock", color = Color(0xFF4CAF50), fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "The Stan Smith owned the tennis court in the '70s. Today it runs the streets with the same clean, classic style...",
+                        fontSize = 14.sp
+                    )
                 }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                "Select Size",
+                modifier = Modifier.padding(start = 16.dp),
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                listOf("1", "2", "3", "4").forEach { size ->
+                    OutlinedButton(
+                        onClick = {},
+                        modifier = Modifier.defaultMinSize(minWidth = 48.dp)
+                    ) {
+                        Text(size)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                "Select Color",
+                modifier = Modifier.padding(start = 16.dp),
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                ColorOption(Color.White, "White")
+                ColorOption(Color.Black, "Black")
+                ColorOption(Color.Red, "Red")
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                "Reviews",
+                modifier = Modifier.padding(start = 16.dp),
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                reviewsToShow.forEach {
+                    ReviewItem(it)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                TextButton(onClick = { showAllReviews = !showAllReviews }) {
+                    Text(
+                        text = if (showAllReviews) "Show Less" else "More Reviews",
+                        color = Color(0xFF48A6A7)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Select Color",
-            modifier = Modifier.padding(start = 16.dp),
-            fontWeight = FontWeight.SemiBold
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
+        Box(
             modifier = Modifier
-                .padding(horizontal = 16.dp)
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(16.dp)
         ) {
-            ColorOption(Color.White, "White")
-            ColorOption(Color.Black, "Black")
-            ColorOption(Color.Red, "Red")
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text(
-            text = "Reviews",
-            modifier = Modifier.padding(start = 16.dp),
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-            reviewsToShow.forEach {
-                ReviewItem(it)
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            TextButton(onClick = {
-                showAllReviews = !showAllReviews
-            }) {
-                Text(
-                    text = if (showAllReviews) "Show Less" else "More Reviews",
-                    color = Color(0xFF9C27B0)
-                )
+            OutlinedButton(
+                onClick = {
+                    isAddedToCart = !isAddedToCart
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = if (isAddedToCart) Color(0xFF48A6A7) else Color.White,
+                    contentColor = if (isAddedToCart) Color.White else Color(0xFF48A6A7)
+                ),
+                border = BorderStroke(1.dp, Color(0xFF48A6A7))
+            ) {
+                Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Add to Cart", fontWeight = FontWeight.Bold)
             }
         }
-
-        Spacer(modifier = Modifier.height(32.dp))
     }
 
     selectedImage?.let { imageRes ->
@@ -225,7 +233,6 @@ fun ReviewItem(review: Review) {
     Card(
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.LightGray),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
@@ -292,6 +299,7 @@ fun ImageCarousel(images: List<Int>, onImageClick: (Int) -> Unit) {
         }
     }
 }
+
 @Composable
 fun FullscreenImageViewer(imageRes: Int, onDismiss: () -> Unit) {
     var scale by remember { mutableStateOf(1f) }
@@ -301,9 +309,7 @@ fun FullscreenImageViewer(imageRes: Int, onDismiss: () -> Unit) {
             .background(Color.Black)
             .clickable { onDismiss() }
             .pointerInput(Unit) {
-                detectTransformGestures { _, _, zoom, _ ->
-                    scale *= zoom
-                }
+                detectTransformGestures { _, _, zoom, _ -> scale *= zoom }
             },
         contentAlignment = Alignment.Center
     ) {
@@ -331,4 +337,3 @@ fun PreviewProductInfoScreen() {
         ProductInfoScreen()
     }
 }
-
