@@ -46,12 +46,12 @@ fun CategoryScreen() {
     )
 
     val allProducts = listOf(
-        Product(1, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", ""),
+        Product(1, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", "CLASSIC"),
         Product(2, "VANS", "2100.00 EGP", R.drawable.logo, "Women", "CLASSIC"),
         Product(3, "VANS", "2384.00 EGP", R.drawable.logo, "Kid", "ERA 59"),
         Product(4, "VANS", "400.00 EGP", R.drawable.logo, "Sale", "APPAREL"),
         Product(5, "VANS", "1431.00 EGP", R.drawable.logo, "Men", "AUTHENTIC"),
-        Product(6, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", ""),
+        Product(6, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", "CLASSIC"),
         Product(7, "VANS", "2100.00 EGP", R.drawable.logo, "Women", "CLASSIC"),
         Product(8, "VANS", "2384.00 EGP", R.drawable.logo, "Kid", "ERA 59"),
         Product(9, "VANS", "400.00 EGP", R.drawable.logo, "Sale", "APPAREL"),

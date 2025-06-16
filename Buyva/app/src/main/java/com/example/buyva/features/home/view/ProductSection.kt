@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.buyva.data.model.Product
 import com.example.buyva.ui.theme.Cold
-import com.example.buyva.ui.theme.ubuntuMedium
 import kotlinx.coroutines.delay
 
 @Composable
@@ -126,11 +125,14 @@ fun ProductCard(product: Product, modifier: Modifier = Modifier) {
                 fontWeight = FontWeight.Bold
             )
 
+            Spacer(modifier = Modifier.height(1.dp))
+
             Text(
                 text = product.type,
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
-                fontSize = 12.sp
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 2.dp)
             )
 
             Spacer(modifier = Modifier.height(2.dp))

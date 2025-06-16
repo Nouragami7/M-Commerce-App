@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.buyva.R
 import com.example.buyva.data.model.Brand
+import com.example.buyva.data.model.Category
 import com.example.buyva.data.model.Product
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
@@ -32,12 +33,12 @@ fun HomeScreen(){
     }
 
     val allProducts = listOf(
-        Product(1, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", ""),
+        Product(1, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", "CLASSIC"),
         Product(2, "VANS", "2100.00 EGP", R.drawable.logo, "Women", "CLASSIC"),
         Product(3, "VANS", "2384.00 EGP", R.drawable.logo, "Kid", "ERA 59"),
         Product(4, "VANS", "400.00 EGP", R.drawable.logo, "Sale", "APPAREL"),
         Product(5, "VANS", "1431.00 EGP", R.drawable.logo, "Men", "AUTHENTIC"),
-        Product(6, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", ""),
+        Product(6, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", "CLASSIC"),
         Product(7, "VANS", "2100.00 EGP", R.drawable.logo, "Women", "CLASSIC"),
         Product(8, "VANS", "2384.00 EGP", R.drawable.logo, "Kid", "ERA 59"),
         Product(9, "VANS", "400.00 EGP", R.drawable.logo, "Sale", "APPAREL"),
@@ -73,6 +74,37 @@ fun HomeScreen(){
 
                 )
         )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Categories",
+            style = MaterialTheme.typography.headlineSmall,
+            color = Cold,
+            fontFamily = ubuntuMedium,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+
+        val categories = listOf(
+            Category("Men", R.drawable.shoe_placeholder),
+            Category("Women", R.drawable.img),
+            Category("Men", R.drawable.shoe_placeholder),
+            Category("Women", R.drawable.img),
+            Category("Men", R.drawable.shoe_placeholder),
+            Category("Women", R.drawable.img),
+            Category("Men", R.drawable.shoe_placeholder),
+            Category("Women", R.drawable.img),
+            Category("Men", R.drawable.shoe_placeholder),
+            Category("Women", R.drawable.img),
+        )
+
+        CategorySection(
+            categories = categories,
+            onCategoryClick = { category ->
+                println("Clicked: ${category.name}")
+            }
+        )
+
+
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(

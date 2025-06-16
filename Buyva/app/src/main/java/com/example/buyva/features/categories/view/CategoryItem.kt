@@ -66,7 +66,7 @@ fun CategoryItem(
         ) {
             Text(
                 text = category.name,
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 color = if (isSelected) Cold else Color.DarkGray,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f).padding(start = 8.dp)
