@@ -25,6 +25,7 @@ fun SearchBarWithCartIcon() {
             .padding(horizontal = 12.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+
         OutlinedTextField(
             value = searchText,
             onValueChange = { searchText = it },

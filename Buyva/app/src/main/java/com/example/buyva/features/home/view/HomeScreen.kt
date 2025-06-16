@@ -32,17 +32,9 @@ fun HomeScreen(){
     Column(modifier = Modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())
-        .padding(16.dp)) {
+        .padding(8.dp)) {
 
-        Text(
-            text = "BuyVa",
-            style = MaterialTheme.typography.headlineSmall,
-            color = Cold,
-            fontFamily = ubuntuMedium,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         SearchBarWithCartIcon()
 
