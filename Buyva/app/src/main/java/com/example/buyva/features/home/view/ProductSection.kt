@@ -5,14 +5,19 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.buyva.data.model.Product
@@ -88,35 +93,68 @@ fun ProductSection(products: List<Product>) {
 
 @Composable
 fun ProductCard(product: Product, modifier: Modifier = Modifier) {
+    var isFav by remember { mutableStateOf(false) }
+
     Card(
         modifier = modifier
             .padding(vertical = 4.dp)
-            .height(200.dp),
+            .height(190.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
-        Column(modifier = Modifier.padding(10.dp)) {
+        Column(
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxSize()
+        ) {
             Image(
                 painter = painterResource(id = product.imageResId),
-                contentDescription = product.category,
+                contentDescription = product.name,
                 modifier = Modifier
-                    .height(120.dp)
+                    .height(100.dp)
                     .fillMaxWidth(),
                 contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.height(8.dp))
+
+            Spacer(modifier = Modifier.height(6.dp))
+
             Text(
-                text = product.category,
+                text = product.name,
                 style = MaterialTheme.typography.bodyMedium,
-                fontSize = 14.sp,
-                fontFamily = ubuntuMedium
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
             )
+
             Text(
-                text = product.price,
-                color = Cold,
-                fontSize = 13.sp
+                text = product.type,
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray,
+                fontSize = 12.sp
             )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = product.price,
+                    color = Cold,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                IconButton(onClick = { isFav = !isFav }) {
+                    Icon(
+                        imageVector = if (isFav) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = "Favorite",
+                        tint = if (isFav) Color.Red else Color.Gray
+                    )
+                }
+            }
         }
     }
 }

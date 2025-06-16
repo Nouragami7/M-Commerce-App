@@ -20,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.buyva.R
 import com.example.buyva.data.model.Brand
+import com.example.buyva.data.model.Product
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
@@ -29,6 +30,20 @@ fun HomeScreen(){
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = true
     }
+
+    val allProducts = listOf(
+        Product(1, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", ""),
+        Product(2, "VANS", "2100.00 EGP", R.drawable.logo, "Women", "CLASSIC"),
+        Product(3, "VANS", "2384.00 EGP", R.drawable.logo, "Kid", "ERA 59"),
+        Product(4, "VANS", "400.00 EGP", R.drawable.logo, "Sale", "APPAREL"),
+        Product(5, "VANS", "1431.00 EGP", R.drawable.logo, "Men", "AUTHENTIC"),
+        Product(6, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", ""),
+        Product(7, "VANS", "2100.00 EGP", R.drawable.logo, "Women", "CLASSIC"),
+        Product(8, "VANS", "2384.00 EGP", R.drawable.logo, "Kid", "ERA 59"),
+        Product(9, "VANS", "400.00 EGP", R.drawable.logo, "Sale", "APPAREL"),
+        Product(10, "VANS", "1431.00 EGP", R.drawable.logo, "Men", "AUTHENTIC")
+    )
+
     Column(modifier = Modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())
@@ -70,7 +85,7 @@ fun HomeScreen(){
 
         Spacer(modifier = Modifier.height(12.dp))
 
-       // ProductSection()
+        ProductSection(products = allProducts)
 
     }
 
