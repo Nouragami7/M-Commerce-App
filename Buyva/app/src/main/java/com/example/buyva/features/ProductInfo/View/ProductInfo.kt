@@ -254,7 +254,6 @@ fun ReviewItem(review: Review) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ImageCarousel(images: List<Int>, onImageClick: (Int) -> Unit) {
     val pagerState = rememberPagerState(pageCount = { images.size })
