@@ -7,8 +7,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
@@ -25,18 +27,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.buyva.R
+import com.example.buyva.data.model.Category
+import com.example.buyva.data.model.Product
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
-
-data class Category(val name: String, val imageResId: Int)
-data class Product(
-    val id: Int,
-    val brand: String,
-    val model: String,
-    val price: String,
-    val imageResId: Int,
-    val category: String
-)
 
 @Composable
 fun CategoryScreen() {
@@ -45,8 +39,8 @@ fun CategoryScreen() {
     var showSlider by remember { mutableStateOf(false) }
 
     val categories = listOf(
-        Category("Men", R.drawable.logo),
-        Category("Women", R.drawable.logo),
+        Category("Men", R.drawable.man),
+        Category("Women", R.drawable.woman),
         Category("Kid", R.drawable.logo),
         Category("Sale", R.drawable.logo)
     )
@@ -71,7 +65,7 @@ fun CategoryScreen() {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
+        Column(modifier = Modifier.fillMaxSize().padding(12.dp).verticalScroll(rememberScrollState())) {
             Spacer(modifier = Modifier.height(32.dp))
             SearchBarWithCartIcon()
             Spacer(modifier = Modifier.height(12.dp))
@@ -147,72 +141,3 @@ fun CategoryScreen() {
     }
 }
 
-@Composable
-fun CategoryItem(
-    category: Category,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp, vertical = 6.dp),
-        horizontalAlignment = Alignment.Start
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable {
-                    expanded = !expanded
-                    onClick()
-                }
-                .padding(vertical = 6.dp, horizontal = 8.dp)
-        ) {
-            Image(
-                painter = painterResource(id = category.imageResId),
-                contentDescription = category.name,
-                modifier = Modifier
-                    .size(18.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = category.name,
-                fontSize = 14.sp,
-                color = if (isSelected) MaterialTheme.colorScheme.primary else Color.DarkGray,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f)
-            )
-            Icon(
-                imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                contentDescription = if (expanded) "Collapse" else "Expand",
-                tint = Color.Gray
-            )
-        }
-
-        AnimatedVisibility(visible = expanded) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.padding(start = 36.dp, top = 4.dp)
-            ) {
-                listOf("Clothes", "Shoes", "Glasses").forEach { filter ->
-                    Text(
-                        text = filter,
-                        fontSize = 13.sp,
-                        color = Color.Gray,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                // TODO: Apply filter logic
-                            }
-                            .padding(vertical = 4.dp, horizontal = 8.dp)
-                    )
-                }
-            }
-        }
-    }
-}
