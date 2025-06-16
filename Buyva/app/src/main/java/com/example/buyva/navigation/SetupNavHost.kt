@@ -29,7 +29,7 @@ fun SetupNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = ScreensRoute.ProfileScreen
+        startDestination = ScreensRoute.HomeScreen
     ) {
         composable<ScreensRoute.WelcomeScreen> {
             WelcomeScreen(

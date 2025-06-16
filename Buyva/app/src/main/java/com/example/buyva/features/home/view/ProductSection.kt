@@ -14,23 +14,14 @@ import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
 
 @Composable
-fun ProductSection() {
+fun ProductSection(products: List<Product>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-        Text(
-            text = "For You",
-            style = MaterialTheme.typography.headlineSmall,
-            color = Cold,
-            fontFamily = ubuntuMedium,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        val rows = productList.chunked(2)
+        val rows = products.chunked(2)
         rows.forEach { row ->
             Row(
                 modifier = Modifier
@@ -39,13 +30,8 @@ fun ProductSection() {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 row.forEach { product ->
-                    ProductCard(
-                        product = product,
-                        modifier = Modifier
-                            .weight(1f)
-                    )
+                    ProductCard(product = product, modifier = Modifier.weight(1f))
                 }
-
                 if (row.size == 1) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
@@ -53,6 +39,7 @@ fun ProductSection() {
         }
     }
 }
+
 
 
 data class Product(val name: String, val price: String, val imageRes: Int)

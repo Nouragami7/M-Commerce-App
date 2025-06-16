@@ -2,7 +2,7 @@ package com.example.buyva.features.home.view
 
 import OfferBanner
 import ProductSection
-import SearchBar
+import SearchBarWithCartIcon
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,7 +44,7 @@ fun HomeScreen(){
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        SearchBar()
+        SearchBarWithCartIcon()
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -68,7 +68,17 @@ fun HomeScreen(){
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        ProductSection()
+        Text(
+            text = "For You",
+            style = MaterialTheme.typography.headlineSmall,
+            color = Cold,
+            fontFamily = ubuntuMedium,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+       // ProductSection()
 
     }
 
