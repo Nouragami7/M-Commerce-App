@@ -10,10 +10,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.buyva.R
 import com.example.buyva.data.model.Category
 import com.example.buyva.data.model.Product
+import com.example.buyva.ui.theme.Cold
+import com.example.buyva.ui.theme.DarkGray
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.utils.components.PriceFilterIcon
 import com.example.buyva.utils.components.PriceFilterSlider
@@ -25,6 +28,8 @@ fun CategoryScreen(
     var maxPrice by remember { mutableFloatStateOf(2522f) }
     var selectedCategory by remember { mutableStateOf("Men") }
     var showSlider by remember { mutableStateOf(false) }
+    val selectedBackground = DarkGray.copy(alpha = 0.20f)
+    val unselectedBackground = Color.Transparent
 
     val categories = listOf(
         Category("Men", R.drawable.man),
@@ -87,7 +92,9 @@ fun CategoryScreen(
                         categories.forEach { category ->
                             CategoryItem(
                                 category = category,
-                                isSelected = selectedCategory == category.name
+                                isSelected = selectedCategory == category.name,
+                                backgroundColor = if (selectedCategory == category.name) selectedBackground else unselectedBackground
+
                             ) {
                                 selectedCategory = category.name
                             }
