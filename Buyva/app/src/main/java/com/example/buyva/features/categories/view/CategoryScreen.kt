@@ -3,34 +3,20 @@ package com.example.buyva.features.categories.view
 import ProductSection
 import SearchBarWithCartIcon
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.buyva.R
 import com.example.buyva.data.model.Category
 import com.example.buyva.data.model.Product
-import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
+import com.example.buyva.utils.components.PriceFilterIcon
+import com.example.buyva.utils.components.PriceFilterSlider
 
 @Composable
 fun CategoryScreen() {
@@ -58,7 +44,6 @@ fun CategoryScreen() {
         Product(10, "VANS", "1431.00 EGP", R.drawable.logo, "Men", "AUTHENTIC")
     )
 
-
     val filteredProducts = allProducts.filter {
         it.category == selectedCategory && it.price.removeSuffix(" EGP").toFloatOrNull()?.let { price ->
             price <= maxPrice
@@ -66,36 +51,22 @@ fun CategoryScreen() {
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize().padding(12.dp).verticalScroll(rememberScrollState())) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
             Spacer(modifier = Modifier.height(32.dp))
             SearchBarWithCartIcon()
             Spacer(modifier = Modifier.height(12.dp))
 
             AnimatedVisibility(visible = showSlider) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Slider(
-                        value = maxPrice,
-                        onValueChange = { maxPrice = it },
-                        valueRange = 0f..3000f,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .graphicsLayer { scaleY = 0.7f }
-                            .padding(horizontal = 12.dp),
-                        colors = SliderDefaults.colors(
-                            thumbColor = Cold,
-                            activeTrackColor = Cold,
-                            inactiveTrackColor = Color.LightGray
-                        )
-                    )
-                    Text(
-                        text = "Max Price: ${maxPrice.toInt()} EGP",
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .padding(end = 12.dp),
-                        fontSize = 14.sp,
-                        color = Color.DarkGray
-                    )
-                }
+                PriceFilterSlider(
+                    maxPrice = maxPrice,
+                    onPriceChange = { maxPrice = it },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -125,18 +96,14 @@ fun CategoryScreen() {
             }
         }
 
-        FloatingActionButton(
-            onClick = { showSlider = !showSlider },
-            containerColor = Cold,
-            shape = RoundedCornerShape(16.dp),
+        Box(
             modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(20.dp,bottom = 60.dp,end = 20.dp)
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.BottomEnd
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.baseline_filter_icon),
-                contentDescription = "Filter",
-                tint = Color.White
+            PriceFilterIcon(
+                onToggle = { showSlider = !showSlider }
             )
         }
     }

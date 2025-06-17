@@ -27,7 +27,10 @@ import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
 
 @Composable
-fun HomeScreen(){
+fun HomeScreen(
+    onCartClick: () -> Unit = {},
+    onBrandClick: (String, Int) -> Unit = { _, _ -> }
+){
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = true
     }
@@ -70,41 +73,9 @@ fun HomeScreen(){
                 Brand("Adidas", R.drawable.adidas),
                 Brand("Adidas", R.drawable.adidas),
                 Brand("Adidas", R.drawable.adidas),
-
-
-                )
+                ),
+            onBrandClick = onBrandClick
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Categories",
-            style = MaterialTheme.typography.headlineSmall,
-            color = Cold,
-            fontFamily = ubuntuMedium,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-
-        val categories = listOf(
-            Category("Men", R.drawable.shoe_placeholder),
-            Category("Women", R.drawable.img),
-            Category("Men", R.drawable.shoe_placeholder),
-            Category("Women", R.drawable.img),
-            Category("Men", R.drawable.shoe_placeholder),
-            Category("Women", R.drawable.img),
-            Category("Men", R.drawable.shoe_placeholder),
-            Category("Women", R.drawable.img),
-            Category("Men", R.drawable.shoe_placeholder),
-            Category("Women", R.drawable.img),
-        )
-
-        CategorySection(
-            categories = categories,
-            onCategoryClick = { category ->
-                println("Clicked: ${category.name}")
-            }
-        )
-
-
-
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(

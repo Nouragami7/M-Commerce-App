@@ -38,14 +38,7 @@ fun ProfileScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Buyva",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = Cold
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(36.dp))
 
         Box(
             modifier = Modifier
