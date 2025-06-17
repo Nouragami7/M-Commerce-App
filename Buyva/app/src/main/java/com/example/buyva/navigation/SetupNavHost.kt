@@ -1,5 +1,8 @@
 package com.example.buyva.navigation
 
+import CartScreen
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
@@ -12,7 +15,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.buyva.features.authentication.login.view.LoginScreenHost
 import com.example.buyva.features.authentication.login.view.WelcomeScreen
-import com.example.buyva.features.cart.view.CartScreen
 import com.example.buyva.features.categories.view.CategoryScreen
 import com.example.buyva.features.favourite.view.FavouriteScreen
 import com.example.buyva.features.home.view.HomeScreen
@@ -23,13 +25,14 @@ import com.example.buyva.features.authentication.signup.view.SignupScreenHost
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SetupNavHost(
     navController: NavHostController
 ) {
     NavHost(
         navController = navController,
-        startDestination = ScreensRoute.HomeScreen
+        startDestination = ScreensRoute.WelcomeScreen
     ) {
         composable<ScreensRoute.WelcomeScreen> {
             WelcomeScreen(

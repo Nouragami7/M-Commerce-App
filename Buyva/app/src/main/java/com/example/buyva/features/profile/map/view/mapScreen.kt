@@ -36,6 +36,7 @@ fun MapScreen(
     mapViewModel: MapViewModel,
     onSelected: (lat: Double, lon: Double, address: String?) -> Unit
 ) {
+
     val context = LocalContext.current
     val fusedClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
