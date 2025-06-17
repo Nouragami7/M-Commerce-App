@@ -15,7 +15,9 @@ import com.example.buyva.R
 import com.example.buyva.ui.theme.Cold
 
 @Composable
-fun SearchBarWithCartIcon() {
+fun SearchBarWithCartIcon(
+    onCartClick: () -> Unit = {}
+) {
     var searchText by remember { mutableStateOf("") }
     var isClicked by remember { mutableStateOf(false) }
 
@@ -49,7 +51,11 @@ fun SearchBarWithCartIcon() {
                 unfocusedBorderColor = Color.White
             )
         )
-        IconButton(onClick = { isClicked = !isClicked }) {
+        IconButton(onClick = {
+            isClicked = !isClicked
+            if (isClicked)
+               onCartClick()
+        }) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_shopping_cart_24),
                 contentDescription = "Cart",

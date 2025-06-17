@@ -14,20 +14,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.buyva.R
 import com.example.buyva.data.model.Brand
-import com.example.buyva.data.model.Category
 import com.example.buyva.data.model.Product
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
 
 @Composable
-fun HomeScreen(){
+fun HomeScreen(
+    onCartClick: () -> Unit = {},
+    onBrandClick: (String, Int) -> Unit = { _, _ -> }
+){
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = true
     }
@@ -52,7 +53,7 @@ fun HomeScreen(){
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        SearchBarWithCartIcon()
+        SearchBarWithCartIcon(onCartClick)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -70,41 +71,9 @@ fun HomeScreen(){
                 Brand("Adidas", R.drawable.adidas),
                 Brand("Adidas", R.drawable.adidas),
                 Brand("Adidas", R.drawable.adidas),
-
-
-                )
+                ),
+            onBrandClick = onBrandClick
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Categories",
-            style = MaterialTheme.typography.headlineSmall,
-            color = Cold,
-            fontFamily = ubuntuMedium,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-
-        val categories = listOf(
-            Category("Men", R.drawable.shoe_placeholder),
-            Category("Women", R.drawable.img),
-            Category("Men", R.drawable.shoe_placeholder),
-            Category("Women", R.drawable.img),
-            Category("Men", R.drawable.shoe_placeholder),
-            Category("Women", R.drawable.img),
-            Category("Men", R.drawable.shoe_placeholder),
-            Category("Women", R.drawable.img),
-            Category("Men", R.drawable.shoe_placeholder),
-            Category("Women", R.drawable.img),
-        )
-
-        CategorySection(
-            categories = categories,
-            onCategoryClick = { category ->
-                println("Clicked: ${category.name}")
-            }
-        )
-
-
-
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(

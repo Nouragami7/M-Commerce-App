@@ -3,16 +3,11 @@ package com.example.buyva.navigation
 import CartScreen
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.buyva.features.ProductInfo.View.ProductInfoScreen
 import com.example.buyva.features.authentication.login.view.LoginScreenHost
 import com.example.buyva.features.authentication.login.view.WelcomeScreen
 import com.example.buyva.features.categories.view.CategoryScreen
@@ -22,6 +17,7 @@ import com.example.buyva.features.profile.addressdetails.view.AddressDetails
 import com.example.buyva.features.profile.addresseslist.view.DeliveryAddressListScreen
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
+import com.example.buyva.features.brand.view.BrandProductsScreen
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 
@@ -32,7 +28,7 @@ fun SetupNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = ScreensRoute.WelcomeScreen
+        startDestination = ScreensRoute.HomeScreen
     ) {
         composable<ScreensRoute.WelcomeScreen> {
             WelcomeScreen(
@@ -68,9 +64,16 @@ fun SetupNavHost(
                 }
             )
         }
-        composable<ScreensRoute.HomeScreen> { HomeScreen() }
+        composable<ScreensRoute.HomeScreen> { HomeScreen(
+            onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
+            onBrandClick = { name, logoRes ->
+                navController.navigate(ScreensRoute.BrandProductsScreen(name, logoRes))
+            }
+        ) }
         composable<ScreensRoute.CartScreen> { CartScreen() }
-        composable<ScreensRoute.CategoriesScreen> { CategoryScreen() }
+        composable<ScreensRoute.CategoriesScreen> { CategoryScreen(
+            onCartClick = { navController.navigate(ScreensRoute.CartScreen)}
+        ) }
         composable<ScreensRoute.FavouritesScreen> { FavouriteScreen() }
         composable<ScreensRoute.ProfileScreen> {
             ProfileScreen(
@@ -111,6 +114,21 @@ fun SetupNavHost(
 
             )
         }
+
+        composable<ScreensRoute.BrandProductsScreen> { entry ->
+            val name = entry.arguments?.getString("name") ?: "Adidas"
+            val logoRes = entry.arguments?.getInt("logoRes") ?: 0
+
+            BrandProductsScreen(
+                brandName = name,
+                imageRes = logoRes,
+                onBack = { navController.popBackStack()},
+            )
+        }
+
+        composable<ScreensRoute.ProductInfoScreen> { ProductInfoScreen() }
+
+
 
 
     }

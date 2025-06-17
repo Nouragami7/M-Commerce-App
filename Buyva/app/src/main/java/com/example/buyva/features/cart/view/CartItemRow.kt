@@ -11,8 +11,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Maximize
+import androidx.compose.material.icons.filled.Minimize
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -59,10 +66,10 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit) {
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(item.name, fontWeight = FontWeight.Bold, color = Sea)
+                Text(item.name, fontWeight = FontWeight.Bold, color = Sea, fontSize = 26.sp)
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    "EGP ${item.price}",
+                    "${item.price} EGP",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.DarkGray
                 )
@@ -74,7 +81,7 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit) {
                         onQuantityChange(item.quantity.value)
                     }
                 }) {
-                    Text("-", color = Teal, fontSize = 18.sp)
+                    Icon(Icons.Filled.Remove, contentDescription = "Back", tint = Cold)
                 }
                 Text(
                     item.quantity.value.toString(),
@@ -86,7 +93,8 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit) {
                     item.quantity.value += 1
                     onQuantityChange(item.quantity.value)
                 }) {
-                    Text("+", color = Teal, fontSize = 18. sp)
+                    Icon(Icons.Filled.Add, contentDescription = "Back", tint = Cold)
+
                 }
             }
         }
