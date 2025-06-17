@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import com.example.buyva.R
 import com.example.buyva.data.model.Category
 import com.example.buyva.data.model.Product
-import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.DarkGray
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.utils.components.PriceFilterIcon

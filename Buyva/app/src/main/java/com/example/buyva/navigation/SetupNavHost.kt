@@ -18,6 +18,7 @@ import com.example.buyva.features.profile.addresseslist.view.DeliveryAddressList
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
 import com.example.buyva.features.brand.view.BrandProductsScreen
+import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 import com.example.yourapp.ui.screens.OrderScreen
@@ -76,6 +77,7 @@ fun SetupNavHost(
             onCartClick = { navController.navigate(ScreensRoute.CartScreen)}
         ) }
         composable<ScreensRoute.FavouritesScreen> { FavouriteScreen() }
+
         composable<ScreensRoute.ProfileScreen> {
             ProfileScreen(
                 onSettingsClick = {
@@ -132,10 +134,11 @@ fun SetupNavHost(
 
         composable<ScreensRoute.ProductInfoScreen> { ProductInfoScreen() }
         composable<ScreensRoute.OrderScreen> { OrderScreen(
-            onBack = { navController.popBackStack() }
+            onBack = { navController.popBackStack() },
+            onOrderClick = {navController.navigate(ScreensRoute.OrderDetailsScreen(it))}
         ) }
 
-
+        composable<ScreensRoute.OrderDetailsScreen> { OrderDetailsScreen() }
 
 
     }

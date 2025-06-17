@@ -1,7 +1,6 @@
 package com.example.buyva.features.order.view
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material3.Card
@@ -35,14 +33,18 @@ import com.example.buyva.ui.theme.Gray
 import com.example.yourapp.ui.screens.OrderItem
 
 @Composable
-fun OrderCard(order: OrderItem) {
+fun OrderCard(order: OrderItem, onOrderClick: (String) -> Unit) {
+
+
     Card(
+        onClick = { onOrderClick(order.id) },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(containerColor = Gray),
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
+            .height(100.dp),
+
     ) {
         Row(
             modifier = Modifier
@@ -66,7 +68,7 @@ fun OrderCard(order: OrderItem) {
                     Icon(
                         imageVector = Icons.Default.Receipt,
                         contentDescription = "Order ID",
-                        modifier = Modifier.size(10.dp),
+                        modifier = Modifier.size(12.dp),
                         tint = Color.Black
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -79,7 +81,7 @@ fun OrderCard(order: OrderItem) {
                     Icon(
                         imageVector = Icons.Default.CalendarToday,
                         contentDescription = "Date",
-                        modifier = Modifier.size(10.dp),
+                        modifier = Modifier.size(12.dp),
                         tint = Color.Black
                     )
                     Spacer(modifier = Modifier.width(6.dp))
