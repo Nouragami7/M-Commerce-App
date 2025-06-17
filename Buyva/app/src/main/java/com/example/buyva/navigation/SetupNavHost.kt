@@ -20,6 +20,7 @@ import com.example.buyva.features.authentication.signup.view.SignupScreenHost
 import com.example.buyva.features.brand.view.BrandProductsScreen
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
+import com.example.yourapp.ui.screens.OrderScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -82,6 +83,9 @@ fun SetupNavHost(
                 },
                 onAddressClick = {
                     navController.navigate(ScreensRoute.DeliveryAddressListScreen)
+                },
+                onOrdersClick = {
+                    navController.navigate(ScreensRoute.OrderScreen)
                 }
             )
         }
@@ -127,6 +131,9 @@ fun SetupNavHost(
         }
 
         composable<ScreensRoute.ProductInfoScreen> { ProductInfoScreen() }
+        composable<ScreensRoute.OrderScreen> { OrderScreen(
+            onBack = { navController.popBackStack() }
+        ) }
 
 
 

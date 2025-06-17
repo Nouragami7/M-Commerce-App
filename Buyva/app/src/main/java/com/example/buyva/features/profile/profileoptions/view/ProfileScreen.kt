@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
+import com.example.buyva.navigation.ScreensRoute
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
@@ -28,7 +29,8 @@ import com.example.buyva.ui.theme.Teal
 @Composable
 fun ProfileScreen(
     onSettingsClick: () -> Unit = {},
-    onAddressClick: () -> Unit = {}
+    onAddressClick: () -> Unit = {},
+    onOrdersClick: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -69,7 +71,7 @@ fun ProfileScreen(
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            ProfileOption(Icons.Default.LocalShipping, "My Orders", Sea, onAddressClick)
+            ProfileOption(Icons.Default.LocalShipping, "My Orders", Sea, onOrdersClick)
             ProfileOption(Icons.Default.FavoriteBorder, "My Wishlist", Sea, onAddressClick)
             ProfileOption(Icons.Default.LocationOn, "Delivery Address", Sea, onAddressClick)
             ProfileOption(Icons.Default.Settings, "Settings", Sea, onSettingsClick)
