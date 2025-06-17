@@ -39,6 +39,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import com.example.buyva.navigation.navbar.NavigationBar
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -50,6 +51,10 @@ fun CartScreen() {
     var showSheet by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var itemToDelete by remember { mutableStateOf<CartItem?>(null) }
+
+    LaunchedEffect(Unit) {
+        NavigationBar.mutableNavBarState.value = false
+    }
 
     val cartItems = remember {
         mutableStateListOf(
@@ -69,18 +74,8 @@ fun CartScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues).padding(top = 40.dp)
         ) {
-            Text(
-                text = "Your Cart!",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.headlineLarge,
-                color = Cold,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentWidth(Alignment.CenterHorizontally)
-            )
 
             LazyColumn(modifier = Modifier.weight(1f)) {
                 if (cartItems.isEmpty()) {

@@ -3,17 +3,11 @@ package com.example.buyva.navigation
 import CartScreen
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.buyva.data.model.Product
+import com.example.buyva.features.ProductInfo.View.ProductInfoScreen
 import com.example.buyva.features.authentication.login.view.LoginScreenHost
 import com.example.buyva.features.authentication.login.view.WelcomeScreen
 import com.example.buyva.features.categories.view.CategoryScreen
@@ -77,7 +71,9 @@ fun SetupNavHost(
             }
         ) }
         composable<ScreensRoute.CartScreen> { CartScreen() }
-        composable<ScreensRoute.CategoriesScreen> { CategoryScreen() }
+        composable<ScreensRoute.CategoriesScreen> { CategoryScreen(
+            onCartClick = { navController.navigate(ScreensRoute.CartScreen)}
+        ) }
         composable<ScreensRoute.FavouritesScreen> { FavouriteScreen() }
         composable<ScreensRoute.ProfileScreen> {
             ProfileScreen(
@@ -129,6 +125,9 @@ fun SetupNavHost(
                 onBack = { navController.popBackStack()},
             )
         }
+
+        composable<ScreensRoute.ProductInfoScreen> { ProductInfoScreen() }
+
 
 
 

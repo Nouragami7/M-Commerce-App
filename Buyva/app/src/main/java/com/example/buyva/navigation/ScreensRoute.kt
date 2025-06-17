@@ -31,6 +31,8 @@ sealed class ScreensRoute{
     data object  MapScreen: ScreensRoute()
     @Serializable
     data class BrandProductsScreen(val brandName: String, val brandImage: Int): ScreensRoute()
+    @Serializable
+    data object ProductInfoScreen:ScreensRoute()
 
 
 }

@@ -19,7 +19,9 @@ import com.example.buyva.utils.components.PriceFilterIcon
 import com.example.buyva.utils.components.PriceFilterSlider
 
 @Composable
-fun CategoryScreen() {
+fun CategoryScreen(
+    onCartClick: () -> Unit
+) {
     var maxPrice by remember { mutableFloatStateOf(2522f) }
     var selectedCategory by remember { mutableStateOf("Men") }
     var showSlider by remember { mutableStateOf(false) }
@@ -58,7 +60,9 @@ fun CategoryScreen() {
                 .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.height(32.dp))
-            SearchBarWithCartIcon()
+            SearchBarWithCartIcon(
+                onCartClick = onCartClick
+            )
             Spacer(modifier = Modifier.height(12.dp))
 
             AnimatedVisibility(visible = showSlider) {
