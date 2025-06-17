@@ -1,4 +1,4 @@
-package com.example.buyva.features.authentication.repository
+package com.example.buyva.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser

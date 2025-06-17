@@ -38,9 +38,11 @@ import com.example.buyva.ui.theme.Cold
 fun CategoryItem(
     category: Category,
     isSelected: Boolean,
+    backgroundColor: Color,
     onClick: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var selectedFilter by remember { mutableStateOf<String?>(null) }
 
     val filtersWithIcons = listOf(
         "Clothes" to Icons.Filled.Checkroom,
@@ -51,6 +53,7 @@ fun CategoryItem(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .background(backgroundColor)
             .padding(horizontal = 4.dp, vertical = 6.dp),
         horizontalAlignment = Alignment.Start
     ) {
@@ -67,9 +70,15 @@ fun CategoryItem(
             Text(
                 text = category.name,
                 fontSize = 16.sp,
-                color = if (isSelected) Cold else Color.DarkGray,
+                color = when {
+                    isSelected -> Cold
+                    selectedFilter != null -> Color.DarkGray
+                    else -> Color.Gray
+                },
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f).padding(start = 8.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(start = 8.dp)
             )
             Icon(
                 imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
@@ -84,29 +93,38 @@ fun CategoryItem(
                 modifier = Modifier.padding(start = 12.dp, top = 8.dp)
             ) {
                 filtersWithIcons.forEach { (filter, icon) ->
+                    val isFilterSelected = filter == selectedFilter
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { }
-                            .padding(vertical = 4.dp)
+                            .background(
+                                if (isFilterSelected) Cold.copy(alpha = 0.1f) else Color.Transparent
+                            )
+                            .clickable {
+                                selectedFilter = if (isFilterSelected) null else filter
+                            }
+                            .padding(vertical = 6.dp, horizontal = 8.dp)
                     ) {
                         Icon(
                             imageVector = icon,
                             contentDescription = filter,
-                            tint = Color.Gray,
+                            tint = if (isFilterSelected) Cold else Color.Gray,
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = filter,
                             fontSize = 16.sp,
-                            color = Color.Gray,
+                            color = if (isFilterSelected) Cold else Color.Gray,
                             fontWeight = FontWeight.Medium
                         )
                     }
+
                 }
             }
         }
     }
 }
+
