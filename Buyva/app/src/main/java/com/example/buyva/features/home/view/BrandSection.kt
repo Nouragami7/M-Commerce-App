@@ -1,6 +1,7 @@
 package com.example.buyva.features.home.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -10,6 +11,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,13 +20,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.buyva.R
 import com.example.buyva.data.model.Brand
+import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
 
 @Composable
-fun BrandSection(brands: List<Brand>) {
+fun BrandSection(brands: List<Brand>, onBrandClick: (String, Int) -> Unit) {
     Column {
         Text(
             text = "Brands",
@@ -42,7 +44,9 @@ fun BrandSection(brands: List<Brand>) {
                 .padding(horizontal = 16.dp)
         ) {
             items(brands) { brand ->
-                BrandCard(name = brand.name, imageRes = brand.logoRes)
+                BrandCard(name = brand.name, imageRes = brand.logoRes,  onClick = {
+                    onBrandClick(brand.name, brand.logoRes)
+                  })
             }
         }
     }
@@ -51,11 +55,12 @@ fun BrandSection(brands: List<Brand>) {
 
 
 @Composable
-fun BrandCard(name: String, imageRes: Int) {
+fun BrandCard(name: String, imageRes: Int, onClick: () -> Unit) {
     Card(
         modifier = Modifier
             .width(100.dp)
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .clickable { onClick() },
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         shape = CircleShape,
         colors = CardDefaults.cardColors(containerColor = Color.White)

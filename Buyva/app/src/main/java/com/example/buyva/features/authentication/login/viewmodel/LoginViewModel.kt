@@ -3,7 +3,7 @@ package com.example.buyva.features.authentication.login.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.buyva.features.authentication.repository.AuthRepository
+import com.example.buyva.data.repository.AuthRepository
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.firebase.auth.*
 import kotlinx.coroutines.flow.MutableStateFlow

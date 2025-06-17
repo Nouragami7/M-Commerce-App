@@ -26,9 +26,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.buyva.R
+import com.example.buyva.ui.theme.Cold
+import com.example.buyva.ui.theme.Gray
+import com.example.buyva.ui.theme.Sea
 
 @Composable
-fun ProductInfoScreen(modifier: Modifier = Modifier) {
+fun ProductInfoScreen() {
     var selectedImage by remember { mutableStateOf<Int?>(null) }
     var isFavorite by remember { mutableStateOf(false) }
     var showAllReviews by remember { mutableStateOf(false) }
@@ -86,7 +89,7 @@ fun ProductInfoScreen(modifier: Modifier = Modifier) {
             Card(
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.LightGray),
+                colors = CardDefaults.cardColors(containerColor = Gray),
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .fillMaxWidth()
@@ -95,15 +98,19 @@ fun ProductInfoScreen(modifier: Modifier = Modifier) {
                     Text(
                         "ADIDAS | KID'S STAN SMITH",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
+                        fontSize = 20.sp
                     )
-                    Text("ADIDAS", color = Color.Gray)
-                    Text("2000.0 EGP", color = Color(0xFF9C27B0), fontWeight = FontWeight.Bold)
-                    Text("In Stock", color = Color(0xFF4CAF50), fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(8.dp))
+                    Text("ADIDAS", color = Color.Gray, fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("2000.0 EGP", color = Cold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("In Stock", color = Color.Red, fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "The Stan Smith owned the tennis court in the '70s. Today it runs the streets with the same clean, classic style...",
-                        fontSize = 14.sp
+                        "The Stan Smith owned the tennis court in the '70s. Today it runs the streets with the same clean, classic style The Stan Smith owned the tennis court in the '70s. Today it runs the streets with the same clean, classic styleThe Stan Smith owned the tennis court in the '70s. Today it runs the streets with the same clean, classic styleThe Stan Smith owned the tennis court in the '70s. Today it runs the streets with the same clean, classic styleThe Stan Smith owned the tennis court in the '70s. Today it runs the streets with the same clean, classic style",
+                        fontSize = 16.sp,
+                        lineHeight = 22.sp
                     )
                 }
             }
