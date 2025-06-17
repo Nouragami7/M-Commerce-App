@@ -49,19 +49,19 @@ class MainActivity : ComponentActivity() {
         val isNavBarVisible = NavigationBar.mutableNavBarState.collectAsStateWithLifecycle()
         Scaffold(
             topBar = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 12.dp)
-                ) {
-                    Text(
-                        text = "BuyVa",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = Cold,
-                        fontFamily = ubuntuMedium,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
+//                Box(
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(vertical = 12.dp)
+//                ) {
+//                    Text(
+//                        text = "BuyVa",
+//                        style = MaterialTheme.typography.headlineSmall,
+//                        color = Cold,
+//                        fontFamily = ubuntuMedium,
+//                        modifier = Modifier.align(Alignment.Center)
+//                    )
+ //               }
             },
             bottomBar = {
             when (isNavBarVisible.value) {
