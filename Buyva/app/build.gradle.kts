@@ -88,6 +88,7 @@ dependencies {
     //ui
     implementation ("androidx.compose.material:material:1.6.1")
     implementation("com.apollographql.apollo3:apollo-runtime:3.8.6")
+
     implementation("com.airbnb.android:lottie-compose:6.3.0")
 
 }

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,6 +37,7 @@ import com.example.buyva.ui.theme.Teal
 @Composable
 fun AddressItem(
     address: Address,
+    onAddressDetailsClick: (String?) -> Unit,
     onDeleteClick: () -> Unit
 ) {
     Card(
@@ -44,13 +46,14 @@ fun AddressItem(
             .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Gray)
+        colors = CardDefaults.cardColors(containerColor = Gray),
     ) {
         Row(
             modifier = Modifier
                 .padding(12.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxWidth()
+                .clickable { onAddressDetailsClick(address.address) },
+                    verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
                 modifier = Modifier.weight(1f)
@@ -73,19 +76,27 @@ fun AddressItem(
                 )
             }
 
-            IconButton(
-                onClick = onDeleteClick,
+            Box(
                 modifier = Modifier
                     .size(32.dp)
                     .padding(start = 8.dp)
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        onDeleteClick()
+                    }
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Delete",
                     tint = Sea,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier
+                        .size(20.dp)
+                        .align(Alignment.Center)
                 )
             }
+
         }
     }
 }

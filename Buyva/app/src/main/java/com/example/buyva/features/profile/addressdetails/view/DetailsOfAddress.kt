@@ -126,17 +126,20 @@ fun AddressDetails(
         OutlinedTextField(
             value = streetAddress.value,
             onValueChange = { streetAddress.value = it },
-            label = { Text("Street Address", fontSize = labelFontSize) },
+            label = { Text(address ?: "Address", fontSize = labelFontSize) },
             leadingIcon = { Icon(Icons.Default.Home, contentDescription = null) },
             textStyle = TextStyle(fontSize = inputFontSize),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(textFieldHeight),
+                .heightIn(min = 56.dp, max = 200.dp),
+            singleLine = false,
+            maxLines = 5,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Sea,
                 focusedLabelColor = Sea
             )
         )
+
 
         Spacer(modifier = Modifier.height(16.dp))
 

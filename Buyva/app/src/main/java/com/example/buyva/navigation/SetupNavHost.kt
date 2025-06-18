@@ -18,8 +18,10 @@ import com.example.buyva.features.profile.addresseslist.view.DeliveryAddressList
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
 import com.example.buyva.features.brand.view.BrandProductsScreen
+import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
+import com.example.yourapp.ui.screens.OrderScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -75,6 +77,7 @@ fun SetupNavHost(
             onCartClick = { navController.navigate(ScreensRoute.CartScreen)}
         ) }
         composable<ScreensRoute.FavouritesScreen> { FavouriteScreen() }
+
         composable<ScreensRoute.ProfileScreen> {
             ProfileScreen(
                 onSettingsClick = {
@@ -82,6 +85,9 @@ fun SetupNavHost(
                 },
                 onAddressClick = {
                     navController.navigate(ScreensRoute.DeliveryAddressListScreen)
+                },
+                onOrdersClick = {
+                    navController.navigate(ScreensRoute.OrderScreen)
                 }
             )
         }
@@ -97,6 +103,9 @@ fun SetupNavHost(
         composable<ScreensRoute.DeliveryAddressListScreen> {
             DeliveryAddressListScreen(
                 onBackClick = { navController.popBackStack() },
+                onAddressDetailsClick = {  address ->
+                    navController.navigate(ScreensRoute.AddressDetails(0.0, 0.0, address ?: ""))
+                },
                 onAddressClick = {
                     navController.navigate(ScreensRoute.MapScreen)
                 }
@@ -127,8 +136,12 @@ fun SetupNavHost(
         }
 
         composable<ScreensRoute.ProductInfoScreen> { ProductInfoScreen() }
+        composable<ScreensRoute.OrderScreen> { OrderScreen(
+            onBack = { navController.popBackStack() },
+            onOrderClick = {navController.navigate(ScreensRoute.OrderDetailsScreen(it))}
+        ) }
 
-
+        composable<ScreensRoute.OrderDetailsScreen> { OrderDetailsScreen() }
 
 
     }

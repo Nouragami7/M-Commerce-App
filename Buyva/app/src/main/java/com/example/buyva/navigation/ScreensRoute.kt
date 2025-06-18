@@ -33,6 +33,10 @@ sealed class ScreensRoute{
     data class BrandProductsScreen(val brandName: String, val brandImage: Int): ScreensRoute()
     @Serializable
     data object ProductInfoScreen:ScreensRoute()
+    @Serializable
+    data object OrderScreen: ScreensRoute()
+    @Serializable
+    data class OrderDetailsScreen(val orderId: String): ScreensRoute()
 
 
 }

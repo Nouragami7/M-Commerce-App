@@ -1,9 +1,6 @@
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,10 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -40,6 +34,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import com.example.buyva.navigation.navbar.NavigationBar
+import com.airbnb.lottie.compose.*
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -76,20 +71,27 @@ fun CartScreen() {
                 .fillMaxSize()
                 .padding(paddingValues).padding(top = 40.dp)
         ) {
-
-            LazyColumn(modifier = Modifier.weight(1f)) {
-                if (cartItems.isEmpty()) {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(top = 80.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
+            if (cartItems.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .padding(bottom = 16.dp)
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            LottieAnimation(
+                                composition = rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.emptycart)).value,
+                                iterations = LottieConstants.IterateForever,
+                                modifier = Modifier.size(200.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
                             Text("Your cart is empty", color = Color.Gray)
                         }
                     }
-                } else {
+            }
+            else {
+            LazyColumn(modifier = Modifier.weight(1f)) {
+
                     items(cartItems, key = { it.name }) { item ->
                         val dismissState = rememberDismissState(
                             confirmStateChange = { dismissValue ->
