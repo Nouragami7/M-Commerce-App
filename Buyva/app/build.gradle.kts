@@ -1,3 +1,5 @@
+import org.gradle.declarative.dsl.schema.FqName.Empty.packageName
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -5,6 +7,8 @@ plugins {
     kotlin("plugin.serialization") version "2.1.10"
     id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
+    id("com.apollographql.apollo3").version("3.8.6")
+
 }
 
 android {
@@ -81,16 +85,15 @@ dependencies {
     implementation("com.google.maps.android:maps-compose:2.11.2")
     implementation("com.google.accompanist:accompanist-permissions:0.33.2-alpha")
     implementation("com.google.android.libraries.places:places:3.4.0")
-
-
-
     //ui
     implementation ("androidx.compose.material:material:1.6.1")
-    //lottie
+    implementation("com.apollographql.apollo3:apollo-runtime:3.8.6")
+
     implementation("com.airbnb.android:lottie-compose:6.3.0")
 
-
-
-
-
+}
+apollo {
+    service("service") {
+        packageName.set("com.example.buyva")
+        }
 }
