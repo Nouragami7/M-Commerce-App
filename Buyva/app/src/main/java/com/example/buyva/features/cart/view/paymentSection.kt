@@ -3,7 +3,8 @@ package com.example.buyva.features.cart.view
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -12,23 +13,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
-import androidx.compose.material3.OutlinedTextField
-
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.enums.PaymentMethod
 import com.example.buyva.ui.theme.Cold
-import com.example.buyva.ui.theme.Teal
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -52,21 +45,31 @@ fun PaymentSection(
     Column(modifier = Modifier.padding(16.dp)) {
 
         Spacer(modifier = Modifier.height(16.dp))
-
         OutlinedTextField(
-            value = "${address.firstName} ${address.lastName}",
-            onValueChange = {},
-            label = { Text("Default Name") },
-            readOnly = true,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        OutlinedTextField(
-            value = address.address,
+            value = "${address.firstName} ${address.lastName}\n${address.address}",
             onValueChange = {},
             label = { Text("Default Address") },
             readOnly = true,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Cold,
+                unfocusedBorderColor = Color.Black,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Cold,
+            ),
+            trailingIcon = {
+                IconButton(onClick = {
+
+                }) {
+                    Icon(Icons.Default.Edit, contentDescription = "Edit")
+                }
+            },
+            singleLine = false,
+            maxLines = 2
         )
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -93,14 +96,24 @@ fun PaymentSection(
                 value = voucherCode,
                 onValueChange = { voucherCode = it },
                 label = { Text("Voucher Code") },
-                modifier = Modifier.weight(1f)
-            )
+                modifier = Modifier.weight(1f),
+            colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Cold,
+            unfocusedBorderColor = Color.Black,
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
+            focusedLabelColor = Cold,
+            ),
+
+                )
             Spacer(modifier = Modifier.width(8.dp))
             Button(onClick = {
               //  snackbarHostState.showSnackbar("Voucher applied!")
-            }, colors = ButtonDefaults.buttonColors(containerColor = Cold)) {
+            }, modifier =  Modifier.align(Alignment.CenterVertically).padding(top = 8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Cold)) {
                 Text("Apply")
             }
+
         }
 
         errorMessage?.let {

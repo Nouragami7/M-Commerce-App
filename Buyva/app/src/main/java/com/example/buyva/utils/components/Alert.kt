@@ -6,6 +6,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontWeight
 import com.example.buyva.ui.theme.Cold
+import com.example.buyva.ui.theme.Sea
 
 @Composable
 fun CustomAlertDialog(
@@ -19,7 +20,7 @@ fun CustomAlertDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(text = title, fontWeight = FontWeight.Bold)
+            Text(text = title, fontWeight = FontWeight.Bold, color = Cold )
         },
         text = {
             Text(text = message)
@@ -31,7 +32,7 @@ fun CustomAlertDialog(
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(dismissText)
+                Text(dismissText,color = Sea)
             }
         }
     )

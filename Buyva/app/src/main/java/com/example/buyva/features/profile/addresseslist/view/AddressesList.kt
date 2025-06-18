@@ -27,13 +27,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
 import com.example.buyva.data.model.Address
-import com.example.buyva.ui.theme.Cold
-import com.example.buyva.ui.theme.Gray
-import com.example.buyva.ui.theme.Sea
-import com.example.buyva.ui.theme.Teal
 
-
-
+import com.airbnb.lottie.compose.*
+import com.example.buyva.R
 
 
 val sampleAddresses = listOf(
@@ -58,42 +54,68 @@ val sampleAddresses = listOf(
         phoneNumber = "01234567890"
     )
 )
+
 @Composable
 fun DeliveryAddressListScreen(
     onBackClick: () -> Unit = {},
     onAddressClick: () -> Unit = {},
-    addresses: List<Address> = sampleAddresses,
-    onDeleteClick: (Address) -> Unit = {}
+    onAddressDetailsClick: (String?) -> Unit = { _ -> },
+    initialAddresses: List<Address> = sampleAddresses // rename to avoid confusion
 ) {
+    val addressList = remember { mutableStateListOf<Address>().apply { addAll(initialAddresses) } }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-
                 onClick = { onAddressClick() },
-                modifier = Modifier
-                    .offset(y = (-70).dp),
+                modifier = Modifier.offset(y = (-70).dp),
                 containerColor = Color(0xFF006A71),
                 contentColor = Color.White
-
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Address")
             }
         }
     ) { paddingValues ->
-        LazyColumn(
-            contentPadding = paddingValues,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 16.dp)
-        ) {
-            items(addresses) { address ->
-                AddressItem(
-                    address = address,
-                    onDeleteClick = { onDeleteClick(address) }
+
+        if (addressList.isEmpty()) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(bottom = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                val composition by rememberLottieComposition(
+                    LottieCompositionSpec.RawRes(R.raw.emptyaddress)
                 )
+                LottieAnimation(
+                    composition = composition,
+                    iterations = LottieConstants.IterateForever,
+                    modifier = Modifier.size(250.dp).padding(bottom = 16.dp)
+                )
+            }
+        } else {
+            LazyColumn(
+                contentPadding = paddingValues,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 16.dp)
+            ) {
+                items(addressList, key = { it.address }) { address ->
+                    AddressItem(
+                        address = address,
+                        onAddressDetailsClick = {
+                            onAddressDetailsClick(address.address)
+                        },
+                        onDeleteClick = {
+                            addressList.remove(address)
+                        }
+                    )
+                }
             }
         }
     }
 }
+
 
 
