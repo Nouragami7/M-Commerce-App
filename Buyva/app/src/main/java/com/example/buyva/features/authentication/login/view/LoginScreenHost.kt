@@ -31,7 +31,7 @@ fun LoginScreenHost(
             AuthRepository(
                 FirebaseAuth.getInstance(),
                 ApolloService.client
-            )
+            ),
         )
     }
 

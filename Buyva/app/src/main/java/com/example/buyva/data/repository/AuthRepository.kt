@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
 import com.apollographql.apollo3.api.Optional
+import com.example.buyva.data.model.CustomerData
 
 class AuthRepository(
     private val auth: FirebaseAuth,
@@ -40,7 +41,7 @@ class AuthRepository(
         }
     }
 
-    suspend fun createShopifyCustomer(fullName: String, email: String, password: String): Result<String> {
+    suspend fun createShopifyCustomer(fullName: String, email: String, password: String): Result<CustomerData> {
         val names = fullName.trim().split(" ")
         val firstName = names.firstOrNull() ?: ""
         val lastName = names.drop(1).joinToString(" ")
@@ -49,25 +50,62 @@ class AuthRepository(
             val input = CustomerCreateInput(
                 firstName = Optional.Present(firstName),
                 lastName = Optional.Present(lastName),
-                email = email,       // Required String, not Optional
-                password = password  // Required String, not Optional
+                email = email,
+                password = password
             )
 
             val mutation = CreateCustomerMutation(input)
             val response = apolloClient.mutation(mutation).execute()
 
-            Log.d("Shopify", "Customer: ${response.data?.customerCreate?.customer}")
-            Log.d("Shopify", "Error: ${response.data?.customerCreate?.customerUserErrors?.firstOrNull()?.message}")
-            val customer = response.data?.customerCreate?.customer
-            val error = response.data?.customerCreate?.customerUserErrors?.firstOrNull()?.message
-
-            when {
-                customer != null -> Result.success(customer.id)
-                error != null -> Result.failure(Exception(error))
-                else -> Result.failure(Exception("Unknown Shopify error"))
-            }
+            handleShopifyCustomerResponse(response.data?.customerCreate)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    suspend fun createShopifyCustomerAfterGoogleSignIn(
+        user: FirebaseUser
+    ): Result<CustomerData> {
+        return try {
+            if (user.email.isNullOrBlank()) {
+                return Result.failure(Exception("Google account email is required"))
+            }
+
+            val input = CustomerCreateInput(
+                firstName = Optional.Present(user.displayName?.split(" ")?.firstOrNull() ?: ""),
+                lastName = Optional.Present(
+                    user.displayName?.split(" ")?.drop(1)?.joinToString(" ") ?: ""
+                ),
+                email = user.email ?: "",
+                password = ""
+            )
+
+            val response = apolloClient.mutation(CreateCustomerMutation(input)).execute()
+            handleShopifyCustomerResponse(response.data?.customerCreate)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    private fun handleShopifyCustomerResponse(
+        customerCreate: CreateCustomerMutation.CustomerCreate?
+    ): Result<CustomerData> {
+        val customer = customerCreate?.customer
+        val error = customerCreate?.customerUserErrors?.firstOrNull()?.message
+
+        return when {
+            customer != null -> {
+                Result.success(
+                    CustomerData(
+                        id = customer.id,
+                        email = customer.email ?: "",
+                        firstName = customer.firstName ?: "",
+                        lastName = customer.lastName ?: ""
+                    )
+                )
+            }
+            error != null -> Result.failure(Exception(error))
+            else -> Result.failure(Exception("Unknown Shopify error"))
         }
     }
 
@@ -75,7 +113,7 @@ class AuthRepository(
         fullName: String,
         email: String,
         password: String
-    ): Result<FirebaseUser> {
+    ): Result<Pair<FirebaseUser, CustomerData>> {
         return try {
             val firebaseUser = signUpWithEmail(email, password)
                 ?: return Result.failure(Exception("Firebase sign up failed"))
@@ -85,7 +123,7 @@ class AuthRepository(
                 return Result.failure(shopifyResult.exceptionOrNull()!!)
             }
 
-            Result.success(firebaseUser)
+            Result.success(Pair(firebaseUser, shopifyResult.getOrThrow()))
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -26,13 +26,16 @@ fun SignupScreenHost(
     val activity = context as Activity
 
     val factory = remember {
+        val applicationContext = context.applicationContext
         SignupViewModelFactory(
-            AuthRepository(
+            repository = AuthRepository(
                 FirebaseAuth.getInstance(),
-                ApolloService.client // مهم جدًا هنا تمرير الـ apolloClient
-            )
+                ApolloService.client
+            ),
+            applicationContext = applicationContext
         )
     }
+
     val viewModel: SignupViewModel = viewModel(factory = factory)
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

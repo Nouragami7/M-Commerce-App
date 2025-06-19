@@ -7,46 +7,54 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.example.buyva.features.SplashScreen
+import com.example.buyva.features.authentication.signup.viewmodel.SignupViewModel
+import com.example.buyva.navigation.ScreensRoute
 import com.example.buyva.navigation.SetupNavHost
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.navigation.navbar.NavigationBar.ShowCurvedNavBar
-import com.example.buyva.ui.theme.Cold
-import com.example.buyva.ui.theme.ubuntuMedium
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             var displaySplashScreen by remember { mutableStateOf(true) }
-            if (displaySplashScreen) {
+            var startDestination by remember { mutableStateOf("splash") }
+
+            // Check auth state once when activity starts
+            LaunchedEffect(Unit) {
+                val context = this@MainActivity
+                startDestination = if (SignupViewModel.isUserLoggedIn(context)) {
+                    ScreensRoute.HomeScreen::class.qualifiedName!!
+                } else {
+                    ScreensRoute.WelcomeScreen::class.qualifiedName!!
+                }
+            }
+
+
+                if (displaySplashScreen) {
                 SplashScreen {
                     displaySplashScreen = false
                 }
             } else {
-                MainScreen()
+                MainScreen(startDestination)
             }
         }
     }
 
     @Composable
-    fun MainScreen() {
+    fun MainScreen(startDestination: String) {
         val navController = rememberNavController()
         val isNavBarVisible = NavigationBar.mutableNavBarState.collectAsStateWithLifecycle()
         Scaffold(
@@ -81,7 +89,7 @@ class MainActivity : ComponentActivity() {
 
         ) { _ ->
             Box(modifier = Modifier.fillMaxSize().background(color = Color.White)) {
-                SetupNavHost(navController = navController)
+                SetupNavHost(navController = navController, startDestination = startDestination)
 
             }
 
