@@ -1,15 +1,27 @@
 package com.example.buyva.features.orderdetails.view
 
-import ProductSection
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -19,13 +31,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.buyva.R
-import com.example.buyva.data.model.Product
+import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.ubuntuMedium
-import com.example.buyva.navigation.navbar.NavigationBar
-import com.example.buyva.utils.components.ProductCard
 
 @Composable
     fun OrderDetailsScreen(onBack: () -> Unit = {}, onProductClick: () -> Unit) {
@@ -113,17 +122,17 @@ import com.example.buyva.utils.components.ProductCard
             Text("1 item", color = Color.DarkGray, fontSize = 20.sp)
         }
 
-        ProductCard(
-            product = Product(
-                1,
-                "CONVERSE",
-                "2000.00 EGP",
-                R.drawable.logo,
-                "Men",
-                "CLASSIC"
-            ),
-            onProductClick = onProductClick
-        )
+//        ProductCard(
+//            product = Product(
+//                1,
+//                "CONVERSE",
+//                "2000.00 EGP",
+//                R.drawable.logo,
+//                "Men",
+//                "CLASSIC"
+//            ),
+//            onProductClick = onProductClick
+//        )
 
         Spacer(modifier = Modifier.height(24.dp))
 

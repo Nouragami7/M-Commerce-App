@@ -1,3 +1,5 @@
+package com.example.buyva.features.brand.view
+
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
@@ -27,12 +29,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.example.buyva.BrandsAndProductsQuery
-import com.example.buyva.utils.components.ProductCard
+import com.example.buyva.ProductsByCollectionQuery
 import kotlinx.coroutines.delay
 
 @Composable
-fun ProductSection(products: List<BrandsAndProductsQuery.Node>, onProductClick: () -> Unit) {
+fun BrandOfProduct(products: List<ProductsByCollectionQuery.Node>, onProductClick: () -> Unit) {
     val density = LocalDensity.current.density
 
     Column(
@@ -83,7 +84,7 @@ fun ProductSection(products: List<BrandsAndProductsQuery.Node>, onProductClick: 
                                     cameraDistance = 12f * density
                                 }
                         ) {
-                            ProductCard(product = product, onProductClick = onProductClick)
+                            BrandProduct (product = product, onProductClick = onProductClick)
                         }
                     }
                 }

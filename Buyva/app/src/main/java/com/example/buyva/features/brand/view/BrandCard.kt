@@ -1,4 +1,4 @@
-package com.example.buyva.utils.components
+package com.example.buyva.features.brand.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,16 +33,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.buyva.BrandsAndProductsQuery
+import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.ui.theme.Cold
 
 @Composable
-fun ProductCard(product: BrandsAndProductsQuery.Node, modifier: Modifier = Modifier, onProductClick: () -> Unit) {
+fun BrandProduct(product: ProductsByCollectionQuery.Node, modifier: Modifier = Modifier, onProductClick: () -> Unit) {
     var isFav by remember { mutableStateOf(false) }
 
     val imageUrl = product.featuredImage?.url?.toString() ?: ""
     val productTitle = product.title
-    val productType = product.productType
     val price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
     val currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
 
@@ -80,13 +79,6 @@ fun ProductCard(product: BrandsAndProductsQuery.Node, modifier: Modifier = Modif
 
             Spacer(modifier = Modifier.height(1.dp))
 
-            Text(
-                text = productType,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray,
-                fontSize = 12.sp,
-                modifier = Modifier.padding(start = 2.dp)
-            )
 
             Spacer(modifier = Modifier.height(2.dp))
 

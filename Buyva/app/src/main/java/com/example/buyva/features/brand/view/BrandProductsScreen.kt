@@ -1,11 +1,20 @@
 package com.example.buyva.features.brand.view
 
-import ProductSection
 import SearchBarWithCartIcon
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
@@ -22,12 +31,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.buyva.R
-import com.example.buyva.data.model.Product
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import com.example.buyva.ProductsByCollectionQuery
+import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
+import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.model.uistate.ResponseState
+import com.example.buyva.data.repository.brand.BrandRepositoryImpl
+import com.example.buyva.features.brand.viewmodel.BrandFactory
+import com.example.buyva.features.brand.viewmodel.BrandViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.ubuntuMedium
+import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.components.PriceFilterIcon
 import com.example.buyva.utils.components.PriceFilterSlider
 import com.example.buyva.utils.components.ScreenTitle
@@ -35,8 +52,9 @@ import com.example.buyva.utils.components.ScreenTitle
 
 @Composable
 fun BrandProductsScreen(
+    brandId : String,
     brandName: String,
-    imageRes: Int,
+    imageUrl: String,
     onBack: () -> Unit,
     onProductClick: () -> Unit
 
@@ -44,36 +62,39 @@ fun BrandProductsScreen(
     var showSlider by remember { mutableStateOf(false) }
     var maxPrice by remember { mutableFloatStateOf(2522f) }
 
+    val brandFactory = BrandFactory(
+        BrandRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
+    )
+    val brandViewModel: BrandViewModel = viewModel(factory = brandFactory)
+
+    val productsOfBrand by brandViewModel.productsOfBrand.collectAsStateWithLifecycle()
+
+
+
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
+        brandViewModel.getProductsByCollection(brandId)
     }
 
-    val allProducts = listOf(
-        Product(1, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", "CLASSIC"),
-        Product(2, "VANS", "2100.00 EGP", R.drawable.logo, "Women", "CLASSIC"),
-        Product(3, "VANS", "2384.00 EGP", R.drawable.logo, "Kid", "ERA 59"),
-        Product(4, "VANS", "400.00 EGP", R.drawable.logo, "Sale", "APPAREL"),
-        Product(5, "VANS", "1431.00 EGP", R.drawable.logo, "Men", "AUTHENTIC"),
-        Product(6, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", "CLASSIC")
-    )
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(12.dp)
+            .verticalScroll(state = rememberScrollState())
     ) {
         ScreenTitle("Brand Products")
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 16.dp)) {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
-            Image(
-                painter = painterResource(id = R.drawable.logo),
-                contentDescription = brandName,
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-            )
+           AsyncImage(
+               model = imageUrl,
+               contentDescription = "Brand Image",
+               modifier = Modifier
+                   .size(35.dp)
+                   .clip(CircleShape)
+           )
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 text = brandName,
@@ -98,7 +119,20 @@ fun BrandProductsScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        ProductSection(products = allProducts, onProductClick)
+        when(val state = productsOfBrand){
+            is ResponseState.Failure -> {
+                Text(text = state.message.toString())
+            }
+            ResponseState.Loading -> LoadingIndicator()
+            is ResponseState.Success<*> -> {
+                val products = state.data as? List<ProductsByCollectionQuery.Node>
+                if (products != null) {
+                    BrandOfProduct(products = products, onProductClick)
+                }
+            }
+
+        }
+
     }
     Box(
         modifier = Modifier

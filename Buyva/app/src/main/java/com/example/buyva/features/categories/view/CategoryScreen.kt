@@ -1,20 +1,32 @@
 package com.example.buyva.features.categories.view
 
-import ProductSection
 import SearchBarWithCartIcon
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.buyva.R
 import com.example.buyva.data.model.Category
-import com.example.buyva.data.model.Product
 import com.example.buyva.ui.theme.DarkGray
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.utils.components.PriceFilterIcon
@@ -39,24 +51,6 @@ fun CategoryScreen(
         Category("Sale", R.drawable.logo)
     )
 
-    val allProducts = listOf(
-        Product(1, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", "CLASSIC"),
-        Product(2, "VANS", "2100.00 EGP", R.drawable.logo, "Women", "CLASSIC"),
-        Product(3, "VANS", "2384.00 EGP", R.drawable.logo, "Kid", "ERA 59"),
-        Product(4, "VANS", "400.00 EGP", R.drawable.logo, "Sale", "APPAREL"),
-        Product(5, "VANS", "1431.00 EGP", R.drawable.logo, "Men", "AUTHENTIC"),
-        Product(6, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", "CLASSIC"),
-        Product(7, "VANS", "2100.00 EGP", R.drawable.logo, "Women", "CLASSIC"),
-        Product(8, "VANS", "2384.00 EGP", R.drawable.logo, "Kid", "ERA 59"),
-        Product(9, "VANS", "400.00 EGP", R.drawable.logo, "Sale", "APPAREL"),
-        Product(10, "VANS", "1431.00 EGP", R.drawable.logo, "Men", "AUTHENTIC")
-    )
-
-    val filteredProducts = allProducts.filter {
-        it.category == selectedCategory && it.price.removeSuffix(" EGP").toFloatOrNull()?.let { price ->
-            price <= maxPrice
-        } == true
-    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -104,7 +98,7 @@ fun CategoryScreen(
                     }
                 }
 
-                ProductSection(products = filteredProducts, onProductClick)
+               // ProductSection(products = filteredProducts, onProductClick)
             }
         }
 

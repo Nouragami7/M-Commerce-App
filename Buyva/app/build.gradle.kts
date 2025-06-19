@@ -1,5 +1,3 @@
-import org.gradle.declarative.dsl.schema.FqName.Empty.packageName
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -90,6 +88,8 @@ dependencies {
     implementation("com.apollographql.apollo3:apollo-runtime:3.8.6")
 
     implementation("com.airbnb.android:lottie-compose:6.3.0")
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
 
 }
 apollo {

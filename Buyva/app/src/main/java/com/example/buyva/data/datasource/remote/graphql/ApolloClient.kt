@@ -1,8 +1,8 @@
-package com.example.buyva.data.remote.graphql
+package com.example.buyva.data.datasource.remote.graphql
 
 import com.apollographql.apollo3.ApolloClient
-import com.example.buyva.utils.Access_Token
-import com.example.buyva.utils.Base_Url
+import com.example.buyva.utils.constants.Access_Token
+import com.example.buyva.utils.constants.Base_Url
 
 object ApolloService {
     val client: ApolloClient by lazy {
