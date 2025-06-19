@@ -68,9 +68,18 @@ fun SetupNavHost(
         }
         composable<ScreensRoute.HomeScreen> { HomeScreen(
             onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
-            onBrandClick = { brandTitle, brandImage ->
-                navController.navigate(ScreensRoute.BrandProductsScreen(brandTitle, brandImage))
-            },
+            onBrandClick = { brandId, brandTitle, brandImage ->
+                navController.currentBackStackEntry?.savedStateHandle?.apply {
+                    set("brandID", brandId)
+                    set("brandName", brandTitle)
+                    set("brandImage", brandImage)
+                }
+                println("Brand ID--------------------: $brandId")
+                println("Brand ID--------------------: $brandTitle")
+                println("Brand ID--------------------: $brandImage")
+                navController.navigate(ScreensRoute.BrandProductsScreen(brandId, brandTitle, brandImage))
+            }
+            ,
             onProductClick = {
                 navController.navigate(ScreensRoute.ProductInfoScreen)
             }
@@ -129,12 +138,18 @@ fun SetupNavHost(
         }
 
         composable<ScreensRoute.BrandProductsScreen> { entry ->
-            val name = entry.arguments?.getString("name") ?: "Adidas"
-            val logoRes = entry.arguments?.getInt("logoRes") ?: 0
+            val id = entry.arguments?.getString("brandID") ?: ""
+            val name = entry.arguments?.getString("brandName") ?: "Adidas"
+            val image = entry.arguments?.getString("brandImage") ?: ""
+
+            println("id =====================================$id")
+            println("Brand Name+++++++++++++++++++++++++++++: $name")
+            println("Brand Image+++++++++++++++++++++++++++++: $image")
 
             BrandProductsScreen(
+                brandId = id,
                 brandName = name,
-                imageRes = logoRes,
+                imageUrl = image,
                 onBack = { navController.popBackStack()},
                 onProductClick = {
                     navController.navigate(ScreensRoute.ProductInfoScreen)

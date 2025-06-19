@@ -7,6 +7,7 @@ query ProductsByCollection($collectionId: ID!) {
                     id
                     title
                     description
+                    vendor
                     featuredImage {
                         url
                     }
@@ -14,6 +15,10 @@ query ProductsByCollection($collectionId: ID!) {
                         edges {
                             node {
                                 price {
+                                    amount
+                                    currencyCode
+                                }
+                                compareAtPrice {
                                     amount
                                     currencyCode
                                 }

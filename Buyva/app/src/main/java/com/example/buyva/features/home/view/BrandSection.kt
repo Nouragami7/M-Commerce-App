@@ -30,7 +30,7 @@ import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
 
 @Composable
-fun BrandSection(brands: List<BrandsAndProductsQuery.Node3>, onBrandClick: (String, String) -> Unit) {
+fun BrandSection(brands: List<BrandsAndProductsQuery.Node3>, onBrandClick: (String,String, String) -> Unit) {
     Column {
         Text(
             text = "Brands",
@@ -56,7 +56,7 @@ fun BrandSection(brands: List<BrandsAndProductsQuery.Node3>, onBrandClick: (Stri
                     title = title,
                     imageUrl = imageUrl,
                     onClick = {
-                        onBrandClick(id, imageUrl)
+                        onBrandClick(id,title, imageUrl)
                     }
                 )
             }

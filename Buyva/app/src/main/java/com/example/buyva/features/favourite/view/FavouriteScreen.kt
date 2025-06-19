@@ -7,7 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.buyva.R
-import com.example.buyva.data.model.Product
+import com.example.buyva.type.Product
 import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.components.ScreenTitle
 

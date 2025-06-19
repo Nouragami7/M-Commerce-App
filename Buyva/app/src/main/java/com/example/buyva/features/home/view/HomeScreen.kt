@@ -36,7 +36,7 @@ import com.example.buyva.utils.components.ScreenTitle
 @Composable
 fun HomeScreen(
     onCartClick: () -> Unit = {},
-    onBrandClick: (String, String) -> Unit = { _, _ -> },
+    onBrandClick: (String,String, String) -> Unit = { _, _ ,_-> },
     onProductClick: () -> Unit = {}
 ){
     val viewModelFactory = HomeFactory(
