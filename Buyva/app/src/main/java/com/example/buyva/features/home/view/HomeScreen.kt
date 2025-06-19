@@ -23,11 +23,13 @@ import com.example.buyva.data.model.Product
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
+import com.example.buyva.utils.components.ScreenTitle
 
 @Composable
 fun HomeScreen(
     onCartClick: () -> Unit = {},
-    onBrandClick: (String, Int) -> Unit = { _, _ -> }
+    onBrandClick: (String, Int) -> Unit = { _, _ -> },
+    onProductClick: () -> Unit = {}
 ){
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = true
@@ -51,7 +53,7 @@ fun HomeScreen(
         .verticalScroll(rememberScrollState())
         .padding(8.dp)) {
 
-        Spacer(modifier = Modifier.height(32.dp))
+        ScreenTitle("BuyVa")
 
         SearchBarWithCartIcon(onCartClick)
 
@@ -86,7 +88,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        ProductSection(products = allProducts)
+        ProductSection(products = allProducts, onProductClick = onProductClick)
 
     }
 

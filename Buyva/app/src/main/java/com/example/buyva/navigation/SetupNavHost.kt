@@ -70,11 +70,15 @@ fun SetupNavHost(
             onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
             onBrandClick = { name, logoRes ->
                 navController.navigate(ScreensRoute.BrandProductsScreen(name, logoRes))
+            },
+            onProductClick = {
+                navController.navigate(ScreensRoute.ProductInfoScreen)
             }
         ) }
         composable<ScreensRoute.CartScreen> { CartScreen() }
         composable<ScreensRoute.CategoriesScreen> { CategoryScreen(
-            onCartClick = { navController.navigate(ScreensRoute.CartScreen)}
+            onCartClick = { navController.navigate(ScreensRoute.CartScreen)},
+            onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) }
         ) }
         composable<ScreensRoute.FavouritesScreen> { FavouriteScreen() }
 
@@ -132,6 +136,10 @@ fun SetupNavHost(
                 brandName = name,
                 imageRes = logoRes,
                 onBack = { navController.popBackStack()},
+                onProductClick = {
+                    navController.navigate(ScreensRoute.ProductInfoScreen)
+                }
+
             )
         }
 
@@ -141,7 +149,10 @@ fun SetupNavHost(
             onOrderClick = {navController.navigate(ScreensRoute.OrderDetailsScreen(it))}
         ) }
 
-        composable<ScreensRoute.OrderDetailsScreen> { OrderDetailsScreen() }
+        composable<ScreensRoute.OrderDetailsScreen> { OrderDetailsScreen(
+            onBack = { navController.popBackStack() },
+            onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) }
+        ) }
 
 
     }
