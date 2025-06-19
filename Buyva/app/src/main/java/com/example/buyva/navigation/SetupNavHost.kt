@@ -26,11 +26,12 @@ import com.example.yourapp.ui.screens.OrderScreen
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SetupNavHost(
-    navController: NavHostController
+    navController: NavHostController,
+    startDestination: String
 ) {
     NavHost(
         navController = navController,
-        startDestination = ScreensRoute.HomeScreen
+        startDestination = startDestination
     ) {
         composable<ScreensRoute.WelcomeScreen> {
             WelcomeScreen(
