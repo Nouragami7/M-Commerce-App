@@ -1,6 +1,5 @@
 package com.example.buyva.utils.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -26,18 +27,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.buyva.data.model.Product
+import coil.compose.AsyncImage
+import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.ui.theme.Cold
 
 @Composable
-fun ProductCard(product: Product, modifier: Modifier = Modifier, onProductClick: () -> Unit) {
+fun ProductCard(product: BrandsAndProductsQuery.Node, modifier: Modifier = Modifier, onProductClick: () -> Unit) {
     var isFav by remember { mutableStateOf(false) }
+
+    val imageUrl = product.featuredImage?.url?.toString() ?: ""
+    val productTitle = product.title
+    val productType = product.productType
+    val price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
+    val currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
+
 
     Card(
         modifier = modifier
@@ -53,19 +61,18 @@ fun ProductCard(product: Product, modifier: Modifier = Modifier, onProductClick:
                 .padding(10.dp)
                 .fillMaxSize()
         ) {
-            Image(
-                painter = painterResource(id = product.imageResId),
-                contentDescription = product.name,
+            AsyncImage(
+                model = imageUrl,
+                contentDescription = "Product Image",
                 modifier = Modifier
-                    .height(100.dp)
-                    .fillMaxWidth(),
-                contentScale = ContentScale.Crop
+                    .size(80.dp)
+                    .clip(CircleShape)
             )
 
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = product.name,
+                text = productTitle,
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
@@ -74,7 +81,7 @@ fun ProductCard(product: Product, modifier: Modifier = Modifier, onProductClick:
             Spacer(modifier = Modifier.height(1.dp))
 
             Text(
-                text = product.type,
+                text = productType,
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
                 fontSize = 12.sp,
@@ -89,7 +96,7 @@ fun ProductCard(product: Product, modifier: Modifier = Modifier, onProductClick:
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = product.price,
+                    text = "$price $currency",
                     color = Cold,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold

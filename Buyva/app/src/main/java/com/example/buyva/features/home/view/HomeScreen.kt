@@ -14,15 +14,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.buyva.R
-import com.example.buyva.data.model.Brand
-import com.example.buyva.data.model.Product
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.buyva.BrandsAndProductsQuery
+import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
+import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.model.uistate.ResponseState
+import com.example.buyva.data.repository.home.HomeRepositoryImpl
+import com.example.buyva.features.home.viewmodel.HomeFactory
+import com.example.buyva.features.home.viewmodel.HomeViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
+import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.components.ScreenTitle
 
 @Composable
@@ -31,22 +39,17 @@ fun HomeScreen(
     onBrandClick: (String, Int) -> Unit = { _, _ -> },
     onProductClick: () -> Unit = {}
 ){
+    val viewModelFactory = HomeFactory(
+        HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
+    )
+    val homeViewModel: HomeViewModel = viewModel(factory = viewModelFactory)
+
+
+    val brandsAndProducts by homeViewModel.brandsAndProducts.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = true
+        homeViewModel.getBrandsAndProduct()
     }
-
-    val allProducts = listOf(
-        Product(1, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", "CLASSIC"),
-        Product(2, "VANS", "2100.00 EGP", R.drawable.logo, "Women", "CLASSIC"),
-        Product(3, "VANS", "2384.00 EGP", R.drawable.logo, "Kid", "ERA 59"),
-        Product(4, "VANS", "400.00 EGP", R.drawable.logo, "Sale", "APPAREL"),
-        Product(5, "VANS", "1431.00 EGP", R.drawable.logo, "Men", "AUTHENTIC"),
-        Product(6, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", "CLASSIC"),
-        Product(7, "VANS", "2100.00 EGP", R.drawable.logo, "Women", "CLASSIC"),
-        Product(8, "VANS", "2384.00 EGP", R.drawable.logo, "Kid", "ERA 59"),
-        Product(9, "VANS", "400.00 EGP", R.drawable.logo, "Sale", "APPAREL"),
-        Product(10, "VANS", "1431.00 EGP", R.drawable.logo, "Men", "AUTHENTIC")
-    )
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -63,32 +66,39 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        BrandSection(
-            brands = listOf(
-                Brand("Adidas", R.drawable.adidas),
-                Brand("Adidas", R.drawable.adidas),
-                Brand("Adidas", R.drawable.adidas),
-                Brand("Adidas", R.drawable.adidas),
-                Brand("Adidas", R.drawable.adidas),
-                Brand("Adidas", R.drawable.adidas),
-                Brand("Adidas", R.drawable.adidas),
-                Brand("Adidas", R.drawable.adidas),
-                ),
-            onBrandClick = onBrandClick
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        when (val state = brandsAndProducts) {
+            is ResponseState.Failure -> {
+                Text(text = state.message.toString())
+            }
+            ResponseState.Loading -> LoadingIndicator()
+            is ResponseState.Success<*> ->{
+                val (brands, products) = state.data as Pair<List<BrandsAndProductsQuery.Node3>, List<BrandsAndProductsQuery.Node>>
+                val filteredBrands = brands.filter { it.title.lowercase() != "home page" }
+                BrandSection(
+                    brands = filteredBrands,
+                    onBrandClick = onBrandClick
+                )
 
-        Text(
-            text = "For You",
-            style = MaterialTheme.typography.headlineSmall,
-            color = Cold,
-            fontFamily = ubuntuMedium,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "For You",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Cold,
+                    fontFamily = ubuntuMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
 
-        Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-        ProductSection(products = allProducts, onProductClick = onProductClick)
+                ProductSection(products = products, onProductClick = onProductClick)
+
+            }
+
+
+        }
+
+
+
 
     }
 
