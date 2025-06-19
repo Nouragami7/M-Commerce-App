@@ -1,4 +1,5 @@
 package com.example.buyva.features.authentication.signup.viewmodel
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -8,6 +9,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -41,30 +43,32 @@ class SignupViewModel(private val repository: AuthRepository) : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val firebaseUser = repository.signUpWithEmail(email, password)
-                if (firebaseUser == null) {
-                    _error.value = "Sign up failed"
-                    return@launch
-                }
-                firebaseUser.sendEmailVerification().addOnCompleteListener { verifyTask ->
-                    if (verifyTask.isSuccessful) {
-                        viewModelScope.launch {
-                            try {
-                                firebaseUser.reloadSuspend()
-                                if (firebaseUser.isEmailVerified) {
-                                    _user.value = firebaseUser
-                                    _error.value = null
-                                } else {
-                                    _error.value = "Please verify your email. A verification link was sent."
-                                    _user.value = null
+                val result = repository.signUpAndCreateShopifyCustomer(fullName, email, password)
+                if (result.isSuccess) {
+                    val firebaseUser = result.getOrNull()!!
+                    firebaseUser.reload().await() // ✅ تحديث حالة اليوزر من السيرفر
+                    firebaseUser.sendEmailVerification().addOnCompleteListener { verifyTask ->
+                        if (verifyTask.isSuccessful) {
+                            viewModelScope.launch {
+                                try {
+                                    firebaseUser.reloadSuspend()
+                                    if (firebaseUser.isEmailVerified) {
+                                        _user.value = firebaseUser
+                                        _error.value = null
+                                    } else {
+                                        _error.value = "Please verify your email. A verification link was sent."
+                                        _user.value = null
+                                    }
+                                } catch (e: Exception) {
+                                    _error.value = "Failed to reload user data."
                                 }
-                            } catch (e: Exception) {
-                                _error.value = "Failed to reload user data."
                             }
+                        } else {
+                            _error.value = "Failed to send verification email."
                         }
-                    } else {
-                        _error.value = "Failed to send verification email."
                     }
+                } else {
+                    _error.value = result.exceptionOrNull()?.message ?: "Sign up failed"
                 }
             } catch (e: Exception) {
                 _error.value = e.message ?: "Sign up failed"
@@ -89,9 +93,7 @@ class SignupViewModel(private val repository: AuthRepository) : ViewModel() {
     }
 }
 
-class SignupViewModelFactory(
-    private val repository: AuthRepository
-) : ViewModelProvider.Factory {
+class SignupViewModelFactory(private val repository: AuthRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return SignupViewModel(repository) as T
     }

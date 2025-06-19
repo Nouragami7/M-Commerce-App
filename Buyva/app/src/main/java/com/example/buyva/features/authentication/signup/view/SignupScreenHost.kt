@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.R
+import com.example.buyva.data.remote.graphql.ApolloService
 import com.example.buyva.data.repository.AuthRepository
 import com.example.buyva.features.authentication.signup.viewmodel.SignupViewModel
 import com.example.buyva.features.authentication.signup.viewmodel.SignupViewModelFactory
@@ -25,7 +26,12 @@ fun SignupScreenHost(
     val activity = context as Activity
 
     val factory = remember {
-        SignupViewModelFactory(AuthRepository(FirebaseAuth.getInstance()))
+        SignupViewModelFactory(
+            AuthRepository(
+                FirebaseAuth.getInstance(),
+                ApolloService.client // مهم جدًا هنا تمرير الـ apolloClient
+            )
+        )
     }
     val viewModel: SignupViewModel = viewModel(factory = factory)
 
