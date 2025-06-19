@@ -91,6 +91,10 @@ dependencies {
 
     implementation("com.airbnb.android:lottie-compose:6.3.0")
 
+    //payment
+    implementation("com.stripe:stripe-android:21.17.0")
+    implementation("com.stripe:paymentsheet:21.17.0")
+
 }
 apollo {
     service("service") {
