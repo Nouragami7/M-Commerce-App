@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.buyva.R
@@ -27,7 +28,7 @@ import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.utils.components.ProductCard
 
 @Composable
-    fun OrderDetailsScreen(onBack: () -> Unit = {}) {
+    fun OrderDetailsScreen(onBack: () -> Unit = {}, onProductClick: () -> Unit) {
 
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
@@ -53,7 +54,10 @@ import com.example.buyva.utils.components.ProductCard
             Text(
                 text = "Order Details",
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = Cold,
+                fontFamily = ubuntuMedium,
+                textAlign = TextAlign.Center
             )
         }
         Spacer(modifier = Modifier.height(2.dp))
@@ -117,7 +121,8 @@ import com.example.buyva.utils.components.ProductCard
                 R.drawable.logo,
                 "Men",
                 "CLASSIC"
-            )
+            ),
+            onProductClick = onProductClick
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -158,6 +163,16 @@ import com.example.buyva.utils.components.ProductCard
             Spacer(modifier = Modifier.height(24.dp))
 
             Column(modifier = Modifier.padding(16.dp)) {
+
+                Text(
+                    text = "Billing details",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    fontFamily = ubuntuMedium
+                )
+                Spacer(modifier = Modifier.height(24.dp))
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween

@@ -21,6 +21,7 @@ import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
 import com.example.buyva.ui.theme.Teal
 import com.example.buyva.navigation.navbar.NavigationBar
+import com.example.buyva.utils.components.ScreenTitle
 
 
 @Composable
@@ -37,10 +38,10 @@ fun ProfileScreen(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .background(Gray)
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(36.dp))
+        ScreenTitle("Profile")
 
         Box(
             modifier = Modifier

@@ -36,13 +36,14 @@ import com.example.buyva.data.model.Product
 import com.example.buyva.ui.theme.Cold
 
 @Composable
-fun ProductCard(product: Product, modifier: Modifier = Modifier) {
+fun ProductCard(product: Product, modifier: Modifier = Modifier, onProductClick: () -> Unit) {
     var isFav by remember { mutableStateOf(false) }
 
     Card(
         modifier = modifier
             .padding(vertical = 4.dp)
             .height(190.dp),
+        onClick = onProductClick,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)

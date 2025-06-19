@@ -19,10 +19,12 @@ import com.example.buyva.ui.theme.DarkGray
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.utils.components.PriceFilterIcon
 import com.example.buyva.utils.components.PriceFilterSlider
+import com.example.buyva.utils.components.ScreenTitle
 
 @Composable
 fun CategoryScreen(
-    onCartClick: () -> Unit
+    onCartClick: () -> Unit,
+    onProductClick: () -> Unit
 ) {
     var maxPrice by remember { mutableFloatStateOf(2522f) }
     var selectedCategory by remember { mutableStateOf("Men") }
@@ -63,7 +65,7 @@ fun CategoryScreen(
                 .padding(12.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            Spacer(modifier = Modifier.height(32.dp))
+            ScreenTitle("Categories")
             SearchBarWithCartIcon(
                 onCartClick = onCartClick
             )
@@ -102,7 +104,7 @@ fun CategoryScreen(
                     }
                 }
 
-                ProductSection(products = filteredProducts)
+                ProductSection(products = filteredProducts, onProductClick)
             }
         }
 

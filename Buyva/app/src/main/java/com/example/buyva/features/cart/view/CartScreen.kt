@@ -35,6 +35,8 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.airbnb.lottie.compose.*
+import com.example.buyva.utils.components.EmptyScreen
+import com.example.buyva.utils.components.ScreenTitle
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -69,25 +71,14 @@ fun CartScreen() {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues).padding(top = 40.dp)
+                .padding(paddingValues)
         ) {
+
+            ScreenTitle("Cart")
+
+
             if (cartItems.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .padding(bottom = 16.dp)
-                            .fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            LottieAnimation(
-                                composition = rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.emptycart)).value,
-                                iterations = LottieConstants.IterateForever,
-                                modifier = Modifier.size(200.dp)
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text("Your cart is empty", color = Color.Gray)
-                        }
-                    }
+                    EmptyScreen("No items in the cart", R.raw.emptycart)
             }
             else {
             LazyColumn(modifier = Modifier.weight(1f)) {

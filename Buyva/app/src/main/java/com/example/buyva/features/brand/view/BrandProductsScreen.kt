@@ -30,13 +30,16 @@ import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.ubuntuMedium
 import com.example.buyva.utils.components.PriceFilterIcon
 import com.example.buyva.utils.components.PriceFilterSlider
+import com.example.buyva.utils.components.ScreenTitle
 
 
 @Composable
 fun BrandProductsScreen(
     brandName: String,
     imageRes: Int,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onProductClick: () -> Unit
+
 ) {
     var showSlider by remember { mutableStateOf(false) }
     var maxPrice by remember { mutableFloatStateOf(2522f) }
@@ -59,6 +62,7 @@ fun BrandProductsScreen(
             .fillMaxSize()
             .padding(12.dp)
     ) {
+        ScreenTitle("Brand Products")
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 16.dp)) {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -94,7 +98,7 @@ fun BrandProductsScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        ProductSection(products = allProducts)
+        ProductSection(products = allProducts, onProductClick)
     }
     Box(
         modifier = Modifier

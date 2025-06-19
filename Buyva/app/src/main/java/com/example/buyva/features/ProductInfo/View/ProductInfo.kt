@@ -29,6 +29,8 @@ import com.example.buyva.R
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
+import com.example.buyva.navigation.navbar.NavigationBar
+import com.example.buyva.utils.components.ScreenTitle
 
 @Composable
 fun ProductInfoScreen() {
@@ -36,7 +38,9 @@ fun ProductInfoScreen() {
     var isFavorite by remember { mutableStateOf(false) }
     var showAllReviews by remember { mutableStateOf(false) }
     var isAddedToCart by remember { mutableStateOf(false) }
-
+    LaunchedEffect(Unit) {
+        NavigationBar.mutableNavBarState.value = false
+    }
 
     val allReviews = listOf(
         Review("Youssef", 5, "Amazing quality!"),
@@ -60,12 +64,12 @@ fun ProductInfoScreen() {
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = 80.dp)
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            ScreenTitle("Product Info")
 
             Box(modifier = Modifier.fillMaxWidth()) {
                 ImageCarousel(
                     images = listOf(
-                       R.drawable.shoe_placeholder,
+                        R.drawable.shoe_placeholder,
                         R.drawable.shoe_placeholder,
                         R.drawable.shoe_placeholder
                     ),
@@ -131,11 +135,16 @@ fun ProductInfoScreen() {
             ) {
                 listOf("1", "2", "3", "4").forEach { size ->
                     OutlinedButton(
-                        onClick = {},
-                        modifier = Modifier.defaultMinSize(minWidth = 48.dp)
+                        onClick = { },
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = Color.White,
+                            contentColor = Cold,
+                            disabledContentColor = Color.Gray
+                        )
                     ) {
                         Text(size)
                     }
+
                 }
             }
 
@@ -299,7 +308,7 @@ fun ImageCarousel(images: List<Int>, onImageClick: (Int) -> Unit) {
                     modifier = Modifier
                         .size(if (index == pagerState.currentPage) 12.dp else 8.dp)
                         .clip(CircleShape)
-                        .background(if (index == pagerState.currentPage) Color(0xFF9C27B0) else Color.LightGray)
+                        .background(if (index == pagerState.currentPage) Cold else Color.LightGray)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
             }

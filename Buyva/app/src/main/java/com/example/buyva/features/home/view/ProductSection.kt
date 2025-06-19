@@ -13,7 +13,7 @@ import com.example.buyva.utils.components.ProductCard
 import kotlinx.coroutines.delay
 
 @Composable
-fun ProductSection(products: List<Product>) {
+fun ProductSection(products: List<Product>, onProductClick: () -> Unit) {
     val density = LocalDensity.current.density
 
     Column(
@@ -64,7 +64,7 @@ fun ProductSection(products: List<Product>) {
                                     cameraDistance = 12f * density
                                 }
                         ) {
-                            ProductCard(product = product)
+                            ProductCard(product = product, onProductClick = onProductClick)
                         }
                     }
                 }

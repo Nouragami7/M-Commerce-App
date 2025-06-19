@@ -12,7 +12,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.airbnb.lottie.compose.*
 import com.example.buyva.R
 import com.example.buyva.data.model.Product
+import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.components.ProductCard
+import com.example.buyva.utils.components.ScreenTitle
+
 @Composable
 
 fun FavouriteScreen() {
@@ -24,44 +27,21 @@ fun FavouriteScreen() {
 //            Product(2, "VANS", "2100.00 EGP", R.drawable.logo, "Women", "CLASSIC")
 //        )
     }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
 
-    if (favouriteProducts.isEmpty()) {
-        EmptyFavouriteAnimation()
+        ScreenTitle("Favourite")
+
+        if (favouriteProducts.isEmpty()) {
+        EmptyScreen("No favourites yet", R.raw.empty_order)
     } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 40.dp)
-        ) {
-            ProductSection(products = favouriteProducts)
+            ProductSection(products = favouriteProducts, onProductClick = {})
         }
     }
 }
 
-@Composable
-fun EmptyFavouriteAnimation() {
-    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.empty_favorite))
-    val progress by animateLottieCompositionAsState(
-        composition = composition,
-        iterations = LottieConstants.IterateForever
-    )
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        LottieAnimation(
-            composition = composition,
-            progress = { progress },
-            modifier = Modifier.size(300.dp)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "No favourites yet", color = Color.Gray)
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
