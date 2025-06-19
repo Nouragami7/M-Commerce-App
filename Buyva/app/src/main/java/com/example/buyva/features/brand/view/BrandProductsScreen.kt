@@ -33,7 +33,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.buyva.R
-import com.example.buyva.data.model.Product
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.ubuntuMedium
 import com.example.buyva.utils.components.PriceFilterIcon
@@ -56,14 +55,6 @@ fun BrandProductsScreen(
         NavigationBar.mutableNavBarState.value = false
     }
 
-    val allProducts = listOf(
-        Product(1, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", "CLASSIC"),
-        Product(2, "VANS", "2100.00 EGP", R.drawable.logo, "Women", "CLASSIC"),
-        Product(3, "VANS", "2384.00 EGP", R.drawable.logo, "Kid", "ERA 59"),
-        Product(4, "VANS", "400.00 EGP", R.drawable.logo, "Sale", "APPAREL"),
-        Product(5, "VANS", "1431.00 EGP", R.drawable.logo, "Men", "AUTHENTIC"),
-        Product(6, "CONVERSE", "2000.00 EGP", R.drawable.logo, "Men", "CLASSIC")
-    )
 
     Column(
         modifier = Modifier
