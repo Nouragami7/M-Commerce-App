@@ -1,0 +1,28 @@
+query GetProductById($id: ID!) {
+    product(id: $id) {
+        id
+        title
+        description
+        productType
+        vendor
+        totalInventory
+        variants(first: 1) {
+            edges {
+                node {
+                    priceV2 {
+                        amount
+                        currencyCode
+                    }
+                }
+            }
+        }
+        images(first: 10) {
+            edges {
+                node {
+                    originalSrc
+                }
+            }
+        }
+        onlineStoreUrl
+    }
+}

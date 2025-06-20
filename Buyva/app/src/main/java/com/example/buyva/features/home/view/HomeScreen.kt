@@ -37,7 +37,8 @@ import com.example.buyva.utils.components.ScreenTitle
 fun HomeScreen(
     onCartClick: () -> Unit = {},
     onBrandClick: (String,String, String) -> Unit = { _, _ ,_-> },
-    onProductClick: () -> Unit = {}
+    onProductClick: (String) -> Unit = {}
+
 ){
     val viewModelFactory = HomeFactory(
         HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))

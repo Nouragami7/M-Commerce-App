@@ -25,37 +25,72 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.R
+import com.example.buyva.data.model.uistate.ResponseState
+import com.example.buyva.data.repository.home.IHomeRepository
+import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModel
+import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModelFactory
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.utils.components.ScreenTitle
-
 @Composable
-fun ProductInfoScreen() {
-    var selectedImage by remember { mutableStateOf<Int?>(null) }
+fun ProductInfoScreen(
+    productId: String,
+    repository: IHomeRepository // مرره من الـ NavGraph
+) {
+    val factory = remember { ProductInfoViewModelFactory(repository) }
+    val viewModel: ProductInfoViewModel = viewModel(factory = factory)
+    val state by viewModel.product.collectAsState()
+
+    LaunchedEffect(productId) {
+        NavigationBar.mutableNavBarState.value = false
+        viewModel.fetchProduct(productId)
+    }
+
+    when (val result = state) {
+        is ResponseState.Loading -> {
+            // show loading
+        }
+
+        is ResponseState.Failure -> {
+            Text("Error: ${result.message.message}")
+        }
+
+        is ResponseState.Success<*> -> {
+            val product = result.data as? GetProductByIdQuery.Product
+            if (product != null) {
+                ProductInfoContent(product)
+            }
+        }
+    }
+}
+@Composable
+fun ProductInfoContent(product: GetProductByIdQuery.Product) {
+    var selectedImage by remember { mutableStateOf<String?>(null) }
     var isFavorite by remember { mutableStateOf(false) }
     var showAllReviews by remember { mutableStateOf(false) }
     var isAddedToCart by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        NavigationBar.mutableNavBarState.value = false
-    }
 
-    val allReviews = listOf(
+    val images = product.images.edges.mapNotNull { it.node.originalSrc?.toString() }
+    val title = product.title
+    val vendor = product.vendor
+    val description = product.description
+    val price = product.variants.edges.firstOrNull()?.node?.priceV2?.amount ?: "0.0"
+    val currency = product.variants.edges.firstOrNull()?.node?.priceV2?.currencyCode?.name ?: ""
+    val inStock = (product.totalInventory ?: 0) > 0
+
+    val reviews = listOf(
         Review("Youssef", 5, "Amazing quality!"),
         Review("Sara", 4, "Very comfy and stylish."),
-        Review("Ali", 4, "Great fit!"),
-        Review("Lina", 3, "Looks nice."),
         Review("Omar", 5, "Perfect for school."),
-        Review("Rana", 4, "Nice design."),
-        Review("Salma", 5, "My son loves it."),
-        Review("Tarek", 4, "Worth the price."),
-        Review("Mona", 3, "Good quality."),
-        Review("Ahmed", 5, "Highly recommended.")
+        Review("Mona", 3, "Good quality.")
     )
-
-    val reviewsToShow = if (showAllReviews) allReviews else allReviews.take(2)
+    val reviewsToShow = if (showAllReviews) reviews else reviews.take(2)
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -64,18 +99,10 @@ fun ProductInfoScreen() {
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = 80.dp)
         ) {
-            ScreenTitle("Product Info")
 
+            // 🔁 صور المنتج
             Box(modifier = Modifier.fillMaxWidth()) {
-                ImageCarousel(
-                    images = listOf(
-                        R.drawable.shoe_placeholder,
-                        R.drawable.shoe_placeholder,
-                        R.drawable.shoe_placeholder
-                    ),
-                    onImageClick = { clickedImage -> selectedImage = clickedImage }
-                )
-
+                ImageCarousel(images = images, onImageClick = { selectedImage = it })
                 Icon(
                     imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     contentDescription = "Favorite",
@@ -99,67 +126,44 @@ fun ProductInfoScreen() {
                     .fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
+                    Text(title, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(vendor ?: "", color = Color.Gray, fontSize = 12.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("$price $currency", color = Cold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "ADIDAS | KID'S STAN SMITH",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
+                        if (inStock) "In Stock" else "Out of Stock",
+                        color = if (inStock) Color.Red else Color.Gray,
+                        fontSize = 12.sp
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("ADIDAS", color = Color.Gray, fontSize = 12.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("2000.0 EGP", color = Cold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("In Stock", color = Color.Red, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        "The Stan Smith owned the tennis court in the '70s. Today it runs the streets with the same clean, classic style The Stan Smith owned the tennis court in the '70s. Today it runs the streets with the same clean, classic styleThe Stan Smith owned the tennis court in the '70s. Today it runs the streets with the same clean, classic styleThe Stan Smith owned the tennis court in the '70s. Today it runs the streets with the same clean, classic styleThe Stan Smith owned the tennis court in the '70s. Today it runs the streets with the same clean, classic style",
-                        fontSize = 16.sp,
-                        lineHeight = 22.sp
-                    )
+                    Text(description, fontSize = 16.sp, lineHeight = 22.sp)
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                "Select Size",
-                modifier = Modifier.padding(start = 16.dp),
-                fontWeight = FontWeight.SemiBold
-            )
+            // 🔘 الأزرار الجانبية
+            Text("Select Size", Modifier.padding(start = 16.dp), fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth(),
+                Modifier.padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                listOf("1", "2", "3", "4").forEach { size ->
-                    OutlinedButton(
-                        onClick = { },
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = Color.White,
-                            contentColor = Cold,
-                            disabledContentColor = Color.Gray
-                        )
-                    ) {
-                        Text(size)
+                listOf("S", "M", "L", "XL").forEach {
+                    OutlinedButton(onClick = { }) {
+                        Text(it)
                     }
-
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                "Select Color",
-                modifier = Modifier.padding(start = 16.dp),
-                fontWeight = FontWeight.SemiBold
-            )
+            Text("Select Color", Modifier.padding(start = 16.dp), fontWeight = FontWeight.SemiBold)
             Spacer(modifier = Modifier.height(8.dp))
             Row(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth(),
+                Modifier.padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 ColorOption(Color.White, "White")
@@ -169,50 +173,38 @@ fun ProductInfoScreen() {
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                "Reviews",
-                modifier = Modifier.padding(start = 16.dp),
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp
-            )
+            // ⭐ المراجعات
+            Text("Reviews", Modifier.padding(start = 16.dp), fontWeight = FontWeight.Bold, fontSize = 18.sp)
             Spacer(modifier = Modifier.height(8.dp))
-
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+            Column(Modifier.padding(horizontal = 16.dp)) {
                 reviewsToShow.forEach {
                     ReviewItem(it)
                     Spacer(modifier = Modifier.height(8.dp))
                 }
-
                 TextButton(onClick = { showAllReviews = !showAllReviews }) {
-                    Text(
-                        text = if (showAllReviews) "Show Less" else "More Reviews",
-                        color = Color(0xFF48A6A7)
-                    )
+                    Text(if (showAllReviews) "Show Less" else "More Reviews", color = Sea)
                 }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
-
         }
+
+        // 🛒 زر الإضافة للسلة
         Box(
-            modifier = Modifier
+            Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .background(Color.White)
                 .padding(16.dp)
         ) {
             OutlinedButton(
-                onClick = {
-                    isAddedToCart = !isAddedToCart
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
+                onClick = { isAddedToCart = !isAddedToCart },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = if (isAddedToCart) Color(0xFF48A6A7) else Color.White,
-                    contentColor = if (isAddedToCart) Color.White else Color(0xFF48A6A7)
+                    containerColor = if (isAddedToCart) Sea else Color.White,
+                    contentColor = if (isAddedToCart) Color.White else Sea
                 ),
-                border = BorderStroke(1.dp, Color(0xFF48A6A7))
+                border = BorderStroke(1.dp, Sea)
             ) {
                 Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
                 Spacer(modifier = Modifier.width(8.dp))
@@ -221,10 +213,8 @@ fun ProductInfoScreen() {
         }
     }
 
-    selectedImage?.let { imageRes ->
-        FullscreenImageViewer(imageRes = imageRes) {
-            selectedImage = null
-        }
+    selectedImage?.let {
+        FullscreenImageViewer(imageUrl = it) { selectedImage = null }
     }
 }
 
@@ -269,9 +259,8 @@ fun ReviewItem(review: Review) {
         }
     }
 }
-
 @Composable
-fun ImageCarousel(images: List<Int>, onImageClick: (Int) -> Unit) {
+fun ImageCarousel(images: List<String>, onImageClick: (String) -> Unit) {
     val pagerState = rememberPagerState(pageCount = { images.size })
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -288,8 +277,8 @@ fun ImageCarousel(images: List<Int>, onImageClick: (Int) -> Unit) {
                     .clip(RoundedCornerShape(16.dp))
                     .clickable { onImageClick(images[page]) }
             ) {
-                Image(
-                    painter = painterResource(id = images[page]),
+                AsyncImage(
+                    model = images[page],
                     contentDescription = "Product Image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
@@ -317,7 +306,7 @@ fun ImageCarousel(images: List<Int>, onImageClick: (Int) -> Unit) {
 }
 
 @Composable
-fun FullscreenImageViewer(imageRes: Int, onDismiss: () -> Unit) {
+fun FullscreenImageViewer(imageUrl: String, onDismiss: () -> Unit) {
     var scale by remember { mutableStateOf(1f) }
     Box(
         modifier = Modifier
@@ -329,8 +318,8 @@ fun FullscreenImageViewer(imageRes: Int, onDismiss: () -> Unit) {
             },
         contentAlignment = Alignment.Center
     ) {
-        Image(
-            painter = painterResource(id = imageRes),
+        AsyncImage(
+            model = imageUrl,
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier = Modifier
@@ -350,6 +339,9 @@ fun FullscreenImageViewer(imageRes: Int, onDismiss: () -> Unit) {
 @Composable
 fun PreviewProductInfoScreen() {
     MaterialTheme {
-        ProductInfoScreen()
+        ProductInfoScreen(
+            productId = TODO(),
+            repository = TODO()
+        )
     }
 }

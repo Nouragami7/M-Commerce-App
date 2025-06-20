@@ -90,6 +90,9 @@ dependencies {
 
     implementation("com.airbnb.android:lottie-compose:6.3.0")
     implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
+
+
 
 
 }

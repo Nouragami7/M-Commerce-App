@@ -4,9 +4,13 @@ import CartScreen
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
+import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.ProductInfo.View.ProductInfoScreen
 import com.example.buyva.features.authentication.login.view.LoginScreenHost
 import com.example.buyva.features.authentication.login.view.WelcomeScreen
@@ -81,8 +85,8 @@ fun SetupNavHost(
                 navController.navigate(ScreensRoute.BrandProductsScreen(brandId, brandTitle, brandImage))
             }
             ,
-            onProductClick = {
-                navController.navigate(ScreensRoute.ProductInfoScreen)
+            onProductClick = { productId ->
+                navController.navigate("productInfo/$productId")
             }
         ) }
         composable<ScreensRoute.CartScreen> { CartScreen() }
@@ -158,8 +162,17 @@ fun SetupNavHost(
 
             )
         }
+        composable("productInfo/{productId}") { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
 
-        composable<ScreensRoute.ProductInfoScreen> { ProductInfoScreen() }
+            val repository = remember {
+                HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
+            }
+
+            ProductInfoScreen(productId = productId, repository = repository)
+        }
+
+
         composable<ScreensRoute.OrderScreen> { OrderScreen(
             onBack = { navController.popBackStack() },
             onOrderClick = {navController.navigate(ScreensRoute.OrderDetailsScreen(it))}
