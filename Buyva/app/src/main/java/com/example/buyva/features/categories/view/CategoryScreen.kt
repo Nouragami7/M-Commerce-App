@@ -1,5 +1,6 @@
 package com.example.buyva.features.categories.view
 
+import ProductSection
 import SearchBarWithCartIcon
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -15,7 +16,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,10 +28,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.R
+import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
+import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.model.Category
+import com.example.buyva.data.model.uistate.ResponseState
+import com.example.buyva.data.repository.categories.CategoryRepositoryImpl
+import com.example.buyva.features.categories.viewmodel.CategoryFactory
+import com.example.buyva.features.categories.viewmodel.CategoryViewModel
 import com.example.buyva.ui.theme.DarkGray
 import com.example.buyva.ui.theme.Gray
+import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.components.PriceFilterIcon
 import com.example.buyva.utils.components.PriceFilterSlider
 import com.example.buyva.utils.components.ScreenTitle
@@ -36,13 +49,24 @@ import com.example.buyva.utils.components.ScreenTitle
 @Composable
 fun CategoryScreen(
     onCartClick: () -> Unit,
-    onProductClick: () -> Unit
+    onProductClick: (String) -> Unit
 ) {
     var maxPrice by remember { mutableFloatStateOf(2522f) }
     var selectedCategory by remember { mutableStateOf("Men") }
     var showSlider by remember { mutableStateOf(false) }
     val selectedBackground = DarkGray.copy(alpha = 0.20f)
     val unselectedBackground = Color.Transparent
+
+    val viewModelFactory = CategoryFactory(
+        CategoryRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
+    )
+    val categoryViewModel: CategoryViewModel = viewModel(factory = viewModelFactory)
+
+    val productsByCategory by categoryViewModel.productsByCategory.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        categoryViewModel.getProductByCategory(selectedCategory.lowercase())
+    }
 
     val categories = listOf(
         Category("Men", R.drawable.man),
@@ -97,8 +121,19 @@ fun CategoryScreen(
                         }
                     }
                 }
+                Box(modifier = Modifier.weight(1f)) {
+                    when(val state = productsByCategory){
+                        is ResponseState.Failure -> {
+                            Text(state.message.toString())
+                        }
+                        ResponseState.Loading -> LoadingIndicator()
+                        is ResponseState.Success <*> -> {
+                            val products = state.data as List<GetProductsByCategoryQuery.Node>
+                            ProductSection(products = products, onProductClick = onProductClick)
+                        }
+                    }
+                }
 
-               // ProductSection(products = filteredProducts, onProductClick)
             }
         }
 

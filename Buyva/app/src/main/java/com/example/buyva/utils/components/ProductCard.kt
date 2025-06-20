@@ -35,25 +35,46 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.buyva.BrandsAndProductsQuery
+import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ui.theme.Cold
 
 @Composable
-fun ProductCard(product: BrandsAndProductsQuery.Node, modifier: Modifier = Modifier,onProductClick: (String) -> Unit
+fun ProductCard(product: Any, modifier: Modifier = Modifier,onProductClick: (String) -> Unit
 ) {
     var isFav by remember { mutableStateOf(false) }
 
-    val imageUrl = product.featuredImage?.url?.toString() ?: ""
-    val productTitle = product.title
-    val productType = product.productType
-    val price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
-    val currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
+    var id = ""
+    var imageUrl = ""
+    var productTitle = " "
+    var productType = " "
+    var price = " "
+    var currency = " "
 
+    when (product) {
+        is BrandsAndProductsQuery.Node -> {
+            id = product.id
+            imageUrl = product.featuredImage?.url?.toString() ?: ""
+            productTitle = product.title
+            productType = product.productType
+            price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
+            currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
+        }
+        is GetProductsByCategoryQuery.Node -> {
+            id = product.id
+            imageUrl =product.images.edges.firstOrNull()?.node?.url?.toString() ?: ""
+            productTitle = product.title
+            productType = product.productType
+            price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
+            currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
+
+        }
+    }
 
     Card(
         modifier = modifier
             .padding(vertical = 4.dp)
             .height(190.dp),
-        onClick = { onProductClick(Uri.encode(product.id)) },
+        onClick = { onProductClick(Uri.encode(id)) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
