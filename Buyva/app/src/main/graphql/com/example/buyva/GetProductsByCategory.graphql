@@ -1,9 +1,9 @@
 query GetProductsByCategory($handle: String!) {
-    collection(handle: $handle) {
+    collectionByHandle(handle: $handle) {
         id
         title
         description
-        products(first: 10) {
+        products(first: 50) {
             edges {
                 node {
                     id

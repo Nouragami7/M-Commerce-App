@@ -10,22 +10,26 @@ class CategoryViewModel(private val categoryRepository: ICategoryRepository) : V
     private val _productsByCategory =  MutableStateFlow<ResponseState>(ResponseState.Loading)
     val productsByCategory: MutableStateFlow<ResponseState> = _productsByCategory
 
-  suspend fun getProductByCategory(handle: String){
-        categoryRepository.getProductsByCategory(handle).collect{
-            try {
-                _productsByCategory.value = ResponseState.Loading
-                if (it != null) {
-                    val products = it.collection?.products?.edges?.map { edge -> edge.node}
-                    _productsByCategory.value = ResponseState.Success(products)
-                } else {
-                    _productsByCategory.value = ResponseState.Failure(Exception("Failed to fetch data"))
-                }
-            }catch (e:Exception){
-                _productsByCategory.value = ResponseState.Failure(e)
+    suspend fun getProductByCategory(handle: String) {
+        _productsByCategory.value = ResponseState.Loading // Move this out of collect
+        try {
+            categoryRepository.getProductsByCategory(handle).collect { response ->
+                val products = response
+                    ?.collectionByHandle
+                    ?.products
+                    ?.edges
+                    ?.map { it.node }
+                    ?: emptyList()
 
+                println("Fetched ${products.size} products for category: $handle")
+
+                _productsByCategory.value = ResponseState.Success(products)
             }
+        } catch (e: Exception) {
+            _productsByCategory.value = ResponseState.Failure(e)
         }
     }
+
 
 }
 

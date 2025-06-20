@@ -10,7 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,6 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
 @Composable
@@ -51,17 +52,19 @@ fun AnimatedProductItem(
         else -> fadeIn(animationSpec = tween(800)) + scaleIn()
     }
 
-    AnimatedVisibility(
-        visible = visible,
-        enter = enterAnimation,
-        exit = fadeOut(),
-        modifier = Modifier
-            .fillMaxWidth()
-            .graphicsLayer {
-                rotationY = if (index % 2 == 0) 10f else -10f
-                cameraDistance = 12f * density
-            }
-    ) {
-        ProductCard(product = product, onProductClick = onProductClick)
+        AnimatedVisibility(
+            visible = visible,
+            enter = enterAnimation,
+            exit = fadeOut(),
+            modifier = Modifier
+                .widthIn(max = 170.dp)
+                .graphicsLayer {
+                    rotationY = if (index % 2 == 0) 10f else -10f
+                    cameraDistance = 12f * density
+                }
+        ) {
+            ProductCard(product = product, onProductClick = onProductClick)
+        }
     }
-}
+
+

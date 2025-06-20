@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import com.example.buyva.R
 import com.example.buyva.type.Product
 import com.example.buyva.utils.components.EmptyScreen
@@ -30,7 +31,7 @@ fun FavouriteScreen() {
         ScreenTitle("Favourite")
 
         if (favouriteProducts.isEmpty()) {
-        EmptyScreen("No favourites yet", R.raw.empty_order)
+        EmptyScreen("No favourites yet", 28.sp ,R.raw.empty_order)
     } else {
            // ProductSection(products = favouriteProducts, onProductClick = {})
         }

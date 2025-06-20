@@ -52,8 +52,6 @@ fun ProductSection(products: List<*>, onProductClick: (String) -> Unit) {
                                 )
                             }
                         }
-
-                        else -> { /* Optionally handle unsupported types */ }
                     }
                 }
 

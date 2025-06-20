@@ -13,20 +13,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.example.buyva.R
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
 
 @Composable
 fun EmptyScreen(
     text: String,
+    fontSize: TextUnit,
     animation: Int)
 {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(animation))
@@ -53,7 +53,7 @@ fun EmptyScreen(
             style = MaterialTheme.typography.headlineSmall,
             color = Cold,
             fontFamily = ubuntuMedium,
-            fontSize = 28.sp
+            fontSize = fontSize
 
         )
     }
