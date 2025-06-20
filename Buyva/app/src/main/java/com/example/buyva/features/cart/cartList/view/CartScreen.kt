@@ -43,7 +43,7 @@ import com.example.buyva.utils.components.ScreenTitle
 @Composable
 fun CartScreen(
     onBackClick: () -> Unit,
-    onCheckoutClick: () -> Unit
+    onCheckoutClick : () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -161,8 +161,6 @@ fun CartScreen(
             tonalElevation = 10.dp
         ) {
             PaymentSection(
-                currentDate = LocalDate.now(),
-                currentTime = LocalTime.now(),
                 address = Address(
                     firstName = "Ali",
                     lastName = "Hassan",
@@ -175,9 +173,10 @@ fun CartScreen(
                 ),
                 onConfirm = { _, _, _ ->
                     showSheet = false
-                    onCheckoutClick()
                     Toast.makeText(context, "Order Placed", Toast.LENGTH_SHORT).show()
-                }
+                },
+                onNavigateToCart = onCheckoutClick
+
             )
         }
     }

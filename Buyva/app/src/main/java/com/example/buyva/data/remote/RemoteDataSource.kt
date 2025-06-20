@@ -8,5 +8,5 @@ interface RemoteDataSource {
         amount: Int,
         currency: String,
         paymentMethod: String = "card"
-    ): Response<JsonObject>
+    ): Response<com.google.gson.JsonObject>
 }

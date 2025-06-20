@@ -10,7 +10,7 @@ class PaymentRepoImpl(private val remoteDataSource: RemoteDataSource)  : Payment
         amount: Int,
         currency: String,
         paymentMethod: String
-        ): Response<JsonObject> {
+        ): Response<com.google.gson.JsonObject> {
         Log.d("1", "Calling Stripe with amount=$amount, currency=$currency")
         return remoteDataSource.createPaymentIntent(amount, currency)
     }

@@ -41,7 +41,10 @@ sealed class ScreensRoute{
     @Serializable
     data object SettingsScreen: ScreensRoute()
     @Serializable
+    data object PaymentScreen: ScreensRoute()
+    @Serializable
     data object CheckoutScreen: ScreensRoute()
+
 
 
 }

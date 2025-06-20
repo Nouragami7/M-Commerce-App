@@ -1,6 +1,7 @@
 package com.example.buyva.features.cart.cartList.view
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -17,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.buyva.data.model.Address
@@ -30,13 +32,11 @@ import java.time.LocalTime
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PaymentSection(
-    currentDate: LocalDate = LocalDate.now(),
-    currentTime: LocalTime = LocalTime.now(),
     address: Address,
-    onConfirm: (LocalDateTime, PaymentMethod, String) -> Unit
+    onConfirm: (LocalDateTime, PaymentMethod, String) -> Unit,
+    onNavigateToCart: () -> Unit
 ) {
-    var selectedDate by remember { mutableStateOf(currentDate) }
-    var selectedTime by remember { mutableStateOf(currentTime.plusMinutes(5)) }
+
     var selectedMethod by remember { mutableStateOf(PaymentMethod.CashOnDelivery) }
     var voucherCode by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -119,14 +119,14 @@ fun PaymentSection(
         errorMessage?.let {
             Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(8.dp))
         }
-
+val context = LocalContext.current
         Button(
             onClick = {
-                if (selectedDate == currentDate && selectedTime.isBefore(currentTime)) {
-                    errorMessage = "Please choose a future time"
-                } else {
-                    val dateTime = LocalDateTime.of(selectedDate, selectedTime)
-                    onConfirm(dateTime, selectedMethod, voucherCode)
+                if (selectedMethod == PaymentMethod.PayWithCard) {
+                    Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
+                    onNavigateToCart()
+                }else{
+                    Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
                 }
             },
             modifier = Modifier

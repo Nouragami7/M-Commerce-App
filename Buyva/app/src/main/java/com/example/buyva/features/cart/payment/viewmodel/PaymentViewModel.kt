@@ -30,7 +30,7 @@ class PaymentViewModel(
                 val response = repository.createPaymentIntent(amount, currency)
                 Log.d("1", "Response code: ${response.code()}")
                 if (response.isSuccessful) {
-                    val secret = response.body()?.get("client_secret")?.toString()
+                    val secret = response.body()?.get("client_secret")?.asJsonPrimitive?.asString
                     Log.d("1", "Client secret: $secret")
                     if (!secret.isNullOrBlank()) {
                         _clientSecret.value = secret

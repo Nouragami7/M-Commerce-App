@@ -14,8 +14,8 @@ interface StripeAPI {
     @POST("payment_intents")
     suspend fun createPaymentIntent(
         @Field("amount") amount: Int,
-        @Field("currency") currency: String,
+        @Field("currency") currency: String = "usd",
         @Field("payment_method_types[]") paymentMethod: String = "card",
-    ): Response<JsonObject>
+    ): Response<com.google.gson.JsonObject>
 
 }

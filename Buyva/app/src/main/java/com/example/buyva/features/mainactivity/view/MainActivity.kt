@@ -3,14 +3,20 @@ package com.example.buyva.features.mainactivity.view
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -25,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.example.buyva.BuildConfig
 import com.example.buyva.features.SplashScreen
 import com.example.buyva.navigation.SetupNavHost
 import com.example.buyva.navigation.navbar.NavigationBar
@@ -38,11 +45,18 @@ import com.stripe.android.paymentsheet.PaymentSheetResultCallback
 
 class MainActivity : ComponentActivity()  {
     private lateinit var paymentSheet: PaymentSheet
+    private lateinit var paymentSheetLauncher: PaymentSheet
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+//        PaymentConfiguration.init(
+//            applicationContext,
+//            BuildConfig.STRIPE_PUBLISHABLE_KEY
+//        )
 
+//        paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
         setContent {
             var displaySplashScreen by remember { mutableStateOf(true) }
             if (displaySplashScreen) {
@@ -52,8 +66,54 @@ class MainActivity : ComponentActivity()  {
             } else {
                 MainScreen()
             }
+//            MyComposeUI(
+//                onPayClicked = {
+//                    launchPayment()
+//                }
+//            )
+
         }
     }
+//    private fun launchPayment() {
+//        val configuration = PaymentSheet.Configuration(
+//            merchantDisplayName = "Your App Name"
+//        )
+//
+//        BuildConfig.STRIPE_SECRET_KEY.let {
+//            paymentSheet.presentWithPaymentIntent(it, configuration)
+//        }
+//    }
+//
+//    private fun onPaymentSheetResult(paymentSheetResult: PaymentSheetResult) {
+//        when (paymentSheetResult) {
+//            is PaymentSheetResult.Completed -> {
+//Log.d("TAG", "onPaymentSheetResult:  $paymentSheetResult")              }
+//            is PaymentSheetResult.Failed -> {
+//                Log.d("TAG", "onPaymentSheetResult:  ${paymentSheetResult.error.localizedMessage}")
+//            }
+//            is PaymentSheetResult.Canceled -> {
+//                Log.d("TAG", "onPaymentSheetResult cancelled")
+//
+//                Toast.makeText(this, "Payment Cancelled", Toast.LENGTH_SHORT).show()
+//            }
+//        }
+//    }
+//    @Composable
+//    fun MyComposeUI(onPayClicked: () -> Unit) {
+//        Column(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .padding(32.dp),
+//            verticalArrangement = Arrangement.Center,
+//            horizontalAlignment = Alignment.CenterHorizontally
+//        ) {
+//            Text("Proceed with Payment", style = MaterialTheme.typography.titleLarge)
+//            Spacer(modifier = Modifier.height(16.dp))
+//            Button(onClick = { onPayClicked() }) {
+//                Text("Pay Now")
+//            }
+//        }
+//    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Composable

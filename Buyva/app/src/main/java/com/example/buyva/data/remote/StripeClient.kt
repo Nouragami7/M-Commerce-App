@@ -14,9 +14,11 @@ object StripeClient {
         .addInterceptor { chain ->
             val request = chain.request().newBuilder()
                 .addHeader("Authorization", "Bearer $STRIPE_SECRET_KEY")
+                .addHeader("Content-Type", "application/x-www-form-urlencoded")
                 .build()
             chain.proceed(request)
         }
+
         .build()
 
     private val retrofit = Retrofit.Builder()

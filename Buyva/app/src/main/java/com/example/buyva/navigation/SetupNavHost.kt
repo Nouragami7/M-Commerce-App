@@ -18,10 +18,10 @@ import com.example.buyva.features.profile.addresseslist.view.DeliveryAddressList
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
 import com.example.buyva.features.brand.view.BrandProductsScreen
+import com.example.buyva.features.cart.payment.view.CheckoutScreen
 import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
-import com.example.buyva.features.cart.payment.view.CheckoutScreen
 import com.example.yourapp.ui.screens.OrderScreen
 import com.stripe.android.paymentsheet.PaymentSheet
 
@@ -80,6 +80,9 @@ fun SetupNavHost(
         composable<ScreensRoute.CartScreen> { CartScreen(
             onBackClick = { navController.popBackStack() },
             onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) }
+        ) }
+        composable<ScreensRoute.CheckoutScreen> { CheckoutScreen(
+            onBack = { navController.popBackStack() }
         ) }
         composable<ScreensRoute.CategoriesScreen> { CategoryScreen(
             onCartClick = { navController.navigate(ScreensRoute.CartScreen)},
@@ -158,11 +161,14 @@ fun SetupNavHost(
             onBack = { navController.popBackStack() },
             onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) }
         ) }
-        composable<ScreensRoute.CheckoutScreen> {
-            CheckoutScreen(
-                onBack = { navController.popBackStack() },
-            )
+        composable<ScreensRoute.SettingsScreen> {
+            //SettingsScreen(onBack = { navController.popBackStack() })
         }
+        composable<ScreensRoute.PaymentScreen> {
+            //PaymentScreen(onBack = { navController.popBackStack() })
+        }
+
+
 
 
 

@@ -67,18 +67,9 @@ fun CheckoutScreen(
         }
     )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Button(
-            onClick = {
                 Log.d("1", "Pay button clicked")
                 paymentViewModel.initiatePaymentFlow(
-                    amount = 10 * 100,
+                    amount = 200,
                     onClientSecretReady = { secret ->
                         Log.d("1", "Client secret: $secret")
                         paymentSheet.presentWithPaymentIntent(
@@ -90,11 +81,9 @@ fun CheckoutScreen(
                     }
                 )
                 Log.d("1", "Pay button clicked")
-            }
-        ) {
-            Text("Pay Now")
-        }
-    }
+
+
+
 }
 
 

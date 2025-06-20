@@ -8,7 +8,7 @@ class RemoteDataSourceImpl(private val stripeAPI: StripeAPI) : RemoteDataSource 
         amount: Int,
         currency: String,
         paymentMethod: String
-    ): Response<JsonObject> {
+    ): Response<com.google.gson.JsonObject> {
         return stripeAPI.createPaymentIntent(amount, currency, paymentMethod)
     }
 }
