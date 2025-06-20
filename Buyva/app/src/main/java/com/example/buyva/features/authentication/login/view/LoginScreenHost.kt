@@ -15,7 +15,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.example.buyva.R
-import com.example.buyva.data.remote.graphql.ApolloService
+import com.example.buyva.data.datasource.remote.graphql.ApolloService
 
 
 @Composable
