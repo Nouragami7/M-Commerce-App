@@ -23,6 +23,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("String", "STRIPE_PUBLISHABLE_KEY", "\"${project.properties["STRIPE_PUBLISHABLE_KEY"]}\"")
+        buildConfigField("String", "STRIPE_SECRET_KEY", "\"${project.properties["STRIPE_SECRET_KEY"]}\"")
+
     }
 
     buildTypes {
@@ -43,6 +46,8 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+
     }
 }
 
@@ -95,6 +100,14 @@ dependencies {
     implementation("com.stripe:stripe-android:21.17.0")
     implementation("com.stripe:paymentsheet:21.17.0")
 
+
+
+    //retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
+    //OKHTTp
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
 }
 apollo {
     service("service") {

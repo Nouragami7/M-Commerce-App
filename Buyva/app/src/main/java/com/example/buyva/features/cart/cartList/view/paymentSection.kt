@@ -1,4 +1,4 @@
-package com.example.buyva.features.cart.view
+package com.example.buyva.features.cart.cartList.view
 
 import android.os.Build
 import androidx.annotation.RequiresApi

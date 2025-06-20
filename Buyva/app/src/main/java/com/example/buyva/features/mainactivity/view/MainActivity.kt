@@ -1,9 +1,11 @@
 package com.example.buyva.features.mainactivity.view
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,10 +31,18 @@ import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.navigation.navbar.NavigationBar.ShowCurvedNavBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
+import com.stripe.android.PaymentConfiguration
+import com.stripe.android.paymentsheet.PaymentSheet
+import com.stripe.android.paymentsheet.PaymentSheetResult
+import com.stripe.android.paymentsheet.PaymentSheetResultCallback
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity()  {
+    private lateinit var paymentSheet: PaymentSheet
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             var displaySplashScreen by remember { mutableStateOf(true) }
             if (displaySplashScreen) {
@@ -45,6 +55,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     fun MainScreen() {
         val navController = rememberNavController()
@@ -87,6 +98,7 @@ class MainActivity : ComponentActivity() {
 
         }
     }
+
 
 }
 

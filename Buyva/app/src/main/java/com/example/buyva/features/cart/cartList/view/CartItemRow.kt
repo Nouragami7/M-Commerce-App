@@ -1,4 +1,4 @@
-package com.example.buyva.features.cart.view
+package com.example.buyva.features.cart.cartList.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column

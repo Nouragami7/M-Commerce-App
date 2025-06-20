@@ -76,6 +76,7 @@ fun ProfileScreen(
             ProfileOption(Icons.Default.FavoriteBorder, "My Wishlist", Sea, onAddressClick)
             ProfileOption(Icons.Default.LocationOn, "Delivery Address", Sea, onAddressClick)
             ProfileOption(Icons.Default.Settings, "Settings", Sea, onSettingsClick)
+            ProfileOption(Icons.Default.Money,"Currency",Sea,onSettingsClick)
         }
         Spacer(modifier = Modifier.height(30.dp))
 

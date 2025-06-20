@@ -24,8 +24,8 @@ import androidx.compose.ui.window.Dialog
 import com.example.buyva.R
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.CartItem
-import com.example.buyva.features.cart.view.CartItemRow
-import com.example.buyva.features.cart.view.PaymentSection
+import com.example.buyva.features.cart.cartList.view.CartItemRow
+import com.example.buyva.features.cart.cartList.view.PaymentSection
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Teal
 import com.example.buyva.utils.components.CustomAlertDialog
@@ -41,7 +41,10 @@ import com.example.buyva.utils.components.ScreenTitle
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun CartScreen() {
+fun CartScreen(
+    onBackClick: () -> Unit,
+    onCheckoutClick: () -> Unit
+) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -172,6 +175,7 @@ fun CartScreen() {
                 ),
                 onConfirm = { _, _, _ ->
                     showSheet = false
+                    onCheckoutClick()
                     Toast.makeText(context, "Order Placed", Toast.LENGTH_SHORT).show()
                 }
             )
