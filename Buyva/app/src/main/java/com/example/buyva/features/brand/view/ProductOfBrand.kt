@@ -33,7 +33,7 @@ import com.example.buyva.ProductsByCollectionQuery
 import kotlinx.coroutines.delay
 
 @Composable
-fun BrandOfProduct(products: List<ProductsByCollectionQuery.Node>, onProductClick: () -> Unit) {
+fun BrandOfProduct(products: List<ProductsByCollectionQuery.Node>, onProductClick: (String) -> Unit) {
     val density = LocalDensity.current.density
 
     Column(

@@ -37,7 +37,7 @@ import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.ui.theme.Cold
 
 @Composable
-fun BrandProduct(product: ProductsByCollectionQuery.Node, modifier: Modifier = Modifier, onProductClick: () -> Unit) {
+fun BrandProduct(product: ProductsByCollectionQuery.Node, modifier: Modifier = Modifier, onProductClick: (String) -> Unit) {
     var isFav by remember { mutableStateOf(false) }
 
     val imageUrl = product.featuredImage?.url?.toString() ?: ""
@@ -50,7 +50,7 @@ fun BrandProduct(product: ProductsByCollectionQuery.Node, modifier: Modifier = M
         modifier = modifier
             .padding(vertical = 4.dp)
             .height(190.dp),
-        onClick = onProductClick,
+        onClick =  { onProductClick(product.id) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)

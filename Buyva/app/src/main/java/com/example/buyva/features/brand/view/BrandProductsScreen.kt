@@ -1,6 +1,8 @@
 package com.example.buyva.features.brand.view
 
 import SearchBarWithCartIcon
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,16 +25,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.buyva.ProductsByCollectionQuery
@@ -56,7 +58,7 @@ fun BrandProductsScreen(
     brandName: String,
     imageUrl: String,
     onBack: () -> Unit,
-    onProductClick: () -> Unit
+    onProductClick: (String) -> Unit
 
 ) {
     var showSlider by remember { mutableStateOf(false) }
@@ -65,6 +67,7 @@ fun BrandProductsScreen(
     val brandFactory = BrandFactory(
         BrandRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
     )
+
     val brandViewModel: BrandViewModel = viewModel(factory = brandFactory)
 
     val productsOfBrand by brandViewModel.productsOfBrand.collectAsStateWithLifecycle()
@@ -119,20 +122,18 @@ fun BrandProductsScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        when(val state = productsOfBrand){
+        when (val state = productsOfBrand) {
             is ResponseState.Failure -> {
                 Text(text = state.message.toString())
             }
             ResponseState.Loading -> LoadingIndicator()
             is ResponseState.Success<*> -> {
-                val products = state.data as? List<ProductsByCollectionQuery.Node>
+                val products = (state as? ResponseState.Success<List<ProductsByCollectionQuery.Node>>)?.data
                 if (products != null) {
                     BrandOfProduct(products = products, onProductClick)
                 }
             }
-
         }
-
     }
     Box(
         modifier = Modifier

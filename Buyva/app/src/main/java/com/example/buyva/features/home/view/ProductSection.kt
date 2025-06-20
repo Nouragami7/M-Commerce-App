@@ -32,7 +32,7 @@ import com.example.buyva.utils.components.ProductCard
 import kotlinx.coroutines.delay
 
 @Composable
-fun ProductSection(products: List<BrandsAndProductsQuery.Node>, onProductClick: () -> Unit) {
+fun ProductSection(products: List<BrandsAndProductsQuery.Node>, onProductClick: (String) -> Unit) {
     val density = LocalDensity.current.density
 
     Column(

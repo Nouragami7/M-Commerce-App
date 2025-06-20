@@ -4,9 +4,13 @@ import CartScreen
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
+import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.ProductInfo.View.ProductInfoScreen
 import com.example.buyva.features.authentication.login.view.LoginScreenHost
 import com.example.buyva.features.authentication.login.view.WelcomeScreen
@@ -22,6 +26,8 @@ import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.yourapp.ui.screens.OrderScreen
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -81,8 +87,8 @@ fun SetupNavHost(
                 navController.navigate(ScreensRoute.BrandProductsScreen(brandId, brandTitle, brandImage))
             }
             ,
-            onProductClick = {
-                navController.navigate(ScreensRoute.ProductInfoScreen)
+            onProductClick = { productId ->
+                navController.navigate("productInfo/$productId")
             }
         ) }
         composable<ScreensRoute.CartScreen> { CartScreen() }
@@ -143,23 +149,31 @@ fun SetupNavHost(
             val name = entry.arguments?.getString("brandName") ?: "Adidas"
             val image = entry.arguments?.getString("brandImage") ?: ""
 
-            println("id =====================================$id")
-            println("Brand Name+++++++++++++++++++++++++++++: $name")
-            println("Brand Image+++++++++++++++++++++++++++++: $image")
-
             BrandProductsScreen(
                 brandId = id,
                 brandName = name,
                 imageUrl = image,
-                onBack = { navController.popBackStack()},
-                onProductClick = {
-                    navController.navigate(ScreensRoute.ProductInfoScreen)
-                }
+                onBack = { navController.popBackStack() },
 
+                // 👇 التعديل هنا
+                onProductClick = { productId ->
+                    val encodedId = URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
+                    navController.navigate("productInfo/$encodedId")
+                }
             )
         }
 
-        composable<ScreensRoute.ProductInfoScreen> { ProductInfoScreen() }
+        composable("productInfo/{productId}") { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
+
+            val repository = remember {
+                HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
+            }
+
+            ProductInfoScreen(productId = productId, repository = repository, navController = navController)
+        }
+
+
         composable<ScreensRoute.OrderScreen> { OrderScreen(
             onBack = { navController.popBackStack() },
             onOrderClick = {navController.navigate(ScreensRoute.OrderDetailsScreen(it))}

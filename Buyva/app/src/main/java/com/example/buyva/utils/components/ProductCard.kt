@@ -1,5 +1,6 @@
 package com.example.buyva.utils.components
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,7 +38,8 @@ import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.ui.theme.Cold
 
 @Composable
-fun ProductCard(product: BrandsAndProductsQuery.Node, modifier: Modifier = Modifier, onProductClick: () -> Unit) {
+fun ProductCard(product: BrandsAndProductsQuery.Node, modifier: Modifier = Modifier,onProductClick: (String) -> Unit
+) {
     var isFav by remember { mutableStateOf(false) }
 
     val imageUrl = product.featuredImage?.url?.toString() ?: ""
@@ -51,7 +53,7 @@ fun ProductCard(product: BrandsAndProductsQuery.Node, modifier: Modifier = Modif
         modifier = modifier
             .padding(vertical = 4.dp)
             .height(190.dp),
-        onClick = onProductClick,
+        onClick = { onProductClick(Uri.encode(product.id)) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
