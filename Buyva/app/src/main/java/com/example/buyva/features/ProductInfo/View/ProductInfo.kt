@@ -8,6 +8,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -26,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.R
@@ -40,8 +42,9 @@ import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.utils.components.ScreenTitle
 @Composable
 fun ProductInfoScreen(
+    navController: NavController,
     productId: String,
-    repository: IHomeRepository // مرره من الـ NavGraph
+    repository: IHomeRepository
 ) {
     val factory = remember { ProductInfoViewModelFactory(repository) }
     val viewModel: ProductInfoViewModel = viewModel(factory = factory)
@@ -64,33 +67,40 @@ fun ProductInfoScreen(
         is ResponseState.Success<*> -> {
             val product = result.data as? GetProductByIdQuery.Product
             if (product != null) {
-                ProductInfoContent(product)
+                ProductInfoContent(product = product, navController = navController)
             }
         }
     }
 }
 @Composable
-fun ProductInfoContent(product: GetProductByIdQuery.Product) {
+fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavController) {
     var selectedImage by remember { mutableStateOf<String?>(null) }
     var isFavorite by remember { mutableStateOf(false) }
-    var showAllReviews by remember { mutableStateOf(false) }
     var isAddedToCart by remember { mutableStateOf(false) }
+    var selectedSize by remember { mutableStateOf<String?>(null) }
+    var selectedColor by remember { mutableStateOf<String?>(null) }
 
     val images = product.images.edges.mapNotNull { it.node.originalSrc?.toString() }
     val title = product.title
     val vendor = product.vendor
     val description = product.description
-    val price = product.variants.edges.firstOrNull()?.node?.priceV2?.amount ?: "0.0"
-    val currency = product.variants.edges.firstOrNull()?.node?.priceV2?.currencyCode?.name ?: ""
     val inStock = (product.totalInventory ?: 0) > 0
 
-    val reviews = listOf(
-        Review("Youssef", 5, "Amazing quality!"),
-        Review("Sara", 4, "Very comfy and stylish."),
-        Review("Omar", 5, "Perfect for school."),
-        Review("Mona", 3, "Good quality.")
-    )
-    val reviewsToShow = if (showAllReviews) reviews else reviews.take(2)
+    val allVariants = product.variants.edges.map { it.node }
+    val price = allVariants.firstOrNull()?.price?.amount ?: "0.0"
+    val currency = allVariants.firstOrNull()?.price?.currencyCode?.name ?: ""
+
+    val allSelectedOptions = allVariants.flatMap { it.selectedOptions }
+
+    val availableSizes = allSelectedOptions
+        .filter { it.name.equals("Size", ignoreCase = true) }
+        .map { it.value }
+        .distinct()
+
+    val availableColors = allSelectedOptions
+        .filter { it.name.equals("Color", ignoreCase = true) }
+        .map { it.value }
+        .distinct()
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -100,29 +110,69 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product) {
                 .padding(bottom = 80.dp)
         ) {
 
-            // 🔁 صور المنتج
-            Box(modifier = Modifier.fillMaxWidth()) {
-                ImageCarousel(images = images, onImageClick = { selectedImage = it })
-                Icon(
-                    imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                    contentDescription = "Favorite",
-                    tint = if (isFavorite) Color.Red else Color.Gray,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(16.dp)
-                        .size(28.dp)
-                        .clickable { isFavorite = !isFavorite }
+            // ✅ Header: Back + Title
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 16.dp)
+            ) {
+                IconButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color.Black
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Product Info",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = Sea
                 )
+            }
+
+            // ✅ Image Card
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(240.dp)
+                        .padding(8.dp)
+                ) {
+                    ImageCarousel(images = images, onImageClick = { selectedImage = it })
+
+                    Icon(
+                        imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = "Favorite",
+                        tint = if (isFavorite) Color.Red else Color.Gray,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(4.dp)
+                            .size(28.dp)
+                            .clickable { isFavorite = !isFavorite }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // ✅ Product Info Card
             Card(
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                 colors = CardDefaults.cardColors(containerColor = Gray),
                 modifier = Modifier
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 12.dp)
                     .fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -144,52 +194,61 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 🔘 الأزرار الجانبية
-            Text("Select Size", Modifier.padding(start = 16.dp), fontWeight = FontWeight.SemiBold)
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                Modifier.padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                listOf("S", "M", "L", "XL").forEach {
-                    OutlinedButton(onClick = { }) {
-                        Text(it)
+            // ✅ Size Options
+            if (availableSizes.isNotEmpty()) {
+                Text("Select Size", Modifier.padding(start = 16.dp), fontWeight = FontWeight.SemiBold)
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    Modifier.padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    availableSizes.forEach { size ->
+                        OutlinedButton(
+                            onClick = { selectedSize = size },
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = if (selectedSize == size) Sea else Color.White,
+                                contentColor = if (selectedSize == size) Color.White else Sea
+                            ),
+                            border = BorderStroke(1.dp, Sea)
+                        ) {
+                            Text(size)
+                        }
                     }
                 }
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text("Select Color", Modifier.padding(start = 16.dp), fontWeight = FontWeight.SemiBold)
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                Modifier.padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                ColorOption(Color.White, "White")
-                ColorOption(Color.Black, "Black")
-                ColorOption(Color.Red, "Red")
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // ⭐ المراجعات
-            Text("Reviews", Modifier.padding(start = 16.dp), fontWeight = FontWeight.Bold, fontSize = 18.sp)
-            Spacer(modifier = Modifier.height(8.dp))
-            Column(Modifier.padding(horizontal = 16.dp)) {
-                reviewsToShow.forEach {
-                    ReviewItem(it)
-                    Spacer(modifier = Modifier.height(8.dp))
+            if (availableColors.isNotEmpty()) {
+                Text("Select Color", Modifier.padding(start = 16.dp), fontWeight = FontWeight.SemiBold)
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    Modifier.padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    availableColors.forEach { colorName ->
+                        val colorValue = colorFromName(colorName)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .border(
+                                        2.dp,
+                                        if (selectedColor == colorName) Sea else Color.LightGray,
+                                        CircleShape
+                                    )
+                                    .background(colorValue)
+                                    .clickable { selectedColor = colorName }
+                            )
+                            Text(colorName, fontSize = 12.sp)
+                        }
+                    }
                 }
-                TextButton(onClick = { showAllReviews = !showAllReviews }) {
-                    Text(if (showAllReviews) "Show Less" else "More Reviews", color = Sea)
-                }
+                Spacer(modifier = Modifier.height(24.dp))
             }
-
-            Spacer(modifier = Modifier.height(32.dp))
         }
 
-        // 🛒 زر الإضافة للسلة
+        // ✅ Add to Cart Button
         Box(
             Modifier
                 .align(Alignment.BottomCenter)
@@ -199,7 +258,9 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product) {
         ) {
             OutlinedButton(
                 onClick = { isAddedToCart = !isAddedToCart },
-                modifier = Modifier.fillMaxWidth().height(50.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
                     containerColor = if (isAddedToCart) Sea else Color.White,
                     contentColor = if (isAddedToCart) Color.White else Sea
@@ -218,88 +279,73 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product) {
     }
 }
 
-@Composable
-fun ColorOption(color: Color, label: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .border(1.dp, Color.Gray)
-                .background(color)
-        )
-        Text(label, fontSize = 12.sp)
-    }
-}
 
-data class Review(val name: String, val rating: Int, val comment: String)
-
-@Composable
-fun ReviewItem(review: Review) {
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(review.name, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.width(8.dp))
-                repeat(review.rating) {
-                    Icon(
-                        imageVector = Icons.Default.Star,
-                        contentDescription = "Star",
-                        tint = Color(0xFFFFC107),
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(review.comment)
-        }
+fun colorFromName(name: String): Color {
+    return when (name.lowercase()) {
+        "black" -> Color.Black
+        "white" -> Color.White
+        "red" -> Color.Red
+        "blue" -> Color.Blue
+        "green" -> Color.Green
+        "yellow" -> Color.Yellow
+        else -> Color.Gray
     }
 }
 @Composable
 fun ImageCarousel(images: List<String>, onImageClick: (String) -> Unit) {
     val pagerState = rememberPagerState(pageCount = { images.size })
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-        HorizontalPager(
-            state = pagerState,
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
-                .padding(horizontal = 8.dp)
-        ) { page ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable { onImageClick(images[page]) }
-            ) {
-                AsyncImage(
-                    model = images[page],
-                    contentDescription = "Product Image",
+                .height(200.dp) // ← تحكم ثابت في حجم الصورة
+                .clip(RoundedCornerShape(12.dp))
+        ) {
+            if (images.isEmpty()) {
+                // Placeholder
+                Image(
+                    painter = painterResource(id = R.drawable.bag1),
+                    contentDescription = "No Image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
+            } else {
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    AsyncImage(
+                        model = images[page],
+                        contentDescription = "Product Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clickable { onImageClick(images[page]) }
+                    )
+                }
             }
         }
 
-        Row(
-            Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            repeat(images.size) { index ->
-                Box(
-                    modifier = Modifier
-                        .size(if (index == pagerState.currentPage) 12.dp else 8.dp)
-                        .clip(CircleShape)
-                        .background(if (index == pagerState.currentPage) Cold else Color.LightGray)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
+        if (images.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                repeat(images.size) { index ->
+                    Box(
+                        modifier = Modifier
+                            .size(if (index == pagerState.currentPage) 12.dp else 8.dp)
+                            .clip(CircleShape)
+                            .background(if (index == pagerState.currentPage) Cold else Color.LightGray)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                }
             }
         }
     }
@@ -329,19 +375,19 @@ fun FullscreenImageViewer(imageUrl: String, onDismiss: () -> Unit) {
         )
     }
 }
-
-@Preview(
-    showBackground = true,
-    showSystemUi = true,
-    device = "spec:width=360dp,height=800dp,dpi=440",
-    name = "Product Info Screen Preview"
-)
-@Composable
-fun PreviewProductInfoScreen() {
-    MaterialTheme {
-        ProductInfoScreen(
-            productId = TODO(),
-            repository = TODO()
-        )
-    }
-}
+//
+//@Preview(
+//    showBackground = true,
+//    showSystemUi = true,
+//    device = "spec:width=360dp,height=800dp,dpi=440",
+//    name = "Product Info Screen Preview"
+//)
+//@Composable
+//fun PreviewProductInfoScreen() {
+//    MaterialTheme {
+//        ProductInfoScreen(
+//            productId = TODO(),
+//            repository = TODO()
+//        )
+//    }
+//}

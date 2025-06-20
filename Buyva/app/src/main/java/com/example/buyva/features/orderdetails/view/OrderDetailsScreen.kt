@@ -37,7 +37,8 @@ import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.ubuntuMedium
 
 @Composable
-    fun OrderDetailsScreen(onBack: () -> Unit = {}, onProductClick: () -> Unit) {
+    fun OrderDetailsScreen(onBack: () -> Unit = {},     onProductClick: (String) -> Unit // ⬅️ ده تعديلنا
+) {
 
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
@@ -123,16 +124,9 @@ import com.example.buyva.ui.theme.ubuntuMedium
         }
 
 //        ProductCard(
-//            product = Product(
-//                1,
-//                "CONVERSE",
-//                "2000.00 EGP",
-//                R.drawable.logo,
-//                "Men",
-//                "CLASSIC"
-//            ),
-//            onProductClick = onProductClick
-//        )
+//    product = product, // أو أي data class عندك
+//    onClick = { onProductClick(product.id) } // ⬅️ product.id هو الـ ID اللي هتستخدمه في النفيجيشن
+//)
 
         Spacer(modifier = Modifier.height(24.dp))
 

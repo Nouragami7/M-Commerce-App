@@ -26,6 +26,8 @@ import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.yourapp.ui.screens.OrderScreen
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -147,21 +149,20 @@ fun SetupNavHost(
             val name = entry.arguments?.getString("brandName") ?: "Adidas"
             val image = entry.arguments?.getString("brandImage") ?: ""
 
-            println("id =====================================$id")
-            println("Brand Name+++++++++++++++++++++++++++++: $name")
-            println("Brand Image+++++++++++++++++++++++++++++: $image")
-
             BrandProductsScreen(
                 brandId = id,
                 brandName = name,
                 imageUrl = image,
-                onBack = { navController.popBackStack()},
-                onProductClick = {
-                    navController.navigate(ScreensRoute.ProductInfoScreen)
-                }
+                onBack = { navController.popBackStack() },
 
+                // 👇 التعديل هنا
+                onProductClick = { productId ->
+                    val encodedId = URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
+                    navController.navigate("productInfo/$encodedId")
+                }
             )
         }
+
         composable("productInfo/{productId}") { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
 
@@ -169,7 +170,7 @@ fun SetupNavHost(
                 HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
             }
 
-            ProductInfoScreen(productId = productId, repository = repository)
+            ProductInfoScreen(productId = productId, repository = repository, navController = navController)
         }
 
 

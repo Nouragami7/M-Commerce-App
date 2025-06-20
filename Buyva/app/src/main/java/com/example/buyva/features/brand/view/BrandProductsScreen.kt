@@ -58,7 +58,7 @@ fun BrandProductsScreen(
     brandName: String,
     imageUrl: String,
     onBack: () -> Unit,
-    onProductClick: () -> Unit
+    onProductClick: (String) -> Unit
 
 ) {
     var showSlider by remember { mutableStateOf(false) }
@@ -67,6 +67,7 @@ fun BrandProductsScreen(
     val brandFactory = BrandFactory(
         BrandRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
     )
+
     val brandViewModel: BrandViewModel = viewModel(factory = brandFactory)
 
     val productsOfBrand by brandViewModel.productsOfBrand.collectAsStateWithLifecycle()
