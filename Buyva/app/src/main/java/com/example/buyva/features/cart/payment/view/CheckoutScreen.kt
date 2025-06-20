@@ -35,12 +35,10 @@ fun CheckoutScreen(
 ) {
     val context = LocalContext.current
 
-    // ✅ Initialize Stripe before using the PaymentSheet
     LaunchedEffect(Unit) {
         PaymentConfiguration.init(context, BuildConfig.STRIPE_PUBLISHABLE_KEY)
     }
 
-    // ✅ Stripe PaymentSheet launcher - must be remembered early
     val paymentSheet = rememberPaymentSheet(
         paymentResultCallback = { result ->
             when (result) {
@@ -58,24 +56,23 @@ fun CheckoutScreen(
     )
 
     val paymentViewModel: PaymentViewModel = viewModel(
-        factory = object : ViewModelProvider.Factory {
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return PaymentViewModel(
-                    PaymentRepoImpl(RemoteDataSourceImpl(StripeClient.api))
-                ) as T
-            }
-        }
+        factory = PaymentViewModelFactory(
+            PaymentRepoImpl(RemoteDataSourceImpl(
+                StripeClient.api
+            ))
+        )
     )
+
 
                 Log.d("1", "Pay button clicked")
                 paymentViewModel.initiatePaymentFlow(
-                    amount = 200,
+                    amount = 30000,
                     onClientSecretReady = { secret ->
                         Log.d("1", "Client secret: $secret")
                         paymentSheet.presentWithPaymentIntent(
                             paymentIntentClientSecret = secret,
                             configuration = PaymentSheet.Configuration(
-                                merchantDisplayName = "BuyNest"
+                                merchantDisplayName = "Buyva"
                             )
                         )
                     }
