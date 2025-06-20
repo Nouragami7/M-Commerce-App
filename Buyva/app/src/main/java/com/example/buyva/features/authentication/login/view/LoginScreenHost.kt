@@ -15,6 +15,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.example.buyva.R
+import com.example.buyva.data.datasource.remote.graphql.ApolloService
+
 
 @Composable
 fun LoginScreenHost(
@@ -25,8 +27,14 @@ fun LoginScreenHost(
     val activity = context as Activity
 
     val factory = remember {
-        LoginViewModel.LoginViewModelFactory(AuthRepository(FirebaseAuth.getInstance()))
+        LoginViewModel.LoginViewModelFactory(
+            AuthRepository(
+                FirebaseAuth.getInstance(),
+                ApolloService.client
+            ),
+        )
     }
+
     val viewModel: LoginViewModel = viewModel(factory = factory)
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

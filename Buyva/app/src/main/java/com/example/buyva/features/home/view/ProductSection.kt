@@ -1,21 +1,21 @@
-import androidx.compose.animation.*
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.*
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import com.example.buyva.data.model.Product
-import com.example.buyva.utils.components.ProductCard
-import kotlinx.coroutines.delay
+import com.example.buyva.BrandsAndProductsQuery
+import com.example.buyva.GetProductsByCategoryQuery
+import com.example.buyva.utils.components.AnimatedProductItem
 
 @Composable
-fun ProductSection(products: List<Product>, onProductClick: () -> Unit) {
-    val density = LocalDensity.current.density
-
+fun ProductSection(products: List<*>, onProductClick: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -23,7 +23,7 @@ fun ProductSection(products: List<Product>, onProductClick: () -> Unit) {
     ) {
         val rows = products.chunked(2)
 
-        rows.forEachIndexed { rowIndex, row ->
+        rows.forEachIndexed { _, row ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -31,40 +31,26 @@ fun ProductSection(products: List<Product>, onProductClick: () -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 row.forEachIndexed { index, product ->
-                    key(product.id) {
-                        var visible by remember { mutableStateOf(false) }
-
-                        LaunchedEffect(product.id) {
-                            visible = false
-                            delay(50)
-                            visible = true
+                    when (product) {
+                        is BrandsAndProductsQuery.Node -> {
+                            key(product.id) {
+                                AnimatedProductItem(
+                                    id = product.id,
+                                    index = index,
+                                    product = product,
+                                    onProductClick = onProductClick
+                                )
+                            }
                         }
-
-                        val enterAnimation = when (product.id % 4) {
-                            0 -> fadeIn(animationSpec = tween(600)) + slideInVertically(
-                                initialOffsetY = { it * 2 },
-                                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
-                            )
-                            1 -> fadeIn(animationSpec = tween(700)) + slideInHorizontally(
-                                initialOffsetX = { -it },
-                                animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy)
-                            )
-                            2 -> fadeIn(animationSpec = tween(500)) + expandVertically()
-                            else -> fadeIn(animationSpec = tween(800)) + scaleIn()
-                        }
-
-                        AnimatedVisibility(
-                            visible = visible,
-                            enter = enterAnimation,
-                            exit = fadeOut(),
-                            modifier = Modifier
-                                .weight(1f)
-                                .graphicsLayer {
-                                    rotationY = if (index % 2 == 0) 10f else -10f
-                                    cameraDistance = 12f * density
-                                }
-                        ) {
-                            ProductCard(product = product, onProductClick = onProductClick)
+                        is GetProductsByCategoryQuery.Node -> {
+                            key(product.id) {
+                                AnimatedProductItem(
+                                    id = product.id,
+                                    index = index,
+                                    product = product,
+                                    onProductClick = onProductClick
+                                )
+                            }
                         }
                     }
                 }
@@ -76,5 +62,7 @@ fun ProductSection(products: List<Product>, onProductClick: () -> Unit) {
         }
     }
 }
+
+
 
 

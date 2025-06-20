@@ -3,13 +3,20 @@ package com.example.buyva.features.categories.view
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Checkroom
 import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.RemoveRedEye
+import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,16 +38,17 @@ import com.example.buyva.ui.theme.Cold
 fun CategoryItem(
     category: Category,
     isSelected: Boolean,
+    selectedSubcategory: String?,
     backgroundColor: Color,
+    onSubcategorySelect: (String?) -> Unit,
     onClick: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-    var selectedFilter by remember { mutableStateOf<String?>(null) }
 
     val filtersWithIcons = listOf(
-        "Clothes" to Icons.Filled.Checkroom,
+        "T-shirts" to Icons.Filled.Checkroom,
         "Shoes" to Icons.Filled.DirectionsRun,
-        "Glasses" to Icons.Filled.RemoveRedEye
+        "Accessories" to Icons.Filled.Watch
     )
 
     Column(
@@ -63,11 +71,7 @@ fun CategoryItem(
             Text(
                 text = category.name,
                 fontSize = 16.sp,
-                color = when {
-                    isSelected -> Cold
-                    selectedFilter != null -> Color.DarkGray
-                    else -> Color.Gray
-                },
+                color = if (isSelected) Cold else Color.Gray,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .weight(1f)
@@ -83,10 +87,10 @@ fun CategoryItem(
         AnimatedVisibility(visible = expanded) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(start = 12.dp, top = 8.dp)
+                modifier = Modifier.padding(start = 2.dp, top = 8.dp)
             ) {
                 filtersWithIcons.forEach { (filter, icon) ->
-                    val isFilterSelected = filter == selectedFilter
+                    val isFilterSelected = filter == selectedSubcategory
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -96,7 +100,7 @@ fun CategoryItem(
                                 if (isFilterSelected) Cold.copy(alpha = 0.1f) else Color.Transparent
                             )
                             .clickable {
-                                selectedFilter = if (isFilterSelected) null else filter
+                                onSubcategorySelect(if (isFilterSelected) null else filter)
                             }
                             .padding(vertical = 6.dp, horizontal = 8.dp)
                     ) {
@@ -114,10 +118,10 @@ fun CategoryItem(
                             fontWeight = FontWeight.Medium
                         )
                     }
-
                 }
             }
         }
     }
 }
+
 

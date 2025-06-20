@@ -1,5 +1,3 @@
-import org.gradle.declarative.dsl.schema.FqName.Empty.packageName
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -62,6 +60,7 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.foundation.layout.android)
+    implementation(libs.inputmapping)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -95,6 +94,11 @@ dependencies {
     implementation("com.apollographql.apollo3:apollo-runtime:3.8.6")
 
     implementation("com.airbnb.android:lottie-compose:6.3.0")
+    implementation("io.coil-kt:coil-compose:2.5.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
+
+
+
 
     //payment
     implementation("com.stripe:stripe-android:21.17.0")
@@ -112,5 +116,7 @@ dependencies {
 apollo {
     service("service") {
         packageName.set("com.example.buyva")
-        }
+        generateKotlinModels.set(true)
+
+    }
 }

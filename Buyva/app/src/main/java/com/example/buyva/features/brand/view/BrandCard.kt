@@ -1,6 +1,5 @@
-package com.example.buyva.utils.components
+package com.example.buyva.features.brand.view
 
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,47 +33,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.buyva.BrandsAndProductsQuery
-import com.example.buyva.GetProductsByCategoryQuery
+import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.ui.theme.Cold
 
 @Composable
-fun ProductCard(product: Any, modifier: Modifier = Modifier,onProductClick: (String) -> Unit
-) {
+fun BrandProduct(product: ProductsByCollectionQuery.Node, modifier: Modifier = Modifier, onProductClick: (String) -> Unit) {
     var isFav by remember { mutableStateOf(false) }
 
-    var id = ""
-    var imageUrl = ""
-    var productTitle = " "
-    var productType = " "
-    var price = " "
-    var currency = " "
+    val imageUrl = product.featuredImage?.url?.toString() ?: ""
+    val productTitle = product.title
+    val price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
+    val currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
 
-    when (product) {
-        is BrandsAndProductsQuery.Node -> {
-            id = product.id
-            imageUrl = product.featuredImage?.url?.toString() ?: ""
-            productTitle = product.title
-            productType = product.productType
-            price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
-            currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
-        }
-        is GetProductsByCategoryQuery.Node -> {
-            id = product.id
-            imageUrl =product.images.edges.firstOrNull()?.node?.url?.toString() ?: ""
-            productTitle = product.title
-            productType = product.productType
-            price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
-            currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
-
-        }
-    }
 
     Card(
         modifier = modifier
             .padding(vertical = 4.dp)
             .height(190.dp),
-        onClick = { onProductClick(Uri.encode(id)) },
+        onClick =  { onProductClick(product.id) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
@@ -103,13 +79,6 @@ fun ProductCard(product: Any, modifier: Modifier = Modifier,onProductClick: (Str
 
             Spacer(modifier = Modifier.height(1.dp))
 
-            Text(
-                text = productType,
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray,
-                fontSize = 12.sp,
-                modifier = Modifier.padding(start = 2.dp)
-            )
 
             Spacer(modifier = Modifier.height(2.dp))
 

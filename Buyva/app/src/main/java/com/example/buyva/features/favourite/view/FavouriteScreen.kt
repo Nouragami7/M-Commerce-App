@@ -1,19 +1,15 @@
 package com.example.buyva.features.favourite.view
 
-import ProductSection
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
-import com.airbnb.lottie.compose.*
+import androidx.compose.ui.unit.sp
 import com.example.buyva.R
-import com.example.buyva.data.model.Product
+import com.example.buyva.type.Product
 import com.example.buyva.utils.components.EmptyScreen
-import com.example.buyva.utils.components.ProductCard
 import com.example.buyva.utils.components.ScreenTitle
 
 @Composable
@@ -35,9 +31,9 @@ fun FavouriteScreen() {
         ScreenTitle("Favourite")
 
         if (favouriteProducts.isEmpty()) {
-        EmptyScreen("No favourites yet", R.raw.empty_order)
+        EmptyScreen("No favourites yet", 28.sp ,R.raw.empty_order)
     } else {
-            ProductSection(products = favouriteProducts, onProductClick = {})
+           // ProductSection(products = favouriteProducts, onProductClick = {})
         }
     }
 }

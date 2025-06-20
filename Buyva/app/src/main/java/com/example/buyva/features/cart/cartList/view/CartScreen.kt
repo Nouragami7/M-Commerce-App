@@ -1,7 +1,13 @@
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -81,7 +87,7 @@ fun CartScreen(
 
 
             if (cartItems.isEmpty()) {
-                    EmptyScreen("No items in the cart", R.raw.emptycart)
+                    EmptyScreen("No items in the cart", 28.sp, R.raw.emptycart)
             }
             else {
             LazyColumn(modifier = Modifier.weight(1f)) {
