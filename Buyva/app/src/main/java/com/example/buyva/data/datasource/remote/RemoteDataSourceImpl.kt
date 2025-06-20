@@ -3,6 +3,7 @@ package com.example.buyva.data.datasource.remote
 import com.apollographql.apollo3.ApolloClient
 import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.GetProductByIdQuery
+import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -28,6 +29,13 @@ class RemoteDataSourceImpl(  private val apolloClient: ApolloClient
         val response = apolloClient.query(GetProductByIdQuery(productId)).execute()
         emit(response.data)
     }.catch {
+        emit(null)
+    }
+
+    override fun getProductsByCategory(handle: String): Flow<GetProductsByCategoryQuery.Data?> = flow {
+        val response = apolloClient.query(GetProductsByCategoryQuery(handle)).execute()
+        emit(response.data)
+    }.catch{
         emit(null)
     }
 

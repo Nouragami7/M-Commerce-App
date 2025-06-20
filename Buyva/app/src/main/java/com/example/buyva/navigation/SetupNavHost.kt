@@ -155,7 +155,6 @@ fun SetupNavHost(
                 imageUrl = image,
                 onBack = { navController.popBackStack() },
 
-                // 👇 التعديل هنا
                 onProductClick = { productId ->
                     val encodedId = URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
                     navController.navigate("productInfo/$encodedId")
