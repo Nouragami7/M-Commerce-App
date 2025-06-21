@@ -17,7 +17,7 @@ class FavouriteScreenViewModel(
     init {
         viewModelScope.launch {
             repository.getFavourites().collect { products ->
-                _favouriteProducts.value = products // Fixed this line
+                _favouriteProducts.value = products
             }
         }
     }

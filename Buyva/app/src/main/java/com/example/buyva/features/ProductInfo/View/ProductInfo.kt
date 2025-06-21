@@ -41,6 +41,7 @@ import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
 import com.example.buyva.navigation.navbar.NavigationBar
+import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.components.ScreenTitle
 import com.example.buyva.utils.mappers.toFavouriteProduct
 
@@ -79,12 +80,14 @@ fun ProductInfoScreen(
         }
     }
 }
+
 @Composable
 fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavController,favouriteViewModel: FavouriteScreenViewModel
 ) {
     var selectedImage by remember { mutableStateOf<String?>(null) }
     val favouriteProducts by favouriteViewModel.favouriteProducts.collectAsState()
     val isFavorite = favouriteProducts.any { it.id == product.id }
+    var showDeleteAlert by remember { mutableStateOf(false) }
 
     var isAddedToCart by remember { mutableStateOf(false) }
     var selectedSize by remember { mutableStateOf<String?>(null) }
@@ -168,15 +171,34 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
                             .padding(4.dp)
                             .size(28.dp)
                             .clickable {
-                                favouriteViewModel.toggleFavourite(product.id)
+                                if (isFavorite) {
+                                    showDeleteAlert = true
+                                } else {
+                                    favouriteViewModel.toggleFavourite(product.id)
+                                }
                             }
                     )
+                    if (showDeleteAlert) {
+                        CustomAlertDialog(
+                            title = "Remove from favorites",
+                            message = "Are you sure you want to remove this product from favorites?",
+                            confirmText = "Remove",
+                            dismissText = "Cancel",
+                            onConfirm = {
+                                favouriteViewModel.toggleFavourite(product.id)
+                                showDeleteAlert = false
+                            },
+                            onDismiss = {
+                                showDeleteAlert = false
+                            }
+                        )
+                    }
+
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ✅ Product Info Card
             Card(
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -257,7 +279,6 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
             }
         }
 
-        // ✅ Add to Cart Button
         Box(
             Modifier
                 .align(Alignment.BottomCenter)

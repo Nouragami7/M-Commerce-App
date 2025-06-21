@@ -39,7 +39,7 @@ fun HomeScreen(
     onCartClick: () -> Unit = {},
     onBrandClick: (String,String, String) -> Unit = { _, _ ,_-> },
     onProductClick: (String) -> Unit = {},
-    favouriteViewModel: FavouriteScreenViewModel // ✅ صح
+    favouriteViewModel: FavouriteScreenViewModel
 
 ){
     val viewModelFactory = HomeFactory(
