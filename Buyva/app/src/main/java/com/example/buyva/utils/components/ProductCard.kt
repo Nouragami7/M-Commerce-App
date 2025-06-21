@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -58,6 +56,10 @@ fun ProductCard(
             id = product.id
             imageUrl = product.featuredImage?.url?.toString() ?: ""
             productTitle = product.title
+                .split("|")
+                .take(2)
+                .map { it.trim().split(" ").firstOrNull().orEmpty() }
+                .joinToString(" | ")
             productType = product.productType
             price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
             currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
@@ -65,9 +67,13 @@ fun ProductCard(
 
         is ProductsByCollectionQuery.Node -> {
             id = product.id
-            println("product id is +++++++++++++++ $id")
             imageUrl = product.featuredImage?.url?.toString() ?: ""
             productTitle = product.title
+                .split("|")
+                .take(2)
+                .map { it.trim().split(" ").firstOrNull().orEmpty() }
+                .joinToString(" | ")
+            productType = "Shoes"
             price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
             currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
         }
@@ -75,7 +81,7 @@ fun ProductCard(
         is GetProductsByCategoryQuery.Node -> {
             id = product.id
             imageUrl = product.images.edges.firstOrNull()?.node?.url?.toString() ?: ""
-            productTitle = product.title
+            productTitle = product.title.trim().split(" ").firstOrNull().orEmpty()
             productType = product.productType
             price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
             currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
@@ -116,11 +122,14 @@ fun ProductCard(
                 model = imageUrl,
                 contentDescription = "Product Image",
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
+                    .fillMaxWidth()
+                    .padding(6.dp)
+                    .height(90.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .clip(RoundedCornerShape(6.dp))
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = productTitle,
@@ -135,7 +144,7 @@ fun ProductCard(
                 text = productType,
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
-                fontSize = 12.sp,
+                fontSize = 14.sp,
                 modifier = Modifier.padding(start = 2.dp)
             )
 
@@ -149,7 +158,7 @@ fun ProductCard(
                 Text(
                     text = "$price $currency",
                     color = Cold,
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold
                 )
 

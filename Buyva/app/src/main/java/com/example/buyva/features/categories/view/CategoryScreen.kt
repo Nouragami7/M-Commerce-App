@@ -107,7 +107,7 @@ fun CategoryScreen(
             Row(modifier = Modifier.fillMaxSize()) {
                 Box(
                     modifier = Modifier
-                        .width(135.dp)
+                        .width(120.dp)
                         .fillMaxHeight()
                         .background(Gray)
                         .padding(vertical = 16.dp)
