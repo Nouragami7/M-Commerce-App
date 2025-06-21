@@ -25,7 +25,6 @@ import com.example.buyva.features.profile.addresseslist.view.DeliveryAddressList
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
 import com.example.buyva.features.brand.view.BrandProductsScreen
-import com.example.buyva.features.cart.payment.view.CheckoutScreen
 import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
@@ -99,11 +98,11 @@ fun SetupNavHost(
         ) }
         composable<ScreensRoute.CartScreen> { CartScreen(
             onBackClick = { navController.popBackStack() },
-            onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) }
+            onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
+            onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) }
         ) }
-        composable<ScreensRoute.CheckoutScreen> { CheckoutScreen(
-            onBack = { navController.popBackStack() }
-        ) }
+
+
         composable<ScreensRoute.CategoriesScreen> { CategoryScreen(
             onCartClick = { navController.navigate(ScreensRoute.CartScreen)},
             onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) }

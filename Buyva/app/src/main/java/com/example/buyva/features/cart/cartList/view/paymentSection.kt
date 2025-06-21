@@ -32,9 +32,10 @@ import java.time.LocalTime
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun PaymentSection(
+    price: Double,
     address: Address,
     onConfirm: (LocalDateTime, PaymentMethod, String) -> Unit,
-    onNavigateToCart: () -> Unit
+    onPayWithCardClick: () -> Unit
 ) {
 
     var selectedMethod by remember { mutableStateOf(PaymentMethod.CashOnDelivery) }
@@ -119,14 +120,14 @@ fun PaymentSection(
         errorMessage?.let {
             Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(8.dp))
         }
-val context = LocalContext.current
+    val context = LocalContext.current
         Button(
             onClick = {
                 if (selectedMethod == PaymentMethod.PayWithCard) {
+                    onPayWithCardClick()
+                } else {
                     Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
-                    onNavigateToCart()
-                }else{
-                    Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
+                    onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
                 }
             },
             modifier = Modifier
@@ -134,7 +135,7 @@ val context = LocalContext.current
                 .padding(top = 24.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Cold)
         ) {
-            Text("Pay Now")
+            Text("Checkout")
         }
 
         SnackbarHost(hostState = snackbarHostState, modifier = Modifier.padding(16.dp))

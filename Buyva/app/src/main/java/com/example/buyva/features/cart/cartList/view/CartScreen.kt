@@ -27,7 +27,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.R
 import com.example.buyva.data.model.Address
@@ -38,30 +37,33 @@ import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Teal
 import com.example.buyva.utils.components.CustomAlertDialog
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 import com.example.buyva.navigation.navbar.NavigationBar
-import com.airbnb.lottie.compose.*
-import com.apollographql.apollo3.ApolloClient
+import com.example.buyva.BuildConfig
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.repository.cart.CartRepo
+import com.example.buyva.data.remote.StripeClient
 import com.example.buyva.data.repository.cart.CartRepoImpl
+import com.example.buyva.data.repository.paymentRepo.PaymentRepoImpl
 import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
 import com.example.buyva.features.cart.cartList.viewmodel.CartViewModelFactory
+import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModel
+import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModelFactory
 import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.components.ScreenTitle
-import com.example.buyva.utils.sharedpreference.SharedPreference
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
+import com.stripe.android.PaymentConfiguration
+import com.stripe.android.paymentsheet.PaymentSheet
+import com.stripe.android.paymentsheet.PaymentSheetResult
+import com.stripe.android.paymentsheet.rememberPaymentSheet
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun CartScreen(
     onBackClick: () -> Unit,
-    onCheckoutClick : () -> Unit
+    onCheckoutClick : () -> Unit,
+    onNavigateToOrders : () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -74,6 +76,11 @@ fun CartScreen(
 
     val viewModel: CartViewModel = viewModel(
         factory = CartViewModelFactory(application, cartRepo)
+    )
+    val paymentViewModel: PaymentViewModel = viewModel(
+        factory = PaymentViewModelFactory(
+            PaymentRepoImpl(com.example.buyva.data.remote.RemoteDataSourceImpl(StripeClient.api))
+        )
     )
 
     val cartState by viewModel.cartProducts.collectAsState()
@@ -98,6 +105,29 @@ fun CartScreen(
             cartItems.sumOf { it.price * it.quantity }
         }
     }
+
+    LaunchedEffect(Unit) {
+        PaymentConfiguration.init(context, BuildConfig.STRIPE_PUBLISHABLE_KEY)
+    }
+
+    val paymentSheet = rememberPaymentSheet(
+        paymentResultCallback = { result ->
+            when (result) {
+                is PaymentSheetResult.Completed -> {
+                    Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
+onNavigateToOrders()
+                }
+                is PaymentSheetResult.Canceled -> {
+                    onNavigateToOrders()
+                    Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
+                }
+                is PaymentSheetResult.Failed -> {
+                    onNavigateToOrders()
+                    Toast.makeText(context, "Payment Failed: ${result.error.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    )
 
 
     Scaffold { paddingValues ->
@@ -195,6 +225,7 @@ fun CartScreen(
             tonalElevation = 10.dp
         ) {
             PaymentSection(
+                price = totalPrice,
                 address = Address(
                     firstName = "Ali",
                     lastName = "Hassan",
@@ -209,9 +240,18 @@ fun CartScreen(
                     showSheet = false
                     Toast.makeText(context, "Order Placed", Toast.LENGTH_SHORT).show()
                 },
-                onNavigateToCart = onCheckoutClick
-
-            )
+                onPayWithCardClick = {
+                    paymentViewModel.initiatePaymentFlow(
+                        amount = (totalPrice * 100).toInt(),
+                        onClientSecretReady = { secret ->
+                            paymentSheet.presentWithPaymentIntent(
+                                paymentIntentClientSecret = secret,
+                                configuration = PaymentSheet.Configuration(
+                                    merchantDisplayName = "Buyva"
+                                )
+                            )
+                        }
+                    )})
         }
     }
 
