@@ -36,10 +36,12 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.GetProductsByCategoryQuery
+import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.ui.theme.Cold
 
 @Composable
-fun ProductCard(product: Any, modifier: Modifier = Modifier,onProductClick: (String) -> Unit
+fun ProductCard(
+    product: Any, modifier: Modifier = Modifier, onProductClick: (String) -> Unit
 ) {
     var isFav by remember { mutableStateOf(false) }
 
@@ -59,9 +61,19 @@ fun ProductCard(product: Any, modifier: Modifier = Modifier,onProductClick: (Str
             price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
             currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
         }
+
+        is ProductsByCollectionQuery.Node -> {
+            id = product.id
+            println("product id is +++++++++++++++ $id")
+            imageUrl = product.featuredImage?.url?.toString() ?: ""
+            productTitle = product.title
+            price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
+            currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
+        }
+
         is GetProductsByCategoryQuery.Node -> {
             id = product.id
-            imageUrl =product.images.edges.firstOrNull()?.node?.url?.toString() ?: ""
+            imageUrl = product.images.edges.firstOrNull()?.node?.url?.toString() ?: ""
             productTitle = product.title
             productType = product.productType
             price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
@@ -74,7 +86,13 @@ fun ProductCard(product: Any, modifier: Modifier = Modifier,onProductClick: (Str
         modifier = modifier
             .padding(vertical = 4.dp)
             .height(190.dp),
-        onClick = { onProductClick(Uri.encode(id)) },
+        onClick = {
+            if (id.isNotEmpty()) {
+                onProductClick(Uri.encode(id))
+            } else {
+                println("Cannot navigate")
+            }
+        },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)

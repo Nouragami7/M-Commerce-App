@@ -1,4 +1,3 @@
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.GetProductsByCategoryQuery
+import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.utils.components.AnimatedProductItem
 
 @Composable
@@ -42,6 +42,18 @@ fun ProductSection(products: List<*>, onProductClick: (String) -> Unit) {
                                 )
                             }
                         }
+
+                        is ProductsByCollectionQuery.Node -> {
+                            key(product.id) {
+                                AnimatedProductItem(
+                                    id = product.id,
+                                    index = index,
+                                    product = product,
+                                    onProductClick = onProductClick
+                                )
+                            }
+                        }
+
                         is GetProductsByCategoryQuery.Node -> {
                             key(product.id) {
                                 AnimatedProductItem(

@@ -1,8 +1,7 @@
 package com.example.buyva.features.brand.view
 
+import ProductSection
 import SearchBarWithCartIcon
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,23 +24,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.repository.brand.BrandRepositoryImpl
+import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.brand.viewmodel.BrandFactory
 import com.example.buyva.features.brand.viewmodel.BrandViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
@@ -65,7 +64,7 @@ fun BrandProductsScreen(
     var maxPrice by remember { mutableFloatStateOf(2522f) }
 
     val brandFactory = BrandFactory(
-        BrandRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
+        HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
     )
 
     val brandViewModel: BrandViewModel = viewModel(factory = brandFactory)
@@ -76,7 +75,7 @@ fun BrandProductsScreen(
 
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
-        brandViewModel.getProductsByCollection(brandId)
+        brandViewModel.getProductsByBrand(brandId)
     }
 
 
@@ -130,7 +129,7 @@ fun BrandProductsScreen(
             is ResponseState.Success<*> -> {
                 val products = (state as? ResponseState.Success<List<ProductsByCollectionQuery.Node>>)?.data
                 if (products != null) {
-                    BrandOfProduct(products = products, onProductClick)
+                    ProductSection(products = products, onProductClick)
                 }
             }
         }
