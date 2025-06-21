@@ -70,12 +70,12 @@ fun CategoryItem(
         ) {
             Text(
                 text = category.name,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 color = if (isSelected) Cold else Color.Gray,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 8.dp)
+                    .padding(start = 2.dp)
             )
             Icon(
                 imageVector = if (expanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
@@ -86,7 +86,7 @@ fun CategoryItem(
 
         AnimatedVisibility(visible = expanded) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.padding(start = 2.dp, top = 8.dp)
             ) {
                 filtersWithIcons.forEach { (filter, icon) ->
@@ -113,7 +113,7 @@ fun CategoryItem(
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = filter,
-                            fontSize = 16.sp,
+                            fontSize = 13.sp,
                             color = if (isFilterSelected) Cold else Color.Gray,
                             fontWeight = FontWeight.Medium
                         )

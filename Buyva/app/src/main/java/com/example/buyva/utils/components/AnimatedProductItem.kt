@@ -10,7 +10,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,7 +19,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
 @Composable
@@ -28,7 +26,8 @@ fun AnimatedProductItem(
     id: String,
     index: Int,
     product: Any,
-    onProductClick: (String) -> Unit
+    onProductClick: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current.density
     var visible by remember { mutableStateOf(false) }
@@ -56,8 +55,7 @@ fun AnimatedProductItem(
             visible = visible,
             enter = enterAnimation,
             exit = fadeOut(),
-            modifier = Modifier
-                .widthIn(max = 170.dp)
+            modifier = modifier
                 .graphicsLayer {
                     rotationY = if (index % 2 == 0) 10f else -10f
                     cameraDistance = 12f * density
