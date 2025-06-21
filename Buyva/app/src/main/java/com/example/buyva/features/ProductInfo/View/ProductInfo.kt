@@ -50,7 +50,7 @@ fun ProductInfoScreen(
     navController: NavController,
     productId: String,
     repository: IHomeRepository,
-    favouriteViewModel: FavouriteScreenViewModel,  // هنا استقبل الـ viewModel
+    favouriteViewModel: FavouriteScreenViewModel,
 
 ) {
     val factory = remember { ProductInfoViewModelFactory(repository) }
