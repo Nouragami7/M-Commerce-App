@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.ProductInfo.View.ProductInfoScreen
 import com.example.buyva.features.authentication.login.view.LoginScreenHost
@@ -18,6 +19,7 @@ import com.example.buyva.features.authentication.signup.view.SignupScreenHost
 import com.example.buyva.features.brand.view.BrandProductsScreen
 import com.example.buyva.features.categories.view.CategoryScreen
 import com.example.buyva.features.favourite.view.FavouriteScreen
+import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.home.view.HomeScreen
 import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.profile.addressdetails.view.AddressDetails
@@ -26,13 +28,11 @@ import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
 import com.example.buyva.features.brand.view.BrandProductsScreen
 import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
+
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.yourapp.ui.screens.OrderScreen
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
-import com.stripe.android.paymentsheet.PaymentSheet
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -40,6 +40,11 @@ fun SetupNavHost(
     navController: NavHostController,
     startDestination: String
 ) {
+    val favouriteRepository = remember { FavouriteRepositoryImpl() }
+    val favouriteViewModel = remember { FavouriteScreenViewModel(favouriteRepository) }
+
+
+
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -86,9 +91,6 @@ fun SetupNavHost(
                     set("brandName", brandTitle)
                     set("brandImage", brandImage)
                 }
-                println("Brand ID--------------------: $brandId")
-                println("Brand ID--------------------: $brandTitle")
-                println("Brand ID--------------------: $brandImage")
                 navController.navigate(ScreensRoute.BrandProductsScreen(brandId, brandTitle, brandImage))
             }
             ,
@@ -107,7 +109,9 @@ fun SetupNavHost(
             onCartClick = { navController.navigate(ScreensRoute.CartScreen)},
             onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) }
         ) }
-        composable<ScreensRoute.FavouritesScreen> { FavouriteScreen() }
+        composable<ScreensRoute.FavouritesScreen> {
+            FavouriteScreen(viewModel = favouriteViewModel, navController = navController)
+        }
 
         composable<ScreensRoute.ProfileScreen> {
             ProfileScreen(
@@ -167,8 +171,7 @@ fun SetupNavHost(
                 onBack = { navController.popBackStack() },
 
                 onProductClick = { productId ->
-                    val encodedId = URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
-                    navController.navigate("productInfo/$encodedId")
+                    navController.navigate("productInfo/$productId")
                 }
             )
         }
@@ -180,7 +183,12 @@ fun SetupNavHost(
                 HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
             }
 
-            ProductInfoScreen(productId = productId, repository = repository, navController = navController)
+            ProductInfoScreen(
+                productId = productId,
+                repository = repository,
+                navController = navController,
+                favouriteViewModel = favouriteViewModel // ✅ هنا
+            )
         }
 
 

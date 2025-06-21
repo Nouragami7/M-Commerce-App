@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -36,10 +34,13 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.GetProductsByCategoryQuery
+import com.example.buyva.ProductsByCollectionQuery
+import com.example.buyva.data.model.FavouriteProduct
 import com.example.buyva.ui.theme.Cold
 
 @Composable
-fun ProductCard(product: Any, modifier: Modifier = Modifier,onProductClick: (String) -> Unit
+fun ProductCard(
+    product: Any, modifier: Modifier = Modifier, onProductClick: (String) -> Unit
 ) {
     var isFav by remember { mutableStateOf(false) }
 
@@ -55,26 +56,59 @@ fun ProductCard(product: Any, modifier: Modifier = Modifier,onProductClick: (Str
             id = product.id
             imageUrl = product.featuredImage?.url?.toString() ?: ""
             productTitle = product.title
+                .split("|")
+                .take(2)
+                .map { it.trim().split(" ").firstOrNull().orEmpty() }
+                .joinToString(" | ")
             productType = product.productType
             price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
             currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
         }
+
+        is ProductsByCollectionQuery.Node -> {
+            id = product.id
+            imageUrl = product.featuredImage?.url?.toString() ?: ""
+            productTitle = product.title
+                .split("|")
+                .take(2)
+                .map { it.trim().split(" ").firstOrNull().orEmpty() }
+                .joinToString(" | ")
+            productType = "Shoes"
+            price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
+            currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
+        }
+
         is GetProductsByCategoryQuery.Node -> {
             id = product.id
-            imageUrl =product.images.edges.firstOrNull()?.node?.url?.toString() ?: ""
-            productTitle = product.title
+            imageUrl = product.images.edges.firstOrNull()?.node?.url?.toString() ?: ""
+            productTitle = product.title.trim().split(" ").firstOrNull().orEmpty()
             productType = product.productType
             price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
             currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
 
         }
+        is FavouriteProduct -> {
+            id = product.id
+            imageUrl = product.imageUrl
+            productTitle = product.title
+            price = product.price
+            currency = "EGP" // أو لو عندك currency جوّا `FavouriteProduct`
+        }
+
+
     }
 
     Card(
         modifier = modifier
             .padding(vertical = 4.dp)
             .height(190.dp),
-        onClick = { onProductClick(Uri.encode(id)) },
+        onClick = {
+            if (id.isNotEmpty()) {
+                onProductClick(Uri.encode(id))
+            } else {
+                println("Cannot navigate")
+            }
+        },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
@@ -88,11 +122,14 @@ fun ProductCard(product: Any, modifier: Modifier = Modifier,onProductClick: (Str
                 model = imageUrl,
                 contentDescription = "Product Image",
                 modifier = Modifier
-                    .size(80.dp)
-                    .clip(CircleShape)
+                    .fillMaxWidth()
+                    .padding(6.dp)
+                    .height(90.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .clip(RoundedCornerShape(6.dp))
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = productTitle,
@@ -107,7 +144,7 @@ fun ProductCard(product: Any, modifier: Modifier = Modifier,onProductClick: (Str
                 text = productType,
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
-                fontSize = 12.sp,
+                fontSize = 14.sp,
                 modifier = Modifier.padding(start = 2.dp)
             )
 
@@ -121,7 +158,7 @@ fun ProductCard(product: Any, modifier: Modifier = Modifier,onProductClick: (Str
                 Text(
                     text = "$price $currency",
                     color = Cold,
-                    fontSize = 14.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold
                 )
 

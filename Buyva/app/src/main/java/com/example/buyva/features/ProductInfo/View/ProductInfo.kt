@@ -40,13 +40,18 @@ import com.example.buyva.data.datasource.remote.RemoteDataSource
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.model.uistate.ResponseState
+ 
 import com.example.buyva.data.repository.AuthRepository
 import com.example.buyva.data.repository.cart.CartRepo
 import com.example.buyva.data.repository.cart.CartRepoImpl
 import com.example.buyva.data.repository.home.IHomeRepository
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModel
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModelFactory
+
 import com.example.buyva.navigation.ScreensRoute
+
+import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
+import com.example.buyva.features.favourite.viewmodel.FavouriteViewModelFactory
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
@@ -57,13 +62,16 @@ import com.example.buyva.utils.sharedpreference.SharedPreference
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
+import com.example.buyva.utils.mappers.toFavouriteProduct
 
 @Composable
 fun ProductInfoScreen(
     navController: NavController,
     productId: String,
-    repository: IHomeRepository
-) {
+    repository: IHomeRepository,
+    favouriteViewModel: FavouriteScreenViewModel,
+
+    ) {
     val application = LocalContext.current.applicationContext as Application
     val authRepo : AuthRepository = AuthRepository(FirebaseAuth.getInstance(), ApolloService.client)
     val cartRepo : CartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client), SharedPreferenceImpl)
@@ -77,6 +85,7 @@ fun ProductInfoScreen(
             navController.navigate(ScreensRoute.CartScreen)
         }
     }
+
 
     LaunchedEffect(productId) {
         NavigationBar.mutableNavBarState.value = false
@@ -95,15 +104,20 @@ fun ProductInfoScreen(
         is ResponseState.Success<*> -> {
             val product = result.data as? GetProductByIdQuery.Product
             if (product != null) {
-                ProductInfoContent(product = product, navController = navController, viewModel = viewModel)
+
+                ProductInfoContent(product = product, navController = navController,favouriteViewModel = favouriteViewModel,viewModel = viewModel)
             }
         }
     }
 }
 @Composable
-fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavController, viewModel: ProductInfoViewModel) {
+
+fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavController,favouriteViewModel: FavouriteScreenViewModel,viewModel: ProductInfoViewModel
+) {
     var selectedImage by remember { mutableStateOf<String?>(null) }
-    var isFavorite by remember { mutableStateOf(false) }
+    val favouriteProducts by favouriteViewModel.favouriteProducts.collectAsState()
+    val isFavorite = favouriteProducts.any { it.id == product.id }
+
     var isAddedToCart by remember { mutableStateOf(false) }
     var selectedSize by remember { mutableStateOf<String?>(null) }
     var selectedColor by remember { mutableStateOf<String?>(null) }
@@ -143,7 +157,6 @@ val context = LocalContext.current
                 .padding(bottom = 80.dp)
         ) {
 
-            // ✅ Header: Back + Title
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -192,8 +205,11 @@ val context = LocalContext.current
                             .align(Alignment.TopEnd)
                             .padding(4.dp)
                             .size(28.dp)
-                            .clickable { isFavorite = !isFavorite }
+                            .clickable {
+                                favouriteViewModel.toggleFavourite(product.toFavouriteProduct())
+                            }
                     )
+
                 }
             }
 
