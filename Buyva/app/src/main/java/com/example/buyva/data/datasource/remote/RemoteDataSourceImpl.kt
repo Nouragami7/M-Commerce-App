@@ -6,6 +6,7 @@ import com.apollographql.apollo3.exception.ApolloException
 import com.example.buyva.AddProductToCartMutation
 import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.CreateCartMutation
+import com.example.buyva.GetCartDetailsQuery
 import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
@@ -89,26 +90,18 @@ val mutation = CreateCartMutation(email, token)
         }
     }
 
-//    suspend fun loginAndGetTheToken(email: String, password: String): Result<String> {
-//        return try {
-//            val input = CustomerAccessTokenCreateInput(email = email, password = password)
-//            val response = apolloClient
-//                .mutation(CreateCustomerAccessTokenMutation(input))
-//                .execute()
-//
-//            val token = response.data?.customerAccessTokenCreate?.customerAccessToken?.accessToken
-//            val error = response.data?.customerAccessTokenCreate?.customerUserErrors?.firstOrNull()?.message
-//
-//            when {
-//                token != null -> Result.success(token)
-//                error != null -> Result.failure(Exception(error))
-//                else -> Result.failure(Exception("Unknown Shopify error"))
-//            }
-//        } catch (e: Exception) {
-//            Result.failure(e)
-//        }
-//    }
+    override suspend fun getCartDetails(cartId: String): Flow<ResponseState> = flow {
+        emit(ResponseState.Loading)
 
-
+        val response = apolloClient.query(GetCartDetailsQuery(cartId)).execute()
+        val cart = response.data?.cart
+        if (cart != null) {
+            emit(ResponseState.Success(cart))
+        } else {
+            throw Exception("No cart found with this ID")
+        }
+    }.catch { e ->
+        emit(ResponseState.Failure(e))
+    }
 
 }

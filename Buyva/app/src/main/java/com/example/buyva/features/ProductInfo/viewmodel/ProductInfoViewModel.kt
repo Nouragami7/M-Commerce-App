@@ -82,60 +82,6 @@ class ProductInfoViewModel(
     }
 
 
-//    fun isCustomerHasCart(email: String) {
-//        viewModelScope.launch {
-//            try {
-//                val hasCart = firebaseRepository.isCustomerHasCart(email)
-//                _hasCart.value = ApiState.Success(hasCart)
-//            } catch (e: Exception) {
-//                _hasCart.value = ApiState.Failure(e)
-//            }
-//        }
-//    }
-//
-//    fun addCustomerCart(email: String, cartId: String) {
-//        viewModelScope.launch {
-//            try {
-//                firebaseRepository.addCustomerCart(email, cartId)
-//            } catch (e: Exception) {
-//                Log.e(TAG, "Error adding customer cart: ", e)
-//            }
-//        }
-//    }
-//
-//
-//    fun getCartByCustomer(email: String) {
-//        viewModelScope.launch {
-//            _customerCart.value = ApiState.Loading
-//            try {
-//                val cartId = firebaseRepository.getCartByCustomer(email)
-//                _customerCart.value = ApiState.Success(cartId)
-//            } catch (e: Exception) {
-//                _customerCart.value = ApiState.Failure(e)
-//                Log.e(TAG, "Error getting customer cart: ", e)
-//            }
-//        }
-//    }
-//
-//    fun addProductToCart(productId: String, quantity: Int, variantId: String) {
-//
-//        viewModelScope.launch {
-//            repository.addToCartById(productId, quantity, variantId).collect {
-//                _addingToCart.value = it
-//            }
-//        }
-//    }
-//
-//    suspend fun readCustomerEmail(): String {
-//
-//        return repository.readEmailFromSharedPreferences(USER_EMAIL)
-//    }
-//
-//    fun writeCartId(cartId: String) {
-//        viewModelScope.launch {
-//            repository.writeCartIdToSharedPreferences(cartId, CART_ID)
-//        }
-//    }
 }
 
 class ProductInfoViewModelFactory(

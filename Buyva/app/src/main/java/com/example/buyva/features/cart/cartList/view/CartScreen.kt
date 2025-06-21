@@ -1,3 +1,4 @@
+import android.app.Application
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -27,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.R
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.CartItem
@@ -41,8 +43,18 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.airbnb.lottie.compose.*
+import com.apollographql.apollo3.ApolloClient
+import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
+import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.model.uistate.ResponseState
+import com.example.buyva.data.repository.cart.CartRepo
+import com.example.buyva.data.repository.cart.CartRepoImpl
+import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
+import com.example.buyva.features.cart.cartList.viewmodel.CartViewModelFactory
 import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.components.ScreenTitle
+import com.example.buyva.utils.sharedpreference.SharedPreference
+import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -57,21 +69,33 @@ fun CartScreen(
     var showSheet by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var itemToDelete by remember { mutableStateOf<CartItem?>(null) }
+    val application = context.applicationContext as Application
+    val cartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client), SharedPreferenceImpl)
+
+    val viewModel: CartViewModel = viewModel(
+        factory = CartViewModelFactory(application, cartRepo)
+    )
+
+    val cartState by viewModel.cartProducts.collectAsState()
+    val cartItems = remember { mutableStateListOf<CartItem>() }
+
+    LaunchedEffect(cartState) {
+        if (cartState is ResponseState.Success<*>) {
+            val newItems = (cartState as ResponseState.Success<List<CartItem>>).data
+            cartItems.clear()
+            cartItems.addAll(newItems)
+        }
+    }
+
 
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
-    }
-
-    val cartItems = remember {
-        mutableStateListOf(
-            CartItem(R.drawable.bag1, "Bag 1", 2000.0, mutableStateOf(1)),
-            CartItem(R.drawable.bag2, "Bag 2", 3500.0, mutableStateOf(2))
-        )
+        viewModel.showCart()
     }
 
     val totalPrice by remember(cartItems) {
         derivedStateOf {
-            cartItems.sumOf { it.price * it.quantity.value }
+            cartItems.sumOf { it.price * it.quantity }
         }
     }
 
@@ -92,7 +116,7 @@ fun CartScreen(
             else {
             LazyColumn(modifier = Modifier.weight(1f)) {
 
-                    items(cartItems, key = { it.name }) { item ->
+                items(cartItems, key = { it.id }) { item ->
                         val dismissState = rememberDismissState(
                             confirmStateChange = { dismissValue ->
                                 if (dismissValue == DismissValue.DismissedToStart || dismissValue == DismissValue.DismissedToEnd) {
@@ -124,8 +148,12 @@ fun CartScreen(
                             },
                             dismissContent = {
                                 CartItemRow(item = item, onQuantityChange = { newQty ->
-                                    item.quantity.value = newQty
+                                    val index = cartItems.indexOfFirst { it.id == item.id }
+                                    if (index != -1) {
+                                        cartItems[index] = cartItems[index].copy(quantity = newQty)
+                                    }
                                 })
+
                             }
                         )
                     }
@@ -190,9 +218,9 @@ fun CartScreen(
     if (showDeleteDialog && itemToDelete != null) {
         CustomAlertDialog(
             title = "Delete Item",
-            message = "Are you sure you want to remove ${itemToDelete?.name} from the cart?",
+            message = "Are you sure you want to remove ${itemToDelete?.title} from the cart?",
             onConfirm = {
-                cartItems.remove(itemToDelete)
+                //cartItems.remove(itemToDelete)
                 showDeleteDialog = false
                 itemToDelete = null
             },
