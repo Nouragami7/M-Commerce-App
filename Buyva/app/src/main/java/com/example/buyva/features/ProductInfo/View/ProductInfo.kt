@@ -32,23 +32,31 @@ import coil.compose.AsyncImage
 import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.R
 import com.example.buyva.data.model.uistate.ResponseState
+import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.IHomeRepository
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModel
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModelFactory
+import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
+import com.example.buyva.features.favourite.viewmodel.FavouriteViewModelFactory
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.utils.components.ScreenTitle
+import com.example.buyva.utils.mappers.toFavouriteProduct
+
 @Composable
 fun ProductInfoScreen(
     navController: NavController,
     productId: String,
-    repository: IHomeRepository
+    repository: IHomeRepository,
+    favouriteViewModel: FavouriteScreenViewModel,  // هنا استقبل الـ viewModel
+
 ) {
     val factory = remember { ProductInfoViewModelFactory(repository) }
     val viewModel: ProductInfoViewModel = viewModel(factory = factory)
     val state by viewModel.product.collectAsState()
+
 
     LaunchedEffect(productId) {
         NavigationBar.mutableNavBarState.value = false
@@ -67,15 +75,18 @@ fun ProductInfoScreen(
         is ResponseState.Success<*> -> {
             val product = result.data as? GetProductByIdQuery.Product
             if (product != null) {
-                ProductInfoContent(product = product, navController = navController)
+                ProductInfoContent(product = product, navController = navController,favouriteViewModel = favouriteViewModel)
             }
         }
     }
 }
 @Composable
-fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavController) {
+fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavController,favouriteViewModel: FavouriteScreenViewModel
+) {
     var selectedImage by remember { mutableStateOf<String?>(null) }
-    var isFavorite by remember { mutableStateOf(false) }
+    val favouriteProducts by favouriteViewModel.favouriteProducts.collectAsState()
+    val isFavorite = favouriteProducts.any { it.id == product.id }
+
     var isAddedToCart by remember { mutableStateOf(false) }
     var selectedSize by remember { mutableStateOf<String?>(null) }
     var selectedColor by remember { mutableStateOf<String?>(null) }
@@ -158,8 +169,11 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
                             .align(Alignment.TopEnd)
                             .padding(4.dp)
                             .size(28.dp)
-                            .clickable { isFavorite = !isFavorite }
+                            .clickable {
+                                favouriteViewModel.toggleFavourite(product.toFavouriteProduct())
+                            }
                     )
+
                 }
             }
 

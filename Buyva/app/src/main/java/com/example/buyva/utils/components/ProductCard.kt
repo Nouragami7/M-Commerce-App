@@ -37,6 +37,7 @@ import coil.compose.AsyncImage
 import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
+import com.example.buyva.data.model.FavouriteProduct
 import com.example.buyva.ui.theme.Cold
 
 @Composable
@@ -80,6 +81,15 @@ fun ProductCard(
             currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
 
         }
+        is FavouriteProduct -> {
+            id = product.id
+            imageUrl = product.imageUrl
+            productTitle = product.title
+            price = product.price
+            currency = "EGP" // أو لو عندك currency جوّا `FavouriteProduct`
+        }
+
+
     }
 
     Card(
