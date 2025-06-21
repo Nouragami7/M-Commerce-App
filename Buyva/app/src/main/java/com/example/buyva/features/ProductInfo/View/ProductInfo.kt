@@ -110,7 +110,6 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
                 .padding(bottom = 80.dp)
         ) {
 
-            // ✅ Header: Back + Title
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
