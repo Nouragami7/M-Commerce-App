@@ -3,15 +3,15 @@ package com.example.buyva.features.brand.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.repository.brand.IBrandRepository
+import com.example.buyva.data.repository.home.IHomeRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class BrandViewModel(private val brandRepository: IBrandRepository) : ViewModel(){
+class BrandViewModel(private val homeRepository:IHomeRepository ) : ViewModel(){
     private val _productsOfBrand = MutableStateFlow<ResponseState>(ResponseState.Loading)
     val productsOfBrand: MutableStateFlow<ResponseState> = _productsOfBrand
 
-    suspend fun getProductsByCollection(collectionId: String) {
-        brandRepository.getProductsByCollection(collectionId).collect {
+    suspend fun getProductsByBrand(collectionId: String) {
+        homeRepository.getProductsByBrand(collectionId).collect {
             try {
                 _productsOfBrand.value = ResponseState.Loading
                 if (it?.collection?.products?.edges != null) {
@@ -28,12 +28,13 @@ class BrandViewModel(private val brandRepository: IBrandRepository) : ViewModel(
         }
     }
 }
-class BrandFactory(private val brandRepository: IBrandRepository) : ViewModelProvider.Factory {
+class BrandFactory(private val homeRepository: IHomeRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(BrandViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return BrandViewModel(brandRepository) as T
+            return BrandViewModel(homeRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
+
 }

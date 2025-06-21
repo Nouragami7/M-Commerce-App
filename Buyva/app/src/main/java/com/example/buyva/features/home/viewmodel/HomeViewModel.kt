@@ -27,6 +27,8 @@ class HomeViewModel(private val homeRepository: IHomeRepository) : ViewModel() {
             }
         }
     }
+
+
 }
 
 class HomeFactory(private val homeRepository: IHomeRepository) : ViewModelProvider.Factory {

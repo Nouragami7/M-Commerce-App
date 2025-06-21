@@ -16,24 +16,17 @@ import com.example.buyva.features.authentication.login.view.LoginScreenHost
 import com.example.buyva.features.authentication.login.view.WelcomeScreen
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
 import com.example.buyva.features.brand.view.BrandProductsScreen
+import com.example.buyva.features.cart.payment.view.CheckoutScreen
 import com.example.buyva.features.categories.view.CategoryScreen
 import com.example.buyva.features.favourite.view.FavouriteScreen
 import com.example.buyva.features.home.view.HomeScreen
 import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.profile.addressdetails.view.AddressDetails
 import com.example.buyva.features.profile.addresseslist.view.DeliveryAddressListScreen
-import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
-import com.example.buyva.features.authentication.signup.view.SignupScreenHost
-import com.example.buyva.features.brand.view.BrandProductsScreen
-import com.example.buyva.features.cart.payment.view.CheckoutScreen
-import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.yourapp.ui.screens.OrderScreen
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
-import com.stripe.android.paymentsheet.PaymentSheet
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -87,9 +80,6 @@ fun SetupNavHost(
                     set("brandName", brandTitle)
                     set("brandImage", brandImage)
                 }
-                println("Brand ID--------------------: $brandId")
-                println("Brand ID--------------------: $brandTitle")
-                println("Brand ID--------------------: $brandImage")
                 navController.navigate(ScreensRoute.BrandProductsScreen(brandId, brandTitle, brandImage))
             }
             ,
@@ -168,8 +158,7 @@ fun SetupNavHost(
                 onBack = { navController.popBackStack() },
 
                 onProductClick = { productId ->
-                    val encodedId = URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
-                    navController.navigate("productInfo/$encodedId")
+                    navController.navigate("productInfo/$productId")
                 }
             )
         }
