@@ -93,6 +93,11 @@ fun ProductCard(
             id = product.id
             imageUrl = product.featuredImage?.url?.toString() ?: ""
             productTitle = product.title
+                .split("|")
+                .take(2)
+                .map { it.trim().split(" ").firstOrNull().orEmpty() }
+                .joinToString(" | ")
+
             productType = product.productType
             price = product.variants.edges.firstOrNull()?.node?.price?.amount?.toString() ?: "0"
             currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
