@@ -51,11 +51,11 @@ import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModelFact
 import com.example.buyva.navigation.ScreensRoute
 
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
-import com.example.buyva.features.favourite.viewmodel.FavouriteViewModelFactory
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
 import com.example.buyva.navigation.navbar.NavigationBar
+import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.components.ScreenTitle
 import com.example.buyva.utils.constants.CART_ID
 import com.example.buyva.utils.sharedpreference.SharedPreference
@@ -110,6 +110,7 @@ fun ProductInfoScreen(
         }
     }
 }
+
 @Composable
 
 fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavController,favouriteViewModel: FavouriteScreenViewModel,viewModel: ProductInfoViewModel
@@ -117,6 +118,7 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
     var selectedImage by remember { mutableStateOf<String?>(null) }
     val favouriteProducts by favouriteViewModel.favouriteProducts.collectAsState()
     val isFavorite = favouriteProducts.any { it.id == product.id }
+    var showDeleteAlert by remember { mutableStateOf(false) }
 
     var isAddedToCart by remember { mutableStateOf(false) }
     var selectedSize by remember { mutableStateOf<String?>(null) }
@@ -181,7 +183,6 @@ val context = LocalContext.current
                 )
             }
 
-            // ✅ Image Card
             Card(
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -206,16 +207,34 @@ val context = LocalContext.current
                             .padding(4.dp)
                             .size(28.dp)
                             .clickable {
-                                favouriteViewModel.toggleFavourite(product.toFavouriteProduct())
+                                if (isFavorite) {
+                                    showDeleteAlert = true
+                                } else {
+                                    favouriteViewModel.toggleFavourite(product.id)
+                                }
                             }
                     )
+                    if (showDeleteAlert) {
+                        CustomAlertDialog(
+                            title = "Remove from favorites",
+                            message = "Are you sure you want to remove this product from favorites?",
+                            confirmText = "Remove",
+                            dismissText = "Cancel",
+                            onConfirm = {
+                                favouriteViewModel.toggleFavourite(product.id)
+                                showDeleteAlert = false
+                            },
+                            onDismiss = {
+                                showDeleteAlert = false
+                            }
+                        )
+                    }
 
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ✅ Product Info Card
             Card(
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -243,7 +262,6 @@ val context = LocalContext.current
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ✅ Size Options
             if (availableSizes.isNotEmpty()) {
                 Text("Select Size", Modifier.padding(start = 16.dp), fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.height(8.dp))

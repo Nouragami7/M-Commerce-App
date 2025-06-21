@@ -1,43 +1,38 @@
 package com.example.buyva.features.favourite.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.buyva.data.model.FavouriteProduct
+import com.example.buyva.GetFavouriteProductsByIdsQuery.OnProduct
 import com.example.buyva.data.repository.favourite.FavouriteRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class FavouriteScreenViewModel(
     private val repository: FavouriteRepository
 ) : ViewModel() {
 
-    val favouriteProducts = repository.getFavourites()
+    private val _favouriteProducts = MutableStateFlow<List<OnProduct>>(emptyList())
+    val favouriteProducts: StateFlow<List<OnProduct>> = _favouriteProducts.asStateFlow()
 
-    fun toggleFavourite(product: FavouriteProduct) {
+    init {
         viewModelScope.launch {
-            if (favouriteProducts.value.any { it.id == product.id }) {
-                repository.removeFavourite(product.id)
+            repository.getFavourites().collect { products ->
+                _favouriteProducts.value = products
+            }
+        }
+    }
+
+    fun toggleFavourite(productId: String) {
+        viewModelScope.launch {
+            if (isFavourite(productId)) {
+                repository.removeFavourite(productId)
             } else {
-                repository.addFavourite(product)
+                repository.addFavourite(productId)
             }
         }
     }
 
     fun isFavourite(productId: String): Boolean {
-        return favouriteProducts.value.any { it.id == productId }
-    }
-}
-class FavouriteViewModelFactory(
-    private val repository: FavouriteRepository
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(FavouriteScreenViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return FavouriteScreenViewModel(repository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
+        return _favouriteProducts.value.any { it.id == productId }
     }
 }
