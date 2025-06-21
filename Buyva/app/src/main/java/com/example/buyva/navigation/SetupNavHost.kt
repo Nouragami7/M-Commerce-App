@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.ProductInfo.View.ProductInfoScreen
 import com.example.buyva.features.authentication.login.view.LoginScreenHost
@@ -19,6 +20,7 @@ import com.example.buyva.features.brand.view.BrandProductsScreen
 import com.example.buyva.features.cart.payment.view.CheckoutScreen
 import com.example.buyva.features.categories.view.CategoryScreen
 import com.example.buyva.features.favourite.view.FavouriteScreen
+import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.home.view.HomeScreen
 import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.profile.addressdetails.view.AddressDetails
@@ -34,6 +36,11 @@ fun SetupNavHost(
     navController: NavHostController,
     startDestination: String
 ) {
+    val favouriteRepository = remember { FavouriteRepositoryImpl() }
+    val favouriteViewModel = remember { FavouriteScreenViewModel(favouriteRepository) }
+
+
+
     NavHost(
         navController = navController,
         startDestination = startDestination
@@ -98,7 +105,9 @@ fun SetupNavHost(
             onCartClick = { navController.navigate(ScreensRoute.CartScreen)},
             onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) }
         ) }
-        composable<ScreensRoute.FavouritesScreen> { FavouriteScreen() }
+        composable<ScreensRoute.FavouritesScreen> {
+            FavouriteScreen(viewModel = favouriteViewModel, navController = navController)
+        }
 
         composable<ScreensRoute.ProfileScreen> {
             ProfileScreen(
@@ -170,7 +179,12 @@ fun SetupNavHost(
                 HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
             }
 
-            ProductInfoScreen(productId = productId, repository = repository, navController = navController)
+            ProductInfoScreen(
+                productId = productId,
+                repository = repository,
+                navController = navController,
+                favouriteViewModel = favouriteViewModel // ✅ هنا
+            )
         }
 
 

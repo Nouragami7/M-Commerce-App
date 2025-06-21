@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
+import com.example.buyva.data.model.FavouriteProduct
 import com.example.buyva.utils.components.AnimatedProductItem
 
 @Composable
@@ -70,6 +71,17 @@ fun ProductSection(
                                 )
                             }
                         }
+                        is FavouriteProduct -> {
+                            key(product.id) {
+                                AnimatedProductItem(
+                                    id = product.id,
+                                    index = index,
+                                    product = product,
+                                    onProductClick = onProductClick
+                                )
+                            }
+                        }
+
                     }
                 }
                 if (row.size == 1) {
