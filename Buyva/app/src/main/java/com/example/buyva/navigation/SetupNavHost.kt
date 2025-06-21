@@ -36,7 +36,8 @@ fun SetupNavHost(
     navController: NavHostController,
     startDestination: String
 ) {
-    val favouriteRepository = remember { FavouriteRepositoryImpl() }
+    val apolloClient = remember { ApolloService.client }
+    val favouriteRepository = remember { FavouriteRepositoryImpl(apolloClient) }
     val favouriteViewModel = remember { FavouriteScreenViewModel(favouriteRepository) }
 
 

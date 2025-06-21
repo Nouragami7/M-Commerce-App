@@ -10,6 +10,7 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.buyva.BrandsAndProductsQuery
+import com.example.buyva.GetFavouriteProductsByIdsQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.data.model.FavouriteProduct
@@ -71,16 +72,18 @@ fun ProductSection(
                                 )
                             }
                         }
-                        is FavouriteProduct -> {
+                        is GetFavouriteProductsByIdsQuery.OnProduct -> {
                             key(product.id) {
                                 AnimatedProductItem(
                                     id = product.id,
                                     index = index,
                                     product = product,
-                                    onProductClick = onProductClick
+                                    onProductClick = onProductClick,
+                                    modifier = Modifier.weight(1f)
                                 )
                             }
                         }
+
 
                     }
                 }

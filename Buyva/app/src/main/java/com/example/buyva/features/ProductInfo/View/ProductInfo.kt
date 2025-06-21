@@ -37,7 +37,6 @@ import com.example.buyva.data.repository.home.IHomeRepository
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModel
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModelFactory
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
-import com.example.buyva.features.favourite.viewmodel.FavouriteViewModelFactory
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
@@ -145,7 +144,6 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
                 )
             }
 
-            // ✅ Image Card
             Card(
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -170,10 +168,9 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
                             .padding(4.dp)
                             .size(28.dp)
                             .clickable {
-                                favouriteViewModel.toggleFavourite(product.toFavouriteProduct())
+                                favouriteViewModel.toggleFavourite(product.id)
                             }
                     )
-
                 }
             }
 
@@ -207,7 +204,6 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ✅ Size Options
             if (availableSizes.isNotEmpty()) {
                 Text("Select Size", Modifier.padding(start = 16.dp), fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.height(8.dp))

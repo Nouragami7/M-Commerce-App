@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.buyva.BrandsAndProductsQuery
+import com.example.buyva.GetFavouriteProductsByIdsQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.data.model.FavouriteProduct
@@ -87,14 +88,15 @@ fun ProductCard(
             currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
 
         }
-        is FavouriteProduct -> {
-            id = product.id
-            imageUrl = product.imageUrl
-            productTitle = product.title
-            price = product.price
-            currency = "EGP" // أو لو عندك currency جوّا `FavouriteProduct`
-        }
 
+        is GetFavouriteProductsByIdsQuery.OnProduct -> { // Fixed syntax here
+            id = product.id
+            imageUrl = product.featuredImage?.url?.toString() ?: ""
+            productTitle = product.title
+            productType = product.productType
+            price = product.variants.edges.firstOrNull()?.node?.price?.amount?.toString() ?: "0"
+            currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
+        }
 
     }
 
@@ -172,4 +174,6 @@ fun ProductCard(
             }
         }
     }
-}
+    }
+
+

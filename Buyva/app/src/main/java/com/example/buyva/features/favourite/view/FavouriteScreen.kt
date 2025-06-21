@@ -13,7 +13,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.buyva.R
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
-import com.example.buyva.features.favourite.viewmodel.FavouriteViewModelFactory
 import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.components.ScreenTitle
