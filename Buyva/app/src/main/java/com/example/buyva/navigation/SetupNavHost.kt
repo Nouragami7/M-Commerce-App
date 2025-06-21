@@ -93,7 +93,9 @@ fun SetupNavHost(
             ,
             onProductClick = { productId ->
                 navController.navigate("productInfo/$productId")
-            }
+            },
+            favouriteViewModel = favouriteViewModel
+
         ) }
         composable<ScreensRoute.CartScreen> { CartScreen(
             onBackClick = { navController.popBackStack() },
@@ -104,7 +106,9 @@ fun SetupNavHost(
         ) }
         composable<ScreensRoute.CategoriesScreen> { CategoryScreen(
             onCartClick = { navController.navigate(ScreensRoute.CartScreen)},
-            onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) }
+            onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) },
+            favouriteViewModel = favouriteViewModel
+
         ) }
         composable<ScreensRoute.FavouritesScreen> {
             FavouriteScreen(viewModel = favouriteViewModel, navController = navController)
@@ -170,6 +174,8 @@ fun SetupNavHost(
                 onProductClick = { productId ->
                     navController.navigate("productInfo/$productId")
                 }
+                , favouriteViewModel = favouriteViewModel
+
             )
         }
 

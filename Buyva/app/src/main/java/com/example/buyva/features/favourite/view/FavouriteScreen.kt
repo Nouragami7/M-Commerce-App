@@ -46,8 +46,10 @@ fun FavouriteScreen(
                     products = favouriteProducts,
                     onProductClick = { productId ->
                         navController.navigate("productInfo/$productId")
-                    }
+                    },
+                    favouriteViewModel = viewModel
                 )
+
             }
         }
 

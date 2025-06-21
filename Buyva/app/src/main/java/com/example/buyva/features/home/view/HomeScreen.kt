@@ -25,6 +25,7 @@ import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
+import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.home.viewmodel.HomeFactory
 import com.example.buyva.features.home.viewmodel.HomeViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
@@ -37,7 +38,8 @@ import com.example.buyva.utils.components.ScreenTitle
 fun HomeScreen(
     onCartClick: () -> Unit = {},
     onBrandClick: (String,String, String) -> Unit = { _, _ ,_-> },
-    onProductClick: (String) -> Unit = {}
+    onProductClick: (String) -> Unit = {},
+    favouriteViewModel: FavouriteScreenViewModel // ✅ صح
 
 ){
     val viewModelFactory = HomeFactory(
@@ -91,7 +93,7 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                ProductSection(products = products, onProductClick = onProductClick)
+                ProductSection(products = products, onProductClick = onProductClick,favouriteViewModel = favouriteViewModel)
 
             }
 
@@ -101,11 +103,11 @@ fun HomeScreen(
     }
 
 }
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewBuyVaHomeScreen() {
-        HomeScreen()
-
-}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewBuyVaHomeScreen() {
+//        HomeScreen()
+//
+//}
 

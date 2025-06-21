@@ -41,6 +41,7 @@ import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.categories.CategoryRepositoryImpl
 import com.example.buyva.features.categories.viewmodel.CategoryFactory
 import com.example.buyva.features.categories.viewmodel.CategoryViewModel
+import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.ui.theme.DarkGray
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.utils.components.EmptyScreen
@@ -52,7 +53,9 @@ import com.example.buyva.utils.components.ScreenTitle
 @Composable
 fun CategoryScreen(
     onCartClick: () -> Unit,
-    onProductClick: (String) -> Unit
+    onProductClick: (String) -> Unit,
+favouriteViewModel: FavouriteScreenViewModel
+
 ) {
     var maxPrice by remember { mutableFloatStateOf(2522f) }
     var selectedCategory by remember { mutableStateOf("Men") }
@@ -158,7 +161,7 @@ fun CategoryScreen(
                                 Spacer(modifier = Modifier.height(16.dp))
                                 EmptyScreen("No products found for $selectedSubcategory",16.sp, animation = R.raw.emptycart)
                             } else {
-                                ProductSection(products = filtered, onProductClick = onProductClick)
+                                ProductSection(products = filtered, onProductClick = onProductClick, favouriteViewModel = favouriteViewModel)
                             }
                         }
 

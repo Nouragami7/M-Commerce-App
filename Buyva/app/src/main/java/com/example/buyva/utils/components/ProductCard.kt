@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,15 +38,29 @@ import com.example.buyva.GetFavouriteProductsByIdsQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.data.model.FavouriteProduct
+import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.ui.theme.Cold
-
 @Composable
 fun ProductCard(
-    product: Any, modifier: Modifier = Modifier, onProductClick: (String) -> Unit
+    product: Any,
+    modifier: Modifier = Modifier,
+    onProductClick: (String) -> Unit,
+    favouriteViewModel: FavouriteScreenViewModel // 👈 لازم تبعته كـ باراميتر
 ) {
-    var isFav by remember { mutableStateOf(false) }
+    val favouriteProducts by favouriteViewModel.favouriteProducts.collectAsState()
 
-    var id = ""
+    // 👇 استخرج ID المنتج
+    val id = when (product) {
+        is BrandsAndProductsQuery.Node -> product.id
+        is ProductsByCollectionQuery.Node -> product.id
+        is GetProductsByCategoryQuery.Node -> product.id
+        is GetFavouriteProductsByIdsQuery.OnProduct -> product.id
+        else -> ""
+    }
+
+    val isFavourite = favouriteProducts.any { it.id == id }
+
+    // 👇 باقي البيانات
     var imageUrl = ""
     var productTitle = " "
     var productType = " "
@@ -54,7 +69,6 @@ fun ProductCard(
 
     when (product) {
         is BrandsAndProductsQuery.Node -> {
-            id = product.id
             imageUrl = product.featuredImage?.url?.toString() ?: ""
             productTitle = product.title
                 .split("|")
@@ -67,7 +81,6 @@ fun ProductCard(
         }
 
         is ProductsByCollectionQuery.Node -> {
-            id = product.id
             imageUrl = product.featuredImage?.url?.toString() ?: ""
             productTitle = product.title
                 .split("|")
@@ -80,29 +93,24 @@ fun ProductCard(
         }
 
         is GetProductsByCategoryQuery.Node -> {
-            id = product.id
             imageUrl = product.images.edges.firstOrNull()?.node?.url?.toString() ?: ""
             productTitle = product.title.trim().split(" ").firstOrNull().orEmpty()
             productType = product.productType
             price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
             currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
-
         }
 
-        is GetFavouriteProductsByIdsQuery.OnProduct -> { // Fixed syntax here
-            id = product.id
+        is GetFavouriteProductsByIdsQuery.OnProduct -> {
             imageUrl = product.featuredImage?.url?.toString() ?: ""
             productTitle = product.title
                 .split("|")
                 .take(2)
                 .map { it.trim().split(" ").firstOrNull().orEmpty() }
                 .joinToString(" | ")
-
             productType = product.productType
             price = product.variants.edges.firstOrNull()?.node?.price?.amount?.toString() ?: "0"
             currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
         }
-
     }
 
     Card(
@@ -112,8 +120,6 @@ fun ProductCard(
         onClick = {
             if (id.isNotEmpty()) {
                 onProductClick(Uri.encode(id))
-            } else {
-                println("Cannot navigate")
             }
         },
         shape = RoundedCornerShape(16.dp),
@@ -169,16 +175,17 @@ fun ProductCard(
                     fontWeight = FontWeight.SemiBold
                 )
 
-                IconButton(onClick = { isFav = !isFav }) {
+                IconButton(onClick = {
+                    favouriteViewModel.toggleFavourite(id)
+                }) {
                     Icon(
-                        imageVector = if (isFav) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        imageVector = if (isFavourite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = "Favorite",
-                        tint = if (isFav) Color.Red else Color.Gray
+                        tint = if (isFavourite) Color.Red else Color.Gray
                     )
                 }
             }
         }
     }
-    }
-
+}
 

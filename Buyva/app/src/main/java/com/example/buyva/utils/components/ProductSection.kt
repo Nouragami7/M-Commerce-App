@@ -14,12 +14,13 @@ import com.example.buyva.GetFavouriteProductsByIdsQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.data.model.FavouriteProduct
+import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.utils.components.AnimatedProductItem
-
 @Composable
 fun ProductSection(
     products: List<*>,
-    onProductClick: (String) -> Unit
+    onProductClick: (String) -> Unit,
+    favouriteViewModel: FavouriteScreenViewModel
 ) {
     Column(
         modifier = Modifier
@@ -36,57 +37,27 @@ fun ProductSection(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 row.forEachIndexed { index, product ->
-                    when (product) {
-                        is BrandsAndProductsQuery.Node -> {
-                            key(product.id) {
-                                AnimatedProductItem(
-                                    id = product.id,
-                                    index = index,
-                                    product = product,
-                                    onProductClick = onProductClick,
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                        }
+                    val modifier = Modifier.weight(1f)
+                    val id = when (product) {
+                        is BrandsAndProductsQuery.Node -> product.id
+                        is ProductsByCollectionQuery.Node -> product.id
+                        is GetProductsByCategoryQuery.Node -> product.id
+                        is GetFavouriteProductsByIdsQuery.OnProduct -> product.id
+                        else -> return@forEachIndexed
+                    }
 
-                        is ProductsByCollectionQuery.Node -> {
-                            key(product.id) {
-                                AnimatedProductItem(
-                                    id = product.id,
-                                    index = index,
-                                    product = product,
-                                    onProductClick = onProductClick,
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                        }
-
-                        is GetProductsByCategoryQuery.Node -> {
-                            key(product.id) {
-                                AnimatedProductItem(
-                                    id = product.id,
-                                    index = index,
-                                    product = product,
-                                    onProductClick = onProductClick,
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                        }
-                        is GetFavouriteProductsByIdsQuery.OnProduct -> {
-                            key(product.id) {
-                                AnimatedProductItem(
-                                    id = product.id,
-                                    index = index,
-                                    product = product,
-                                    onProductClick = onProductClick,
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                        }
-
-
+                    key(id) {
+                        AnimatedProductItem(
+                            id = id,
+                            index = index,
+                            product = product,
+                            onProductClick = onProductClick,
+                            modifier = modifier,
+                            favouriteViewModel = favouriteViewModel
+                        )
                     }
                 }
+
                 if (row.size == 1) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
@@ -94,8 +65,5 @@ fun ProductSection(
         }
     }
 }
-
-
-
 
 

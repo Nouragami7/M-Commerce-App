@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import kotlinx.coroutines.delay
 
 @Composable
@@ -27,7 +28,10 @@ fun AnimatedProductItem(
     index: Int,
     product: Any,
     onProductClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    favouriteViewModel: FavouriteScreenViewModel
+
+
 ) {
     val density = LocalDensity.current.density
     var visible by remember { mutableStateOf(false) }
@@ -61,7 +65,7 @@ fun AnimatedProductItem(
                     cameraDistance = 12f * density
                 }
         ) {
-            ProductCard(product = product, onProductClick = onProductClick)
+            ProductCard(product = product, onProductClick = onProductClick, favouriteViewModel = favouriteViewModel)
         }
     }
 
