@@ -15,7 +15,10 @@ import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.utils.components.AnimatedProductItem
 
 @Composable
-fun ProductSection(products: List<*>, onProductClick: (String) -> Unit) {
+fun ProductSection(
+    products: List<*>,
+    onProductClick: (String) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -38,7 +41,8 @@ fun ProductSection(products: List<*>, onProductClick: (String) -> Unit) {
                                     id = product.id,
                                     index = index,
                                     product = product,
-                                    onProductClick = onProductClick
+                                    onProductClick = onProductClick,
+                                    modifier = Modifier.weight(1f)
                                 )
                             }
                         }
@@ -49,7 +53,8 @@ fun ProductSection(products: List<*>, onProductClick: (String) -> Unit) {
                                     id = product.id,
                                     index = index,
                                     product = product,
-                                    onProductClick = onProductClick
+                                    onProductClick = onProductClick,
+                                    modifier = Modifier.weight(1f)
                                 )
                             }
                         }
@@ -60,13 +65,13 @@ fun ProductSection(products: List<*>, onProductClick: (String) -> Unit) {
                                     id = product.id,
                                     index = index,
                                     product = product,
-                                    onProductClick = onProductClick
+                                    onProductClick = onProductClick,
+                                    modifier = Modifier.weight(1f)
                                 )
                             }
                         }
                     }
                 }
-
                 if (row.size == 1) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
@@ -74,6 +79,7 @@ fun ProductSection(products: List<*>, onProductClick: (String) -> Unit) {
         }
     }
 }
+
 
 
 

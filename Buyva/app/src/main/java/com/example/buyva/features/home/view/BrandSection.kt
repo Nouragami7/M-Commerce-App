@@ -93,9 +93,9 @@ fun BrandCard(id: String, title: String, imageUrl: String, onClick: () -> Unit) 
 
             Text(
                 text = title,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 fontFamily = ubuntuMedium,
-                fontWeight = FontWeight.SemiBold,
+                fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
