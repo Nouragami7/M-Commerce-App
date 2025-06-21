@@ -2,6 +2,7 @@ package com.example.buyva.utils.sharedpreference
 
 import android.content.Context
 import com.example.buyva.data.model.CustomerData
+import com.example.buyva.utils.constants.CART_ID
 
 object SharedPreferenceImpl : SharedPreference {
 
@@ -10,7 +11,11 @@ object SharedPreferenceImpl : SharedPreference {
     private const val KEY_CUSTOMER_EMAIL = "customer_email"
     private const val KEY_CUSTOMER_FIRST_NAME = "customer_first_name"
     private const val KEY_CUSTOMER_LAST_NAME = "customer_last_name"
+    private var appContext: Context? = null
 
+    fun init(context: Context) {
+        appContext = context.applicationContext
+    }
     override fun saveToSharedPreference(context: Context, key: String, value: String) {
         val sharedPref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         with(sharedPref.edit()) {
@@ -18,6 +23,8 @@ object SharedPreferenceImpl : SharedPreference {
             apply()
         }
     }
+
+
 
     override fun getFromSharedPreference(context: Context, key: String): String? {
         val sharedPref = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
@@ -65,4 +72,29 @@ object SharedPreferenceImpl : SharedPreference {
             apply()
         }
     }
+
+    override fun saveCartId(cartId: String) {
+        val prefs = appContext?.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE) ?: return
+        prefs.edit().putString(CART_ID, cartId).apply()
+
+
+    }
+
+    override fun getCartId(): String? {
+        val prefs = appContext?.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE) ?: return null
+        return prefs.getString(CART_ID, null)
+    }
+
+    override fun saveToSharedPreferenceInGeneral(key: String, value: String) {
+        val sharedPref = appContext?.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        with(sharedPref?.edit()) {
+            this?.putString(key, value)
+            this?.apply()
+        }
+    }
+
+    override fun getFromSharedPreferenceInGeneral(key: String): String? {
+        val sharedPref = appContext?.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        return sharedPref?.getString(key, null)    }
+
 }

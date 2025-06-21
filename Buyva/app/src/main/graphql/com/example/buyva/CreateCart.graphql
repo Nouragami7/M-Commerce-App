@@ -1,0 +1,23 @@
+mutation CreateCartMutation($email: String!, $customerAccessToken: String!) {
+    cartCreate(input: {
+        buyerIdentity: {
+            email: $email
+            customerAccessToken: $customerAccessToken
+        }
+    }) {
+        cart {
+            id
+            lines(first: 10) {
+                edges {
+                    node {
+                        id
+                        quantity
+#                        merchandise {
+#                            __typename
+#                        }
+                    }
+                }
+            }
+        }
+    }
+}

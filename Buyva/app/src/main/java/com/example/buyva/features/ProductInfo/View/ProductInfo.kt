@@ -1,5 +1,6 @@
 package com.example.buyva.features.ProductInfo.View
 
+import android.app.Application
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
@@ -21,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,24 +33,46 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.R
+import com.example.buyva.data.datasource.remote.RemoteDataSource
+import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
+import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.model.uistate.ResponseState
+import com.example.buyva.data.repository.AuthRepository
+import com.example.buyva.data.repository.cart.CartRepo
+import com.example.buyva.data.repository.cart.CartRepoImpl
 import com.example.buyva.data.repository.home.IHomeRepository
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModel
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModelFactory
+import com.example.buyva.navigation.ScreensRoute
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.utils.components.ScreenTitle
+import com.example.buyva.utils.constants.CART_ID
+import com.example.buyva.utils.sharedpreference.SharedPreference
+import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
+import com.google.firebase.auth.FirebaseAuth
+
 @Composable
 fun ProductInfoScreen(
     navController: NavController,
     productId: String,
     repository: IHomeRepository
 ) {
-    val factory = remember { ProductInfoViewModelFactory(repository) }
+    val application = LocalContext.current.applicationContext as Application
+    val authRepo : AuthRepository = AuthRepository(FirebaseAuth.getInstance(), ApolloService.client)
+    val cartRepo : CartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client), SharedPreferenceImpl)
+    val factory = remember { ProductInfoViewModelFactory( application  ,repository,authRepo,cartRepo) }
     val viewModel: ProductInfoViewModel = viewModel(factory = factory)
     val state by viewModel.product.collectAsState()
+    val addingState by viewModel.addingToCart.collectAsState()
+
+    LaunchedEffect(addingState) {
+        if (addingState is ResponseState.Success<*>) {
+            navController.navigate(ScreensRoute.CartScreen)
+        }
+    }
 
     LaunchedEffect(productId) {
         NavigationBar.mutableNavBarState.value = false
@@ -67,18 +91,21 @@ fun ProductInfoScreen(
         is ResponseState.Success<*> -> {
             val product = result.data as? GetProductByIdQuery.Product
             if (product != null) {
-                ProductInfoContent(product = product, navController = navController)
+                ProductInfoContent(product = product, navController = navController, viewModel = viewModel)
             }
         }
     }
 }
 @Composable
-fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavController) {
+fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavController, viewModel: ProductInfoViewModel) {
     var selectedImage by remember { mutableStateOf<String?>(null) }
     var isFavorite by remember { mutableStateOf(false) }
     var isAddedToCart by remember { mutableStateOf(false) }
     var selectedSize by remember { mutableStateOf<String?>(null) }
     var selectedColor by remember { mutableStateOf<String?>(null) }
+    val cartId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(CART_ID)
+    val userEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
+    val productVariantId = product.variants.edges.firstOrNull()?.node?.id ?: ""
 
     val images = product.images.edges.mapNotNull { it.node.originalSrc?.toString() }
     val title = product.title
@@ -248,7 +275,6 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
             }
         }
 
-        // ✅ Add to Cart Button
         Box(
             Modifier
                 .align(Alignment.BottomCenter)
@@ -257,7 +283,18 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
                 .padding(16.dp)
         ) {
             OutlinedButton(
-                onClick = { isAddedToCart = !isAddedToCart },
+                onClick = {
+                    isAddedToCart = !isAddedToCart
+                    viewModel.addToCartById(
+                        email = userEmail,
+                        cartId = cartId,
+                        quantity = 1,
+                        variantId = productVariantId
+                    )
+                    if (isAddedToCart) {
+                        navController.navigate(ScreensRoute.CartScreen)
+                    }
+                          },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),

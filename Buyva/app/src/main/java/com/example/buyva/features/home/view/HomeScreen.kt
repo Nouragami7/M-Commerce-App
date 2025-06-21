@@ -3,6 +3,7 @@ package com.example.buyva.features.home.view
 import OfferBanner
 import ProductSection
 import SearchBarWithCartIcon
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +33,8 @@ import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
 import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.components.ScreenTitle
+import com.example.buyva.utils.constants.USER_TOKEN
+import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 
 @Composable
 fun HomeScreen(
@@ -45,7 +48,8 @@ fun HomeScreen(
     )
     val homeViewModel: HomeViewModel = viewModel(factory = viewModelFactory)
 
-
+SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
+    Log.i("1", "HomeScreen: ${SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)}")
     val brandsAndProducts by homeViewModel.brandsAndProducts.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = true
