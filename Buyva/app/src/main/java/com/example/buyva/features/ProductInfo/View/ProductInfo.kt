@@ -1,6 +1,7 @@
 package com.example.buyva.features.ProductInfo.View
 
 import android.app.Application
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
@@ -14,7 +15,9 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.*
+
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
@@ -53,6 +56,7 @@ import com.example.buyva.utils.constants.CART_ID
 import com.example.buyva.utils.sharedpreference.SharedPreference
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProductInfoScreen(
@@ -103,9 +107,11 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
     var isAddedToCart by remember { mutableStateOf(false) }
     var selectedSize by remember { mutableStateOf<String?>(null) }
     var selectedColor by remember { mutableStateOf<String?>(null) }
-    val cartId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(CART_ID)
     val userEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
+    val cartId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("CART_ID_${userEmail.lowercase()}")
     val productVariantId = product.variants.edges.firstOrNull()?.node?.id ?: ""
+val context = LocalContext.current
+
 
     val images = product.images.edges.mapNotNull { it.node.originalSrc?.toString() }
     val title = product.title
@@ -292,6 +298,7 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
                         variantId = productVariantId
                     )
                     if (isAddedToCart) {
+                      Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show()
                         navController.navigate(ScreensRoute.CartScreen)
                     }
                           },

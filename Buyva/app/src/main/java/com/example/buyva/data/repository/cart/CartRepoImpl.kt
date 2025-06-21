@@ -34,10 +34,10 @@ class CartRepoImpl (
         Log.i("ShoppingCartFragment", "writeCartIdToSharedPreferences: ")
         sharedPreferences.saveToSharedPreferenceInGeneral( key, value)   }
 
-    override fun readCartIdFromSharedPreferences(): String {
-        Log.i("ShoppingCartFragment", "readCartIdFromSharedPreferences: ")
-        return sharedPreferences.getFromSharedPreferenceInGeneral(CART_ID) ?: ""
-    }
+//    override fun readCartIdFromSharedPreferences(): String {
+//        Log.i("ShoppingCartFragment", "readCartIdFromSharedPreferences: ")
+//        return sharedPreferences.getFromSharedPreferenceInGeneral(CART_ID) ?: ""
+//    }
     override suspend fun readUserToken(): String {
         return sharedPreferences.getFromSharedPreferenceInGeneral(USER_TOKEN) ?: ""
     }

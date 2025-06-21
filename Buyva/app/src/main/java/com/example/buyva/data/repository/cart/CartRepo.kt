@@ -12,7 +12,7 @@ interface CartRepo {
     ): Flow<ResponseState>
 //    suspend fun getCartProducts(cartId: String): Flow<ResponseState>
     suspend fun writeCartIdToSharedPreferences(key: String, value: String)
-     fun readCartIdFromSharedPreferences(): String
+     //fun readCartIdFromSharedPreferences(): String
      suspend fun readUserToken(): String
 
 

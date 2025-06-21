@@ -50,17 +50,17 @@ class ProductInfoViewModel(
     }
     fun addToCartById(email: String, cartId: String?, quantity: Int, variantId: String) {
         viewModelScope.launch {
+            val cartKey = "CART_ID_${email.lowercase()}"
             val actualCartId = cartId ?: run {
                 val newCartId = createCart(email)
-                Log.d("1", "New cart created: $newCartId")
-                SharedPreferenceImpl.saveToSharedPreferenceInGeneral(CART_ID, newCartId.toString())
+                SharedPreferenceImpl.saveToSharedPreferenceInGeneral(cartKey, newCartId)
                 newCartId
             }
 
             try {
-                cartRepo.addToCartById(actualCartId.toString(), quantity, variantId).collect { response ->
+                cartRepo.addToCartById(actualCartId, quantity, variantId).collect { response ->
                     _addingToCart.value = response
-                    Log.d("1", "Response: $response")
+                    Log.d("1", "Add to cart response: $response")
                 }
             } catch (e: Exception) {
                 Log.d("1", "Error adding to cart: $e")
@@ -68,23 +68,16 @@ class ProductInfoViewModel(
         }
     }
 
-
     private suspend fun createCart(email: String): String {
         var newCartId = ""
-
         cartRepo.createCart(email, cartRepo.readUserToken()).collect { response ->
             _cartId.value = response
             if (response is ResponseState.Success<*>) {
                 newCartId = response.data.toString()
-                cartRepo.writeCartIdToSharedPreferences(CART_ID, newCartId)
-                Log.d("1", "CartId: $newCartId")
+                Log.d("1", "Cart created: $newCartId")
             }
         }
-
-        if (newCartId.isEmpty()) {
-            throw Exception("Failed to create cart")
-        }
-
+        if (newCartId.isEmpty()) throw Exception("Cart creation failed")
         return newCartId
     }
 
