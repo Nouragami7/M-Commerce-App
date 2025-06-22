@@ -96,13 +96,11 @@ class SignupViewModel(private val repository: AuthRepository,private val applica
             try {
                 val firebaseUser = repository.signInWithGoogle(account)
                 if (firebaseUser != null) {
-                    // 1. Create Shopify customer
                     val result = repository.createShopifyCustomerAfterGoogleSignIn(firebaseUser)
 
                     if (result.isSuccess) {
                         val customer = result.getOrNull()!!
 
-                        // 2. Save to SharedPreferences
                         SharedPreferenceImpl.saveCustomer(
                             context = applicationContext,
                             id = customer.id,
@@ -113,7 +111,6 @@ class SignupViewModel(private val repository: AuthRepository,private val applica
 
                         _customerData.value = customer
                         _user.value = firebaseUser
-                      //  onSuccess() // Navigate to home
                     } else {
                         _error.value = "Failed to create Shopify account"
                     }
