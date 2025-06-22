@@ -15,6 +15,10 @@ class FavouriteScreenViewModel(
     val favouriteProducts: StateFlow<List<OnProduct>> = _favouriteProducts.asStateFlow()
 
     init {
+        observeFavourites()
+    }
+
+    private fun observeFavourites() {
         viewModelScope.launch {
             repository.getFavourites().collect { products ->
                 _favouriteProducts.value = products

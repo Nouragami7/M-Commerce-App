@@ -5,7 +5,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.buyva.data.repository.AuthRepository
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.firebase.auth.*
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseAuthEmailException
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -34,17 +38,29 @@ class LoginViewModel(
         viewModelScope.launch {
             try {
                 val user = authRepository.signInWithEmail(email, password)
+
+                // Check if email is verified
+                if (!user.isEmailVerified) {
+                    _errorMessage.value = "Please verify your email first. Check your inbox or spam folder."
+                    authRepository.logout()
+                    return@launch
+                }
+
                 _loginState.value = user
                 _errorMessage.value = null
             } catch (e: Exception) {
-                _errorMessage.value = when (e) {
-                    is FirebaseAuthInvalidCredentialsException -> "Incorrect password or email"
-                    is FirebaseAuthInvalidUserException -> "User not found"
-                    is FirebaseAuthEmailException -> "Invalid email format"
-                    is FirebaseAuthException -> "Authentication failed: ${e.message}"
-                    else -> e.message ?: "Login failed"
-                }
+                handleLoginError(e)
             }
+        }
+    }
+
+    private fun handleLoginError(e: Exception) {
+        _errorMessage.value = when (e) {
+            is FirebaseAuthInvalidCredentialsException -> "Incorrect password or email"
+            is FirebaseAuthInvalidUserException -> "User not found. Please sign up"
+            is FirebaseAuthEmailException -> "Invalid email format"
+            is FirebaseAuthException -> "Authentication failed: ${e.message}"
+            else -> e.message ?: "Login failed"
         }
     }
 
@@ -52,18 +68,22 @@ class LoginViewModel(
         viewModelScope.launch {
             try {
                 val user = authRepository.signInWithGoogle(account)
-                _loginState.value = user
-                _errorMessage.value = null
+                if (user != null) {
+                    // Google accounts are always verified
+                    _loginState.value = user
+                    _errorMessage.value = null
+                } else {
+                    _errorMessage.value = "Google Sign-In failed: No user returned"
+                }
             } catch (e: Exception) {
                 _errorMessage.value = "Google Sign-In failed: ${e.message}"
             }
         }
     }
 
-
     class LoginViewModelFactory(
-    private val authRepository: AuthRepository
-) : ViewModelProvider.Factory {
+        private val authRepository: AuthRepository
+    ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")

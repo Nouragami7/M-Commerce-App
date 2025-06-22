@@ -53,10 +53,9 @@ class MainActivity : ComponentActivity()  {
             var displaySplashScreen by remember { mutableStateOf(true) }
             var startDestination by remember { mutableStateOf("splash") }
 
-            // Check auth state once when activity starts
             LaunchedEffect(Unit) {
-                val context = this@MainActivity
-                startDestination = if (SignupViewModel.isUserLoggedIn(context)) {
+                val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+                startDestination = if (user != null) {
                     ScreensRoute.HomeScreen::class.qualifiedName!!
                 } else {
                     ScreensRoute.WelcomeScreen::class.qualifiedName!!
@@ -64,7 +63,8 @@ class MainActivity : ComponentActivity()  {
             }
 
 
-                if (displaySplashScreen) {
+
+            if (displaySplashScreen) {
                 SplashScreen {
                     displaySplashScreen = false
                 }

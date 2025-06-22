@@ -20,7 +20,9 @@ import com.example.buyva.utils.components.ScreenTitle
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.unit.dp
+import com.example.buyva.navigation.navbar.NavigationBar
 
 @Composable
 fun FavouriteScreen(
@@ -28,7 +30,9 @@ fun FavouriteScreen(
     navController: NavController
 ) {
     val favouriteProducts by viewModel.favouriteProducts.collectAsState()
-
+    LaunchedEffect(Unit) {
+        NavigationBar.mutableNavBarState.value = true
+    }
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
