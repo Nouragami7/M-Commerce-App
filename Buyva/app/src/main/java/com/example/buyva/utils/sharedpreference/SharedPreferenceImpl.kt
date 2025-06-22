@@ -3,6 +3,7 @@ package com.example.buyva.utils.sharedpreference
 import android.content.Context
 import com.example.buyva.data.model.CustomerData
 import com.example.buyva.utils.constants.CART_ID
+import com.example.buyva.utils.constants.USER_TOKEN
 
 object SharedPreferenceImpl : SharedPreference {
 
@@ -96,5 +97,19 @@ object SharedPreferenceImpl : SharedPreference {
     override fun getFromSharedPreferenceInGeneral(key: String): String? {
         val sharedPref = appContext?.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         return sharedPref?.getString(key, null)    }
+
+    fun clearUserData() {
+        val prefs = appContext?.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        prefs?.edit()?.apply {
+            remove(USER_TOKEN)
+            remove(KEY_CUSTOMER_ID)
+            remove(KEY_CUSTOMER_EMAIL)
+            remove(KEY_CUSTOMER_FIRST_NAME)
+            remove(KEY_CUSTOMER_LAST_NAME)
+            remove(CART_ID)
+            apply()
+        }
+    }
+
 
 }

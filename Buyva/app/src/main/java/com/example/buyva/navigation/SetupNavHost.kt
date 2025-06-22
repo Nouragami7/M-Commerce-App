@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.repository.AuthRepository
 import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.ProductInfo.View.ProductInfoScreen
@@ -26,6 +27,7 @@ import com.example.buyva.features.profile.addressdetails.view.AddressDetails
 import com.example.buyva.features.profile.addresseslist.view.DeliveryAddressListScreen
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
+import com.example.buyva.features.authentication.signup.viewmodel.LogoutViewModel
 import com.example.buyva.features.brand.view.BrandProductsScreen
 import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 
@@ -33,6 +35,7 @@ import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.yourapp.ui.screens.OrderScreen
+import com.google.firebase.auth.FirebaseAuth
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -43,7 +46,14 @@ fun SetupNavHost(
     val apolloClient = remember { ApolloService.client }
     val favouriteRepository = remember { FavouriteRepositoryImpl(apolloClient) }
     val favouriteViewModel = remember { FavouriteScreenViewModel(favouriteRepository) }
-
+    val logoutViewModel = remember {
+        LogoutViewModel(
+            AuthRepository(
+                FirebaseAuth.getInstance(),
+                apolloClient
+            )
+        )
+    }
 
 
     NavHost(
@@ -120,14 +130,18 @@ fun SetupNavHost(
 
         composable<ScreensRoute.ProfileScreen> {
             ProfileScreen(
-                onSettingsClick = {
-                    //navController.navigate(ScreensRoute.AddressDetailsScreen)
-                },
+                logoutViewModel = logoutViewModel,
+                onSettingsClick = {},
                 onAddressClick = {
                     navController.navigate(ScreensRoute.DeliveryAddressListScreen)
                 },
                 onOrdersClick = {
                     navController.navigate(ScreensRoute.OrderScreen)
+                },
+                onLoggedOut = {
+                    navController.navigate(ScreensRoute.WelcomeScreen) {
+                        popUpTo(0)
+                    }
                 }
             )
         }
@@ -214,13 +228,6 @@ fun SetupNavHost(
         composable<ScreensRoute.PaymentScreen> {
             //PaymentScreen(onBack = { navController.popBackStack() })
         }
-
-
-
-
-
-
-
     }
 }
 
