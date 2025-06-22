@@ -10,7 +10,10 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.tasks.await
 import com.apollographql.apollo3.api.Optional
+import com.example.buyva.CreateCustomerAccessTokenMutation
 import com.example.buyva.data.model.CustomerData
+import com.example.buyva.utils.constants.USER_TOKEN
+import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 
 class AuthRepository(
     private val auth: FirebaseAuth,
@@ -29,6 +32,27 @@ class AuthRepository(
     suspend fun signInWithEmail(email: String, password: String): FirebaseUser {
         val result = auth.signInWithEmailAndPassword(email, password).await()
         return result.user ?: throw Exception("User is null")
+    }
+    suspend fun getShopifyAccessToken(email: String, password: String): Result<String> {
+        return try {
+            val response = apolloClient
+                .mutation(CreateCustomerAccessTokenMutation(email = email, password = password))
+                .execute()
+
+
+            val token = response.data?.customerAccessTokenCreate?.customerAccessToken?.accessToken
+            val error = response.data?.customerAccessTokenCreate?.customerUserErrors?.firstOrNull()?.message
+            Log.i("1", "getShopifyAccessToken: $token")
+            SharedPreferenceImpl.saveToSharedPreferenceInGeneral(USER_TOKEN, token ?: "")
+
+            when {
+                token != null -> Result.success(token)
+                error != null -> Result.failure(Exception(error))
+                else -> Result.failure(Exception("Unknown error during token creation"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     suspend fun signInWithGoogle(account: GoogleSignInAccount): FirebaseUser? {
@@ -121,6 +145,11 @@ class AuthRepository(
             val shopifyResult = createShopifyCustomer(fullName, email, password)
             if (shopifyResult.isFailure) {
                 return Result.failure(shopifyResult.exceptionOrNull()!!)
+            }
+            val tokenResult = getShopifyAccessToken(email, password)
+            if (tokenResult.isSuccess) {
+                val token = tokenResult.getOrThrow()
+                SharedPreferenceImpl.saveToSharedPreferenceInGeneral(USER_TOKEN, token)
             }
 
             Result.success(Pair(firebaseUser, shopifyResult.getOrThrow()))

@@ -4,9 +4,11 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 
+
 data class CartItem(
-    val imageRes: Int,
-    val name: String,
+    val id: String,
+    val title: String,
+    val imageUrl: String,
     val price: Double,
-    var quantity: MutableState<Int> = mutableIntStateOf(1)
+    var quantity: Int
 )

@@ -1,5 +1,7 @@
 package com.example.buyva.features.ProductInfo.View
 
+import android.app.Application
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
@@ -13,7 +15,9 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.*
+
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
@@ -21,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,18 +36,32 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.R
+import com.example.buyva.data.datasource.remote.RemoteDataSource
+import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
+import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
+ 
+import com.example.buyva.data.repository.AuthRepository
+import com.example.buyva.data.repository.cart.CartRepo
+import com.example.buyva.data.repository.cart.CartRepoImpl
 import com.example.buyva.data.repository.home.IHomeRepository
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModel
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModelFactory
+
+import com.example.buyva.navigation.ScreensRoute
+
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
-import com.example.buyva.features.favourite.viewmodel.FavouriteViewModelFactory
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
 import com.example.buyva.navigation.navbar.NavigationBar
+import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.components.ScreenTitle
+import com.example.buyva.utils.constants.CART_ID
+import com.example.buyva.utils.sharedpreference.SharedPreference
+import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 import com.example.buyva.utils.mappers.toFavouriteProduct
 
 @Composable
@@ -52,10 +71,20 @@ fun ProductInfoScreen(
     repository: IHomeRepository,
     favouriteViewModel: FavouriteScreenViewModel,
 
-) {
-    val factory = remember { ProductInfoViewModelFactory(repository) }
+    ) {
+    val application = LocalContext.current.applicationContext as Application
+    val authRepo : AuthRepository = AuthRepository(FirebaseAuth.getInstance(), ApolloService.client)
+    val cartRepo : CartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client), SharedPreferenceImpl)
+    val factory = remember { ProductInfoViewModelFactory( application  ,repository,authRepo,cartRepo) }
     val viewModel: ProductInfoViewModel = viewModel(factory = factory)
     val state by viewModel.product.collectAsState()
+    val addingState by viewModel.addingToCart.collectAsState()
+
+    LaunchedEffect(addingState) {
+        if (addingState is ResponseState.Success<*>) {
+            navController.navigate(ScreensRoute.CartScreen)
+        }
+    }
 
 
     LaunchedEffect(productId) {
@@ -75,21 +104,30 @@ fun ProductInfoScreen(
         is ResponseState.Success<*> -> {
             val product = result.data as? GetProductByIdQuery.Product
             if (product != null) {
-                ProductInfoContent(product = product, navController = navController,favouriteViewModel = favouriteViewModel)
+
+                ProductInfoContent(product = product, navController = navController,favouriteViewModel = favouriteViewModel,viewModel = viewModel)
             }
         }
     }
 }
+
 @Composable
-fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavController,favouriteViewModel: FavouriteScreenViewModel
+
+fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavController,favouriteViewModel: FavouriteScreenViewModel,viewModel: ProductInfoViewModel
 ) {
     var selectedImage by remember { mutableStateOf<String?>(null) }
     val favouriteProducts by favouriteViewModel.favouriteProducts.collectAsState()
     val isFavorite = favouriteProducts.any { it.id == product.id }
+    var showDeleteAlert by remember { mutableStateOf(false) }
 
     var isAddedToCart by remember { mutableStateOf(false) }
     var selectedSize by remember { mutableStateOf<String?>(null) }
     var selectedColor by remember { mutableStateOf<String?>(null) }
+    val userEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
+    val cartId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("CART_ID_${userEmail.lowercase()}")
+    val productVariantId = product.variants.edges.firstOrNull()?.node?.id ?: ""
+val context = LocalContext.current
+
 
     val images = product.images.edges.mapNotNull { it.node.originalSrc?.toString() }
     val title = product.title
@@ -145,7 +183,6 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
                 )
             }
 
-            // ✅ Image Card
             Card(
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -170,16 +207,34 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
                             .padding(4.dp)
                             .size(28.dp)
                             .clickable {
-                                favouriteViewModel.toggleFavourite(product.toFavouriteProduct())
+                                if (isFavorite) {
+                                    showDeleteAlert = true
+                                } else {
+                                    favouriteViewModel.toggleFavourite(product.id)
+                                }
                             }
                     )
+                    if (showDeleteAlert) {
+                        CustomAlertDialog(
+                            title = "Remove from favorites",
+                            message = "Are you sure you want to remove this product from favorites?",
+                            confirmText = "Remove",
+                            dismissText = "Cancel",
+                            onConfirm = {
+                                favouriteViewModel.toggleFavourite(product.id)
+                                showDeleteAlert = false
+                            },
+                            onDismiss = {
+                                showDeleteAlert = false
+                            }
+                        )
+                    }
 
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ✅ Product Info Card
             Card(
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -207,7 +262,6 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // ✅ Size Options
             if (availableSizes.isNotEmpty()) {
                 Text("Select Size", Modifier.padding(start = 16.dp), fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.height(8.dp))
@@ -261,7 +315,6 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
             }
         }
 
-        // ✅ Add to Cart Button
         Box(
             Modifier
                 .align(Alignment.BottomCenter)
@@ -270,7 +323,19 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
                 .padding(16.dp)
         ) {
             OutlinedButton(
-                onClick = { isAddedToCart = !isAddedToCart },
+                onClick = {
+                    isAddedToCart = !isAddedToCart
+                    viewModel.addToCartById(
+                        email = userEmail,
+                        cartId = cartId,
+                        quantity = 1,
+                        variantId = productVariantId
+                    )
+                    if (isAddedToCart) {
+                      Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show()
+                        navController.navigate(ScreensRoute.CartScreen)
+                    }
+                          },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),

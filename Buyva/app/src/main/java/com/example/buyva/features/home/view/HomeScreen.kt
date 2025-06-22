@@ -3,6 +3,7 @@ package com.example.buyva.features.home.view
 import OfferBanner
 import ProductSection
 import SearchBarWithCartIcon
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,6 +26,7 @@ import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
+import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.home.viewmodel.HomeFactory
 import com.example.buyva.features.home.viewmodel.HomeViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
@@ -32,12 +34,15 @@ import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
 import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.components.ScreenTitle
+import com.example.buyva.utils.constants.USER_TOKEN
+import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 
 @Composable
 fun HomeScreen(
     onCartClick: () -> Unit = {},
     onBrandClick: (String,String, String) -> Unit = { _, _ ,_-> },
-    onProductClick: (String) -> Unit = {}
+    onProductClick: (String) -> Unit = {},
+    favouriteViewModel: FavouriteScreenViewModel
 
 ){
     val viewModelFactory = HomeFactory(
@@ -45,7 +50,8 @@ fun HomeScreen(
     )
     val homeViewModel: HomeViewModel = viewModel(factory = viewModelFactory)
 
-
+SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
+    Log.i("1", "HomeScreen: ${SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)}")
     val brandsAndProducts by homeViewModel.brandsAndProducts.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = true
@@ -91,7 +97,7 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                ProductSection(products = products, onProductClick = onProductClick)
+                ProductSection(products = products, onProductClick = onProductClick,favouriteViewModel = favouriteViewModel)
 
             }
 
@@ -101,11 +107,11 @@ fun HomeScreen(
     }
 
 }
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewBuyVaHomeScreen() {
-        HomeScreen()
-
-}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewBuyVaHomeScreen() {
+//        HomeScreen()
+//
+//}
 

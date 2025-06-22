@@ -41,6 +41,7 @@ import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.categories.CategoryRepositoryImpl
 import com.example.buyva.features.categories.viewmodel.CategoryFactory
 import com.example.buyva.features.categories.viewmodel.CategoryViewModel
+import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.ui.theme.DarkGray
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.utils.components.EmptyScreen
@@ -51,7 +52,9 @@ import com.example.buyva.utils.components.ScreenTitle
 
 @Composable
 fun CategoryScreen(
-    onCartClick: () -> Unit, onProductClick: (String) -> Unit
+    onCartClick: () -> Unit,
+    onProductClick: (String) -> Unit,
+favouriteViewModel: FavouriteScreenViewModel
 ) {
     val egyptianBound = 300f
     val westernBound = 200f
@@ -176,7 +179,7 @@ fun CategoryScreen(
                                     animation = R.raw.emptycart
                                 )
                             } else {
-                                ProductSection(products = filtered, onProductClick = onProductClick)
+                                ProductSection(products = filtered, onProductClick = onProductClick, favouriteViewModel = favouriteViewModel)
                             }
                         }
 

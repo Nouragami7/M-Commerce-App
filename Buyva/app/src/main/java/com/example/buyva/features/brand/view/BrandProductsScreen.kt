@@ -43,6 +43,7 @@ import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.brand.viewmodel.BrandFactory
 import com.example.buyva.features.brand.viewmodel.BrandViewModel
+import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.ubuntuMedium
 import com.example.buyva.utils.components.LoadingIndicator
@@ -57,7 +58,9 @@ fun BrandProductsScreen(
     brandName: String,
     imageUrl: String,
     onBack: () -> Unit,
-    onProductClick: (String) -> Unit
+    onProductClick: (String) -> Unit,
+    favouriteViewModel: FavouriteScreenViewModel
+
 
 ) {
 
@@ -139,7 +142,7 @@ fun BrandProductsScreen(
                         price <= maxPrice
                     }
 
-                    ProductSection(products = filteredProducts, onProductClick)
+                    ProductSection(products = products, onProductClick = onProductClick, favouriteViewModel = favouriteViewModel)
                 }
 
             }

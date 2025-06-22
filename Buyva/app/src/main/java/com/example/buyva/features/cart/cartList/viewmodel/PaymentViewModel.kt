@@ -1,4 +1,4 @@
-package com.example.buyva.features.cart.payment.viewmodel
+package com.example.buyva.features.cart.cartList.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -8,8 +8,6 @@ import com.example.buyva.data.repository.paymentRepo.PaymentRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import com.google.gson.JsonObject
-import com.google.gson.JsonElement
 
 class PaymentViewModel(
     private val repository: PaymentRepo

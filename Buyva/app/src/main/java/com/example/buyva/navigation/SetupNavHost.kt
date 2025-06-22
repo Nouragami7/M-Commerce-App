@@ -17,7 +17,6 @@ import com.example.buyva.features.authentication.login.view.LoginScreenHost
 import com.example.buyva.features.authentication.login.view.WelcomeScreen
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
 import com.example.buyva.features.brand.view.BrandProductsScreen
-import com.example.buyva.features.cart.payment.view.CheckoutScreen
 import com.example.buyva.features.categories.view.CategoryScreen
 import com.example.buyva.features.favourite.view.FavouriteScreen
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
@@ -25,6 +24,11 @@ import com.example.buyva.features.home.view.HomeScreen
 import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.profile.addressdetails.view.AddressDetails
 import com.example.buyva.features.profile.addresseslist.view.DeliveryAddressListScreen
+import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
+import com.example.buyva.features.authentication.signup.view.SignupScreenHost
+import com.example.buyva.features.brand.view.BrandProductsScreen
+import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
+
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
@@ -36,7 +40,8 @@ fun SetupNavHost(
     navController: NavHostController,
     startDestination: String
 ) {
-    val favouriteRepository = remember { FavouriteRepositoryImpl() }
+    val apolloClient = remember { ApolloService.client }
+    val favouriteRepository = remember { FavouriteRepositoryImpl(apolloClient) }
     val favouriteViewModel = remember { FavouriteScreenViewModel(favouriteRepository) }
 
 
@@ -92,18 +97,22 @@ fun SetupNavHost(
             ,
             onProductClick = { productId ->
                 navController.navigate("productInfo/$productId")
-            }
+            },
+            favouriteViewModel = favouriteViewModel
+
         ) }
         composable<ScreensRoute.CartScreen> { CartScreen(
             onBackClick = { navController.popBackStack() },
-            onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) }
+            onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
+            onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) }
         ) }
-        composable<ScreensRoute.CheckoutScreen> { CheckoutScreen(
-            onBack = { navController.popBackStack() }
-        ) }
+
+
         composable<ScreensRoute.CategoriesScreen> { CategoryScreen(
             onCartClick = { navController.navigate(ScreensRoute.CartScreen)},
-            onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) }
+            onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) },
+            favouriteViewModel = favouriteViewModel
+
         ) }
         composable<ScreensRoute.FavouritesScreen> {
             FavouriteScreen(viewModel = favouriteViewModel, navController = navController)
@@ -169,6 +178,8 @@ fun SetupNavHost(
                 onProductClick = { productId ->
                     navController.navigate("productInfo/$productId")
                 }
+                , favouriteViewModel = favouriteViewModel
+
             )
         }
 

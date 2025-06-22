@@ -44,8 +44,6 @@ import com.stripe.android.paymentsheet.PaymentSheetResult
 import com.stripe.android.paymentsheet.PaymentSheetResultCallback
 
 class MainActivity : ComponentActivity()  {
-    private lateinit var paymentSheet: PaymentSheet
-    private lateinit var paymentSheetLauncher: PaymentSheet
 
 
     @RequiresApi(Build.VERSION_CODES.O)
