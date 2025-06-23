@@ -146,6 +146,8 @@ fun SetupNavHost(
                 CategoryScreen(
                     onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
                     onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) },
+                    onSearchClick = { navController.navigate(ScreensRoute.SearchScreen) },
+
                     favouriteViewModel = favouriteViewModel
                 )
             }

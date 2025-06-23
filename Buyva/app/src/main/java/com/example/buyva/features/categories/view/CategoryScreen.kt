@@ -55,7 +55,7 @@ import com.example.buyva.utils.components.ScreenTitle
 fun CategoryScreen(
     onCartClick: () -> Unit,
     onProductClick: (String) -> Unit,
-    onSearchClick: () -> Unit = {},
+    onSearchClick: () -> Unit,
     //onTextChanged: (String) -> Unit,
 favouriteViewModel: FavouriteScreenViewModel
 ) {
