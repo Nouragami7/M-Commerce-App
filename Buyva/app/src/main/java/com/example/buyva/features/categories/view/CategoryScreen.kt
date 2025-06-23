@@ -41,6 +41,7 @@ import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.categories.CategoryRepositoryImpl
 import com.example.buyva.features.categories.viewmodel.CategoryFactory
 import com.example.buyva.features.categories.viewmodel.CategoryViewModel
+import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.ui.theme.DarkGray
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.utils.components.EmptyScreen
@@ -52,9 +53,13 @@ import com.example.buyva.utils.components.ScreenTitle
 @Composable
 fun CategoryScreen(
     onCartClick: () -> Unit,
-    onProductClick: (String) -> Unit
+    onProductClick: (String) -> Unit,
+favouriteViewModel: FavouriteScreenViewModel
 ) {
-    var maxPrice by remember { mutableFloatStateOf(2522f) }
+    val egyptianBound = 300f
+    val westernBound = 200f
+
+    var maxPrice by remember { mutableFloatStateOf(egyptianBound) }
     var selectedCategory by remember { mutableStateOf("Men") }
     var showSlider by remember { mutableStateOf(false) }
     val selectedBackground = DarkGray.copy(alpha = 0.20f)
@@ -95,6 +100,7 @@ fun CategoryScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             AnimatedVisibility(visible = showSlider) {
+
                 PriceFilterSlider(
                     maxPrice = maxPrice,
                     onPriceChange = { maxPrice = it },
@@ -140,25 +146,40 @@ fun CategoryScreen(
                     }
                 }
                 Box(modifier = Modifier.weight(1f)) {
-                    when(val state = productsByCategory){
+                    when (val state = productsByCategory) {
+
                         is ResponseState.Failure -> {
                             Text(state.message.toString())
                         }
+
                         ResponseState.Loading -> LoadingIndicator()
+
                         is ResponseState.Success<*> -> {
                             val products = (state.data as List<GetProductsByCategoryQuery.Node>)
                             val selectedSubcategory = selectedSubcategories[selectedCategory]
-                            val filtered = if (!selectedSubcategory.isNullOrEmpty()) {
-                                products.filter { it.productType.equals(selectedSubcategory, ignoreCase = true) }
-                            } else {
-                                products
+                            val filtered = products.filter { product ->
+                                val productType = product.productType
+                                val priceAmount =
+                                    product.variants.edges.firstOrNull()?.node?.price?.amount?.toString()
+                                        ?.toFloatOrNull() ?: 0f
+
+                                val matchesSubcategory = selectedSubcategory?.let {
+                                    productType.equals(it, ignoreCase = true)
+                                } ?: true
+
+                                matchesSubcategory && priceAmount <= maxPrice
                             }
+
 
                             if (filtered.isEmpty()) {
                                 Spacer(modifier = Modifier.height(16.dp))
-                                EmptyScreen("No products found for $selectedSubcategory",16.sp, animation = R.raw.emptycart)
+                                EmptyScreen(
+                                    "No products found for $selectedSubcategory",
+                                    16.sp,
+                                    animation = R.raw.emptycart
+                                )
                             } else {
-                                ProductSection(products = filtered, onProductClick = onProductClick)
+                                ProductSection(products = filtered, onProductClick = onProductClick, favouriteViewModel = favouriteViewModel)
                             }
                         }
 
@@ -172,12 +193,9 @@ fun CategoryScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            contentAlignment = Alignment.BottomEnd
+                .padding(16.dp), contentAlignment = Alignment.BottomEnd
         ) {
-            PriceFilterIcon(
-                onToggle = { showSlider = !showSlider }
-            )
+            PriceFilterIcon(onToggle = { showSlider = !showSlider })
         }
     }
 }

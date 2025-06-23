@@ -43,6 +43,7 @@ import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.brand.viewmodel.BrandFactory
 import com.example.buyva.features.brand.viewmodel.BrandViewModel
+import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.ubuntuMedium
 import com.example.buyva.utils.components.LoadingIndicator
@@ -57,11 +58,17 @@ fun BrandProductsScreen(
     brandName: String,
     imageUrl: String,
     onBack: () -> Unit,
-    onProductClick: (String) -> Unit
+    onProductClick: (String) -> Unit,
+    favouriteViewModel: FavouriteScreenViewModel
+
 
 ) {
+
+    val egyptianBound = 300f
+    val westernBound = 200f
+
     var showSlider by remember { mutableStateOf(false) }
-    var maxPrice by remember { mutableFloatStateOf(2522f) }
+    var maxPrice by remember { mutableFloatStateOf(egyptianBound) }
 
     val brandFactory = BrandFactory(
         HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
@@ -86,7 +93,7 @@ fun BrandProductsScreen(
             .verticalScroll(state = rememberScrollState())
     ) {
         ScreenTitle("Brand Products")
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 16.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 12.dp)) {
             IconButton(onClick = onBack) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
@@ -97,7 +104,7 @@ fun BrandProductsScreen(
                    .size(35.dp)
                    .clip(CircleShape)
            )
-            Spacer(modifier = Modifier.width(4.dp))
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = brandName,
                 style = MaterialTheme.typography.titleLarge,
@@ -129,8 +136,15 @@ fun BrandProductsScreen(
             is ResponseState.Success<*> -> {
                 val products = (state as? ResponseState.Success<List<ProductsByCollectionQuery.Node>>)?.data
                 if (products != null) {
-                    ProductSection(products = products, onProductClick)
+                    val filteredProducts = products.filter {
+                        val priceString = it.variants.edges.firstOrNull()?.node?.price?.amount?.toString()
+                        val price = priceString?.toFloatOrNull() ?: 0f
+                        price <= maxPrice
+                    }
+
+                    ProductSection(products = products, onProductClick = onProductClick, favouriteViewModel = favouriteViewModel)
                 }
+
             }
         }
     }

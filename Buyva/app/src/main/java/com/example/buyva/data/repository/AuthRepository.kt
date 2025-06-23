@@ -1,31 +1,74 @@
 package com.example.buyva.data.repository
-
+//////
 import android.util.Log
 import com.apollographql.apollo3.ApolloClient
-import com.example.buyva.CreateCustomerMutation
-import com.example.buyva.type.CustomerCreateInput
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GoogleAuthProvider
-import kotlinx.coroutines.tasks.await
 import com.apollographql.apollo3.api.Optional
 import com.example.buyva.CreateCustomerAccessTokenMutation
+import com.example.buyva.CreateCustomerMutation
 import com.example.buyva.data.model.CustomerData
+import com.example.buyva.type.CustomerCreateInput
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.firebase.auth.ActionCodeSettings
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.auth.UserProfileChangeRequest
+import kotlinx.coroutines.tasks.await
 
 class AuthRepository(
     private val auth: FirebaseAuth,
     private val apolloClient: ApolloClient
 ) {
 
-    suspend fun signUpWithEmail(email: String, password: String): FirebaseUser? {
+    suspend fun isEmailVerified(): Boolean {
+        return auth.currentUser?.isEmailVerified ?: false
+    }
+
+    suspend fun reloadFirebaseUser(): FirebaseUser? {
+        auth.currentUser?.reload()?.await()
+        return auth.currentUser
+    }
+
+    suspend fun signUpWithEmail(
+        email: String,
+        password: String,
+        fullName: String
+    ): Result<FirebaseUser> {
         return try {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
-            result.user
+            result.user?.let { user ->
+                val profileUpdates = UserProfileChangeRequest.Builder()
+                    .setDisplayName(fullName)
+                    .build()
+                user.updateProfile(profileUpdates).await()
+            }
+            val user = result.user
+            if (user != null) {
+                Result.success(user)
+            } else {
+                Result.failure(Exception("Firebase user is null"))
+            }
         } catch (e: Exception) {
-            null
+            Result.failure(e)
+        }
+    }
+
+    suspend fun sendVerificationEmail(user: FirebaseUser): Result<Unit> {
+        return try {
+            val actionCodeSettings = ActionCodeSettings.newBuilder()
+                .setUrl("https://yourapp.page.link/verify-email")
+                .setHandleCodeInApp(true)
+                .setAndroidPackageName("com.example.buyva", true, "23")
+                .build()
+
+            user.sendEmailVerification(actionCodeSettings).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 
@@ -33,20 +76,22 @@ class AuthRepository(
         val result = auth.signInWithEmailAndPassword(email, password).await()
         return result.user ?: throw Exception("User is null")
     }
+
     suspend fun getShopifyAccessToken(email: String, password: String): Result<String> {
         return try {
             val response = apolloClient
                 .mutation(CreateCustomerAccessTokenMutation(email = email, password = password))
                 .execute()
 
-
             val token = response.data?.customerAccessTokenCreate?.customerAccessToken?.accessToken
             val error = response.data?.customerAccessTokenCreate?.customerUserErrors?.firstOrNull()?.message
-            Log.i("1", "getShopifyAccessToken: $token")
-            SharedPreferenceImpl.saveToSharedPreferenceInGeneral(USER_TOKEN, token ?: "")
+            Log.i("AuthRepository", "Shopify access token: $token")
 
             when {
-                token != null -> Result.success(token)
+                token != null -> {
+                    SharedPreferenceImpl.saveToSharedPreferenceInGeneral(USER_TOKEN, token)
+                    Result.success(token)
+                }
                 error != null -> Result.failure(Exception(error))
                 else -> Result.failure(Exception("Unknown error during token creation"))
             }
@@ -61,6 +106,7 @@ class AuthRepository(
             val result = auth.signInWithCredential(credential).await()
             result.user
         } catch (e: Exception) {
+            Log.e("AuthRepository", "Google sign-in failed", e)
             null
         }
     }
@@ -133,28 +179,16 @@ class AuthRepository(
         }
     }
 
-    suspend fun signUpAndCreateShopifyCustomer(
-        fullName: String,
-        email: String,
-        password: String
-    ): Result<Pair<FirebaseUser, CustomerData>> {
-        return try {
-            val firebaseUser = signUpWithEmail(email, password)
-                ?: return Result.failure(Exception("Firebase sign up failed"))
+    fun logout() {
+        auth.signOut()
+        SharedPreferenceImpl.clearUserData()
+    }
 
-            val shopifyResult = createShopifyCustomer(fullName, email, password)
-            if (shopifyResult.isFailure) {
-                return Result.failure(shopifyResult.exceptionOrNull()!!)
-            }
-            val tokenResult = getShopifyAccessToken(email, password)
-            if (tokenResult.isSuccess) {
-                val token = tokenResult.getOrThrow()
-                SharedPreferenceImpl.saveToSharedPreferenceInGeneral(USER_TOKEN, token)
-            }
-
-            Result.success(Pair(firebaseUser, shopifyResult.getOrThrow()))
+    suspend fun deleteCurrentUser() {
+        try {
+            auth.currentUser?.delete()?.await()
         } catch (e: Exception) {
-            Result.failure(e)
+            Log.e("AuthRepository", "Failed to delete user", e)
         }
     }
 }

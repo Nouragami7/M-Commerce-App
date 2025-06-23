@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontStyle
+import com.example.buyva.features.authentication.signup.viewmodel.LogoutViewModel
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
@@ -23,16 +24,18 @@ import com.example.buyva.ui.theme.Teal
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.utils.components.ScreenTitle
 
-
 @Composable
 fun ProfileScreen(
+    logoutViewModel: LogoutViewModel,
     onSettingsClick: () -> Unit = {},
     onAddressClick: () -> Unit = {},
-    onOrdersClick: () -> Unit = {}
+    onOrdersClick: () -> Unit = {},
+    onLoggedOut: () -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
-      NavigationBar.mutableNavBarState.value = true
+        NavigationBar.mutableNavBarState.value = true
     }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,12 +79,16 @@ fun ProfileScreen(
             ProfileOption(Icons.Default.FavoriteBorder, "My Wishlist", Sea, onAddressClick)
             ProfileOption(Icons.Default.LocationOn, "Delivery Address", Sea, onAddressClick)
             ProfileOption(Icons.Default.Settings, "Settings", Sea, onSettingsClick)
-            ProfileOption(Icons.Default.Money,"Currency",Sea,onSettingsClick)
+            ProfileOption(Icons.Default.Money, "Currency", Sea, onSettingsClick)
         }
+
         Spacer(modifier = Modifier.height(30.dp))
 
         OutlinedButton(
-            onClick = { },
+            onClick = {
+                logoutViewModel.logout()
+                onLoggedOut()
+            },
             colors = ButtonDefaults.outlinedButtonColors(contentColor = Sea),
             border = BorderStroke(1.dp, Sea)
         ) {
@@ -89,16 +96,16 @@ fun ProfileScreen(
             Spacer(Modifier.width(8.dp))
             Text("Log Out", fontWeight = FontWeight.SemiBold)
         }
+
         Spacer(modifier = Modifier.height(40.dp))
-
-
     }
 }
+
 @Composable
 fun ProfileOption(icon: ImageVector, title: String, iconColor: Color, onAddressClick: () -> Unit = {}) {
     Card(
         modifier = Modifier
-            .fillMaxWidth()
+          .fillMaxWidth()
             .padding(vertical = 9.dp)
             .height(60.dp),
         shape = RoundedCornerShape(16.dp),

@@ -1,11 +1,12 @@
 package com.example.buyva.utils.components
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,7 +30,7 @@ fun PriceFilterSlider(
         Slider(
             value = maxPrice,
             onValueChange = onPriceChange,
-            valueRange = 0f..3000f,
+            valueRange = 15f..300f,
             modifier = Modifier
                 .fillMaxWidth()
                 .graphicsLayer {

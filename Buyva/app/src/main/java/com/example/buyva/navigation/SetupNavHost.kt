@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.repository.AuthRepository
 import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.ProductInfo.View.ProductInfoScreen
@@ -26,6 +27,7 @@ import com.example.buyva.features.profile.addressdetails.view.AddressDetails
 import com.example.buyva.features.profile.addressdetails.viewlist.DeliveryAddressListScreen
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
+import com.example.buyva.features.authentication.signup.viewmodel.LogoutViewModel
 import com.example.buyva.features.brand.view.BrandProductsScreen
 import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 
@@ -35,16 +37,23 @@ import com.example.yourapp.ui.screens.OrderScreen
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
+import com.google.firebase.auth.FirebaseAuth
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SetupNavHost(
     navController: NavHostController,
     startDestination: String
 ) {
-    val favouriteRepository = remember { FavouriteRepositoryImpl() }
-    val favouriteViewModel = remember { FavouriteScreenViewModel(favouriteRepository) }
+    val apolloClient = remember { ApolloService.client }
 
-
+    val logoutViewModel = remember {
+        LogoutViewModel(
+            AuthRepository(
+                FirebaseAuth.getInstance(),
+                apolloClient
+            )
+        )
+    }
 
     NavHost(
         navController = navController,
@@ -62,13 +71,12 @@ fun SetupNavHost(
             )
         }
 
-
         composable<ScreensRoute.LoginScreen> {
             LoginScreenHost(
                 onSignUpClick = { navController.navigate(ScreensRoute.SignUpScreen) },
                 onSuccess = {
                     navController.navigate(ScreensRoute.HomeScreen) {
-                        popUpTo(0) // clear backstack
+                        popUpTo(0)
                     }
                 }
             )
@@ -84,21 +92,34 @@ fun SetupNavHost(
                 }
             )
         }
-        composable<ScreensRoute.HomeScreen> { HomeScreen(
-            onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
-            onBrandClick = { brandId, brandTitle, brandImage ->
-                navController.currentBackStackEntry?.savedStateHandle?.apply {
-                    set("brandID", brandId)
-                    set("brandName", brandTitle)
-                    set("brandImage", brandImage)
+        composable<ScreensRoute.HomeScreen> {
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val favouriteViewModel = remember(currentUser?.uid) {
+                currentUser?.let {
+                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
                 }
-                navController.navigate(ScreensRoute.BrandProductsScreen(brandId, brandTitle, brandImage))
             }
-            ,
-            onProductClick = { productId ->
-                navController.navigate("productInfo/$productId")
+
+            if (favouriteViewModel != null) {
+                HomeScreen(
+                    onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
+                    onBrandClick = { brandId, brandTitle, brandImage ->
+                        navController.currentBackStackEntry?.savedStateHandle?.apply {
+                            set("brandID", brandId)
+                            set("brandName", brandTitle)
+                            set("brandImage", brandImage)
+                        }
+                        navController.navigate(ScreensRoute.BrandProductsScreen(brandId, brandTitle, brandImage))
+                    },
+                    onProductClick = { productId ->
+                        navController.navigate("productInfo/$productId")
+                    },
+                    favouriteViewModel = favouriteViewModel
+                )
             }
-        ) }
+        }
+
+
         composable<ScreensRoute.CartScreen> { CartScreen(
             onBackClick = { navController.popBackStack() },
             onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
@@ -106,28 +127,107 @@ fun SetupNavHost(
             onNavigateToAddresses = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }
         ) }
 
+        composable<ScreensRoute.CategoriesScreen> {
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val favouriteViewModel = remember(currentUser?.uid) {
+                currentUser?.let {
+                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
+                }
+            }
 
-        composable<ScreensRoute.CategoriesScreen> { CategoryScreen(
-            onCartClick = { navController.navigate(ScreensRoute.CartScreen)},
-            onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) }
-        ) }
+            if (favouriteViewModel != null) {
+                CategoryScreen(
+                    onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
+                    onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) },
+                    favouriteViewModel = favouriteViewModel
+                )
+            }
+        }
+
         composable<ScreensRoute.FavouritesScreen> {
-            FavouriteScreen(viewModel = favouriteViewModel, navController = navController)
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val favouriteViewModel = remember(currentUser?.uid) {
+                currentUser?.let {
+                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
+                }
+            }
+
+            if (favouriteViewModel != null) {
+                FavouriteScreen(
+                    viewModel = favouriteViewModel,
+                    navController = navController
+                )
+            }
+        }
+
+        composable<ScreensRoute.BrandProductsScreen> { entry ->
+            val id = entry.arguments?.getString("brandID") ?: ""
+            val name = entry.arguments?.getString("brandName") ?: "Adidas"
+            val image = entry.arguments?.getString("brandImage") ?: ""
+
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val favouriteViewModel = remember(currentUser?.uid) {
+                currentUser?.let {
+                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
+                }
+            }
+
+            if (favouriteViewModel != null) {
+                BrandProductsScreen(
+                    brandId = id,
+                    brandName = name,
+                    imageUrl = image,
+                    onBack = { navController.popBackStack() },
+                    onProductClick = { productId ->
+                        navController.navigate("productInfo/$productId")
+                    },
+                    favouriteViewModel = favouriteViewModel
+                )
+            }
+        }
+
+        composable("productInfo/{productId}") { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
+
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val favouriteViewModel = remember(currentUser?.uid) {
+                currentUser?.let {
+                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
+                }
+            }
+
+            val repository = remember {
+                HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
+            }
+
+            if (favouriteViewModel != null) {
+                ProductInfoScreen(
+                    productId = productId,
+                    repository = repository,
+                    navController = navController,
+                    favouriteViewModel = favouriteViewModel
+                )
+            }
         }
 
         composable<ScreensRoute.ProfileScreen> {
             ProfileScreen(
-                onSettingsClick = {
-                    //navController.navigate(ScreensRoute.AddressDetailsScreen)
-                },
+                logoutViewModel = logoutViewModel,
+                onSettingsClick = {},
                 onAddressClick = {
                     navController.navigate(ScreensRoute.DeliveryAddressListScreen)
                 },
                 onOrdersClick = {
                     navController.navigate(ScreensRoute.OrderScreen)
+                },
+                onLoggedOut = {
+                    navController.navigate(ScreensRoute.WelcomeScreen) {
+                        popUpTo(0)
+                    }
                 }
             )
         }
+
         composable<ScreensRoute.AddressDetails> {
             AddressDetails(
                 address = it.arguments?.getString("address") ?: "",
@@ -135,6 +235,7 @@ fun SetupNavHost(
                 onSaveClick = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }
                 )
         }
+
         composable<ScreensRoute.DeliveryAddressListScreen> {
             DeliveryAddressListScreen(
                 onBackClick = { navController.popBackStack() },
@@ -147,6 +248,7 @@ fun SetupNavHost(
 
             )
         }
+
         composable<ScreensRoute.MapScreen> {
             val mapViewModel = MapViewModel()
             MapScreen(
@@ -159,61 +261,22 @@ fun SetupNavHost(
             )
         }
 
-        composable<ScreensRoute.BrandProductsScreen> { entry ->
-            val id = entry.arguments?.getString("brandID") ?: ""
-            val name = entry.arguments?.getString("brandName") ?: "Adidas"
-            val image = entry.arguments?.getString("brandImage") ?: ""
-
-            BrandProductsScreen(
-                brandId = id,
-                brandName = name,
-                imageUrl = image,
+        composable<ScreensRoute.OrderScreen> {
+            OrderScreen(
                 onBack = { navController.popBackStack() },
-
-                onProductClick = { productId ->
-                    navController.navigate("productInfo/$productId")
-                }
+                onOrderClick = { navController.navigate(ScreensRoute.OrderDetailsScreen(it)) }
             )
         }
 
-        composable("productInfo/{productId}") { backStackEntry ->
-            val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
-
-            val repository = remember {
-                HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
-            }
-
-            ProductInfoScreen(
-                productId = productId,
-                repository = repository,
-                navController = navController,
-                favouriteViewModel = favouriteViewModel // ✅ هنا
+        composable<ScreensRoute.OrderDetailsScreen> {
+            OrderDetailsScreen(
+                onBack = { navController.popBackStack() },
+                onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) }
             )
         }
 
-
-        composable<ScreensRoute.OrderScreen> { OrderScreen(
-            onBack = { navController.popBackStack() },
-            onOrderClick = {navController.navigate(ScreensRoute.OrderDetailsScreen(it))}
-        ) }
-
-        composable<ScreensRoute.OrderDetailsScreen> { OrderDetailsScreen(
-            onBack = { navController.popBackStack() },
-            onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) }
-        ) }
-        composable<ScreensRoute.SettingsScreen> {
-            //SettingsScreen(onBack = { navController.popBackStack() })
-        }
-        composable<ScreensRoute.PaymentScreen> {
-            //PaymentScreen(onBack = { navController.popBackStack() })
-        }
-
-
-
-
-
-
-
+        composable<ScreensRoute.SettingsScreen> { /* Placeholder */ }
+        composable<ScreensRoute.PaymentScreen> { /* Placeholder */ }
     }
 }
 
