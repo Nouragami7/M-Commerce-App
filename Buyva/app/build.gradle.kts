@@ -49,6 +49,13 @@
         }
     }
 
+    android {
+        lint {
+            baseline = file("lint-baseline.xml")
+        }
+    }
+
+
     dependencies {
 
         implementation(libs.androidx.core.ktx)
@@ -76,7 +83,7 @@
         implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
 
         //Curved bottom navigation bar
-        implementation ("np.com.susanthapa:curved_bottom_navigation:0.7.0")
+        implementation ("np.com.susanthapa:curved_bottom_navigation:0.6.5")
         implementation("androidx.compose.material:material-icons-extended")
         // Firebase auth
         implementation(platform("com.google.firebase:firebase-bom:33.15.0"))

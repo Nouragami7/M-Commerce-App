@@ -142,7 +142,7 @@ fun BrandProductsScreen(
                         price <= maxPrice
                     }
 
-                    ProductSection(products = products, onProductClick = onProductClick, favouriteViewModel = favouriteViewModel)
+                    ProductSection(products = filteredProducts, onProductClick = onProductClick, favouriteViewModel = favouriteViewModel)
                 }
 
             }
