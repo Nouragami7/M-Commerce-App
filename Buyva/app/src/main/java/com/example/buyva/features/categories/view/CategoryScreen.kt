@@ -1,7 +1,6 @@
 package com.example.buyva.features.categories.view
 
 import ProductSection
-import SearchBarWithCartIcon
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -42,6 +41,7 @@ import com.example.buyva.data.repository.categories.CategoryRepositoryImpl
 import com.example.buyva.features.categories.viewmodel.CategoryFactory
 import com.example.buyva.features.categories.viewmodel.CategoryViewModel
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
+import com.example.buyva.features.home.view.SearchBarWithCartIcon
 import com.example.buyva.ui.theme.DarkGray
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.utils.components.EmptyScreen
@@ -49,11 +49,14 @@ import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.components.PriceFilterIcon
 import com.example.buyva.utils.components.PriceFilterSlider
 import com.example.buyva.utils.components.ScreenTitle
-
+ //val imageUrl = node.featuredImage?.url ?: ""
+//                val price = (node.variants.edges.firstOrNull()?.node?.price?.amount as? Number)?.toFloat() ?: 0f
 @Composable
 fun CategoryScreen(
     onCartClick: () -> Unit,
     onProductClick: (String) -> Unit,
+    onSearchClick: () -> Unit,
+    //onTextChanged: (String) -> Unit,
 favouriteViewModel: FavouriteScreenViewModel
 ) {
     val egyptianBound = 300f
@@ -95,8 +98,7 @@ favouriteViewModel: FavouriteScreenViewModel
         ) {
             ScreenTitle("Categories")
             SearchBarWithCartIcon(
-                onCartClick = onCartClick
-            )
+                onCartClick = onCartClick,onSearchClick = onSearchClick)
             Spacer(modifier = Modifier.height(12.dp))
 
             AnimatedVisibility(visible = showSlider) {

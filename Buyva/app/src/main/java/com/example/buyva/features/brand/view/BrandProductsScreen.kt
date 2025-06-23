@@ -1,7 +1,6 @@
 package com.example.buyva.features.brand.view
 
 import ProductSection
-import SearchBarWithCartIcon
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,6 +43,7 @@ import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.brand.viewmodel.BrandFactory
 import com.example.buyva.features.brand.viewmodel.BrandViewModel
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
+import com.example.buyva.features.home.view.SearchBarWithCartIcon
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.ubuntuMedium
 import com.example.buyva.utils.components.LoadingIndicator
@@ -59,7 +59,9 @@ fun BrandProductsScreen(
     imageUrl: String,
     onBack: () -> Unit,
     onProductClick: (String) -> Unit,
-    favouriteViewModel: FavouriteScreenViewModel
+    favouriteViewModel: FavouriteScreenViewModel,
+    onSearchClick: () -> Unit = {},
+   // onTextChanged: (String) -> Unit
 
 
 ) {
@@ -114,7 +116,9 @@ fun BrandProductsScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        SearchBarWithCartIcon()
+        SearchBarWithCartIcon(onSearchClick = onSearchClick)
+
+
 
         Spacer(modifier = Modifier.height(12.dp))
 

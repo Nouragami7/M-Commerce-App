@@ -15,6 +15,7 @@ import com.example.buyva.data.model.Address
 import com.example.buyva.data.repository.AuthRepository
 import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
+import com.example.buyva.data.repository.search.SearchRepositoryImpl
 import com.example.buyva.features.ProductInfo.View.ProductInfoScreen
 import com.example.buyva.features.authentication.login.view.LoginScreenHost
 import com.example.buyva.features.authentication.login.view.WelcomeScreen
@@ -32,6 +33,8 @@ import com.example.buyva.features.authentication.signup.viewmodel.LogoutViewMode
 
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
+import com.example.buyva.features.search.view.SearchScreen
+import com.example.buyva.features.search.viewmodel.SearchViewModel
 import com.example.yourapp.ui.screens.OrderScreen
 
 import com.google.firebase.auth.FirebaseAuth
@@ -105,28 +108,32 @@ fun SetupNavHost(
                 HomeScreen(
                     onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
                     onBrandClick = { brandId, brandTitle, brandImage ->
-                        navController.currentBackStackEntry?.savedStateHandle?.apply {
-                            set("brandID", brandId)
-                            set("brandName", brandTitle)
-                            set("brandImage", brandImage)
-                        }
-                        navController.navigate(ScreensRoute.BrandProductsScreen(brandId, brandTitle, brandImage))
+                        navController.navigate(
+                            ScreensRoute.BrandProductsScreen(
+                                brandId,
+                                brandTitle,
+                                brandImage
+                            )
+                        )
                     },
                     onProductClick = { productId ->
                         navController.navigate("productInfo/$productId")
                     },
+                    onSearchClick = { navController.navigate(ScreensRoute.SearchScreen) },
                     favouriteViewModel = favouriteViewModel
+
                 )
             }
         }
 
-
-        composable<ScreensRoute.CartScreen> { CartScreen(
-            onBackClick = { navController.popBackStack() },
-            onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
-            onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) },
-            onNavigateToAddresses = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }
-        ) }
+        composable<ScreensRoute.CartScreen> {
+            CartScreen(
+                onBackClick = { navController.popBackStack() },
+                onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
+                onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) },
+                onNavigateToAddresses = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }
+            )
+        }
 
         composable<ScreensRoute.CategoriesScreen> {
             val currentUser = FirebaseAuth.getInstance().currentUser
@@ -140,6 +147,8 @@ fun SetupNavHost(
                 CategoryScreen(
                     onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
                     onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) },
+                    onSearchClick = { navController.navigate(ScreensRoute.SearchScreen) },
+
                     favouriteViewModel = favouriteViewModel
                 )
             }
@@ -180,8 +189,16 @@ fun SetupNavHost(
                     imageUrl = image,
                     onBack = { navController.popBackStack() },
                     onProductClick = { productId ->
-                        navController.navigate("productInfo/$productId")
+                        val encodedId =
+                            URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
+                        navController.navigate("productInfo/$encodedId")
                     },
+                    onSearchClick = {
+                        val encodedBrand =
+                            URLEncoder.encode(name, StandardCharsets.UTF_8.toString())
+                        navController.navigate("search?brand=$encodedBrand")
+                    },
+
                     favouriteViewModel = favouriteViewModel
                 )
             }
@@ -233,6 +250,9 @@ fun SetupNavHost(
 
         composable<ScreensRoute.AddressDetails> { backStackEntry ->
             AddressDetails(
+                address = it.arguments?.getString("address") ?: "",
+                onBackClick = { navController.popBackStack() },
+                onSaveClick = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }
                 address = backStackEntry.toRoute<ScreensRoute.AddressDetails>().address,
                 city = backStackEntry.toRoute<ScreensRoute.AddressDetails>().city,
                 country = backStackEntry.toRoute<ScreensRoute.AddressDetails>().country,
@@ -251,6 +271,8 @@ fun SetupNavHost(
         composable<ScreensRoute.DeliveryAddressListScreen> {
             DeliveryAddressListScreen(
                 onBackClick = { navController.popBackStack() },
+                onAddressDetailsClick = { address ->
+                    navController.navigate(ScreensRoute.AddressDetails(address ?: ""))
                 onAddressDetailsClick = { address, prefillData ->
                     navController.navigate(
                         ScreensRoute.AddressDetails(
@@ -302,6 +324,67 @@ fun SetupNavHost(
 
         composable<ScreensRoute.SettingsScreen> { /* Placeholder */ }
         composable<ScreensRoute.PaymentScreen> { /* Placeholder */ }
-    }
-}
 
+        composable<ScreensRoute.SearchScreen> {
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val favouriteViewModel = remember(currentUser?.uid) {
+                currentUser?.let {
+                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
+                }
+            }
+
+            val remoteDataSource = remember { RemoteDataSourceImpl(apolloClient) }
+            val searchRepository = remember { SearchRepositoryImpl(remoteDataSource) }
+            val searchViewModel = remember { SearchViewModel(searchRepository) }
+
+            if (favouriteViewModel != null) {
+                SearchScreen(
+                    searchViewModel = searchViewModel,
+                    favouriteViewModel = favouriteViewModel,
+                    onProductClick = { productId ->
+                        val encodedId =
+                            URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
+                        navController.navigate("productInfo/$encodedId")
+                    },
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+        }
+
+        composable("search?brand={brand}") { backStackEntry ->
+            val brand = backStackEntry.arguments?.getString("brand") ?: ""
+
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val favouriteViewModel = remember(currentUser?.uid) {
+                currentUser?.let {
+                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
+                }
+            }
+
+            val remoteDataSource = remember { RemoteDataSourceImpl(apolloClient) }
+            val searchRepository = remember { SearchRepositoryImpl(remoteDataSource) }
+            val searchViewModel = remember { SearchViewModel(searchRepository) }
+
+            if (favouriteViewModel != null) {
+                SearchScreen(
+                    brandFilter = brand,
+                    searchViewModel = searchViewModel,
+                    favouriteViewModel = favouriteViewModel,
+                    onProductClick = { productId ->
+                        val encodedId =
+                            URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
+                        navController.navigate("productInfo/$encodedId")
+                    },
+                    onBack = {
+                     searchViewModel.clearSearch()
+                        navController.popBackStack()
+                    }
+                )
+            }
+        }
+
+    }
+
+}

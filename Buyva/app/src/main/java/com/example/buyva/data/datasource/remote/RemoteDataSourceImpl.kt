@@ -17,7 +17,9 @@ import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.RemoveProductFromCartMutation
+import com.example.buyva.SearchProductsQuery
 import com.example.buyva.data.model.Address
+import com.example.buyva.data.model.UiProduct
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.type.MailingAddressInput
 import kotlinx.coroutines.flow.Flow
@@ -215,6 +217,39 @@ val mutation = CreateCartMutation(email, token)
             emit(ResponseState.Failure(e))
         }
     }
+
+    override fun searchProducts(query: String): Flow<List<UiProduct>> = flow {
+        Log.d("SearchQuery", "Query sent: $query")
+
+        val formattedQuery = "title:*$query*"
+        val response = apolloClient.query(SearchProductsQuery(formattedQuery)).execute()
+        Log.d("SearchRaw", "Raw response: ${response.data}")
+
+        val products = response.data?.products?.edges?.mapNotNull { edge ->
+            val node = edge.node ?: return@mapNotNull null
+
+            val imageUrl = node.images?.edges?.firstOrNull()?.node?.src as? String ?: ""
+            val price = node.variants?.edges?.firstOrNull()?.node?.priceV2?.amount
+                ?.let { it.toString().toFloatOrNull() } ?: 0f
+
+
+            val vendor = node.vendor ?: ""
+
+            UiProduct(
+                id = node.id,
+                title = node.title,
+                imageUrl = imageUrl,
+                price = price,
+                vendor = vendor
+            )
+        } ?: emptyList()
+
+        emit(products)
+    }.catch {
+        Log.e("RemoteDataSource", "Search failed", it)
+        emit(emptyList())
+    }
+
     override suspend fun updateAddress(address: Address, token: String): Flow<ResponseState> = flow {
         emit(ResponseState.Loading)
 
@@ -253,3 +288,5 @@ val mutation = CreateCartMutation(email, token)
         }
     }
 }
+
+
