@@ -1,3 +1,4 @@
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -13,10 +14,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.buyva.R
 import com.example.buyva.ui.theme.Cold
-
 @Composable
 fun SearchBarWithCartIcon(
-    onCartClick: () -> Unit = {}
+    onCartClick: () -> Unit = {},
+    onSearchClick: () -> Unit,
+    onTextChanged: (String) -> Unit
 ) {
     var searchText by remember { mutableStateOf("") }
     var isClicked by remember { mutableStateOf(false) }
@@ -27,20 +29,26 @@ fun SearchBarWithCartIcon(
             .padding(horizontal = 12.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         OutlinedTextField(
             value = searchText,
-            onValueChange = { searchText = it },
+            onValueChange = {
+                searchText = it
+                onTextChanged(it)
+            },
             modifier = Modifier
                 .weight(1f)
                 .height(48.dp)
                 .shadow(elevation = 4.dp, shape = RoundedCornerShape(12.dp)),
             placeholder = { Text("Search") },
             leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search"
-                )
+                IconButton(onClick = {
+                    onSearchClick()
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search"
+                    )
+                }
             },
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -54,7 +62,7 @@ fun SearchBarWithCartIcon(
         IconButton(onClick = {
             isClicked = !isClicked
             if (isClicked)
-               onCartClick()
+                onCartClick()
         }) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_shopping_cart_24),
@@ -66,8 +74,10 @@ fun SearchBarWithCartIcon(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewSearchBarWithCart() {
-    SearchBarWithCartIcon()
-}
+
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewSearchBarWithCart() {
+//    SearchBarWithCartIcon()
+//}

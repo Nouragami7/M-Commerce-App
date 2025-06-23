@@ -41,6 +41,8 @@ import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 fun HomeScreen(
     onCartClick: () -> Unit = {},
     onBrandClick: (String,String, String) -> Unit = { _, _ ,_-> },
+    onSearchClick: () -> Unit = {},
+    onTextChanged: (String) -> Unit,
     onProductClick: (String) -> Unit = {},
     favouriteViewModel: FavouriteScreenViewModel
 
@@ -65,7 +67,7 @@ SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
 
         ScreenTitle("BuyVa")
 
-        SearchBarWithCartIcon(onCartClick)
+        SearchBarWithCartIcon(onCartClick,onSearchClick = onSearchClick, onTextChanged = onTextChanged)
 
         Spacer(modifier = Modifier.height(16.dp))
 

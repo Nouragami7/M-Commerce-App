@@ -44,6 +44,8 @@ sealed class ScreensRoute{
     data object PaymentScreen: ScreensRoute()
     @Serializable
     data object CheckoutScreen: ScreensRoute()
+    @Serializable
+    data object SearchScreen : ScreensRoute()
 
 
 

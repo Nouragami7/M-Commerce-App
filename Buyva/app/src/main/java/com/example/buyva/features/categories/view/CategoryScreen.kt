@@ -54,6 +54,8 @@ import com.example.buyva.utils.components.ScreenTitle
 fun CategoryScreen(
     onCartClick: () -> Unit,
     onProductClick: (String) -> Unit,
+    onSearchClick: () -> Unit = {},
+    onTextChanged: (String) -> Unit,
 favouriteViewModel: FavouriteScreenViewModel
 ) {
     val egyptianBound = 300f
@@ -95,8 +97,7 @@ favouriteViewModel: FavouriteScreenViewModel
         ) {
             ScreenTitle("Categories")
             SearchBarWithCartIcon(
-                onCartClick = onCartClick
-            )
+                onCartClick = onCartClick,onSearchClick = onSearchClick, onTextChanged = onTextChanged)
             Spacer(modifier = Modifier.height(12.dp))
 
             AnimatedVisibility(visible = showSlider) {

@@ -18,6 +18,7 @@ import com.example.buyva.utils.components.PriceFilterSlider
 
 @Composable
 fun SearchScreen(
+    onBack: () -> Unit = {},
     searchViewModel: SearchViewModel = viewModel(),
     favouriteViewModel: FavouriteScreenViewModel,
     onProductClick: (String) -> Unit = {}
@@ -28,7 +29,12 @@ fun SearchScreen(
         modifier = Modifier.fillMaxSize()
     ) {
         SearchBarWithCartIcon(
-            onCartClick = { /* TODO: Navigate to cart if needed */ }
+            onCartClick = { /* Navigate to cart */ },
+            onSearchClick = {
+            },
+            onTextChanged = {
+                searchViewModel.updateSearchText(it)
+            }
         )
 
         Spacer(modifier = Modifier.height(8.dp))

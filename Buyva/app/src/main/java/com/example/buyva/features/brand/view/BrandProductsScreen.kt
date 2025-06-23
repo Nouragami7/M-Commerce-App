@@ -59,7 +59,9 @@ fun BrandProductsScreen(
     imageUrl: String,
     onBack: () -> Unit,
     onProductClick: (String) -> Unit,
-    favouriteViewModel: FavouriteScreenViewModel
+    favouriteViewModel: FavouriteScreenViewModel,
+    onSearchClick: () -> Unit = {},
+    onTextChanged: (String) -> Unit
 
 
 ) {
@@ -114,7 +116,9 @@ fun BrandProductsScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        SearchBarWithCartIcon()
+        SearchBarWithCartIcon(onSearchClick = onSearchClick, onTextChanged = onTextChanged)
+
+
 
         Spacer(modifier = Modifier.height(12.dp))
 

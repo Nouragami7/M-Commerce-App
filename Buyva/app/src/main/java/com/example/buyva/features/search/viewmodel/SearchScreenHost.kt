@@ -24,6 +24,6 @@ fun SearchScreenHost(
         searchViewModel = searchViewModel,
         favouriteViewModel = favouriteViewModel,
         onProductClick = onProductClick,
-        //onBack = { navController.popBackStack() }
+        onBack = { navController.popBackStack() }
     )
 }
