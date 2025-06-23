@@ -118,7 +118,15 @@
     apollo {
         service("service") {
             packageName.set("com.example.buyva")
+            schemaFile.set(file("src/main/graphql/com/example/buyva/schema.graphqls"))
+            sourceFolder.set("com/example/buyva")
             generateKotlinModels.set(true)
+        }
 
+        service("service-admin") {
+            packageName.set("com.example.buyva.admin")
+            schemaFile.set(file("src/main/graphql/com/example/buyva-admin/schema.graphqls"))
+            sourceFolder.set("com/example/buyva-admin")
+            generateKotlinModels.set(true)
         }
     }
