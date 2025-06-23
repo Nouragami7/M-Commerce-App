@@ -107,11 +107,6 @@ fun SetupNavHost(
                 HomeScreen(
                     onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
                     onBrandClick = { brandId, brandTitle, brandImage ->
-                        navController.currentBackStackEntry?.savedStateHandle?.apply {
-                            set("brandID", brandId)
-                            set("brandName", brandTitle)
-                            set("brandImage", brandImage)
-                        }
                         navController.navigate(
                             ScreensRoute.BrandProductsScreen(
                                 brandId,
@@ -123,12 +118,12 @@ fun SetupNavHost(
                     onProductClick = { productId ->
                         navController.navigate("productInfo/$productId")
                     },
-                    favouriteViewModel = favouriteViewModel,
+                    onSearchClick = { navController.navigate(ScreensRoute.SearchScreen) },
+                    favouriteViewModel = favouriteViewModel
 
                 )
             }
         }
-
 
         composable<ScreensRoute.CartScreen> {
             CartScreen(
@@ -193,6 +188,8 @@ fun SetupNavHost(
                     onProductClick = { productId ->
                         navController.navigate("productInfo/$productId")
                     },
+                    onSearchClick = { navController.navigate(ScreensRoute.SearchScreen) },
+
                     favouriteViewModel = favouriteViewModel
                 )
             }

@@ -1,11 +1,12 @@
 package com.example.buyva.features.search.view
 
 import ProductSection
-import SearchBarWithCartIcon
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,48 +19,88 @@ import com.example.buyva.utils.components.PriceFilterSlider
 
 @Composable
 fun SearchScreen(
-    onBack: () -> Unit = {},
     searchViewModel: SearchViewModel = viewModel(),
     favouriteViewModel: FavouriteScreenViewModel,
-    onProductClick: (String) -> Unit = {}
+    onProductClick: (String) -> Unit = {},
+    onBack: () -> Unit = {}
 ) {
     val state by searchViewModel.uiState.collectAsState()
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
     ) {
-        SearchBarWithCartIcon(
-            onCartClick = { /* Navigate to cart */ },
-            onSearchClick = {
-            },
-            onTextChanged = {
-                searchViewModel.updateSearchText(it)
+        // Search header with back button
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back"
+                )
             }
-        )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            OutlinedTextField(
+                value = state.searchText,
+                onValueChange = { searchViewModel.updateSearchText(it) },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp),
+                placeholder = { Text("Search products") },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search"
+                    )
+                },
+                singleLine = true
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         PriceFilterSlider(
             maxPrice = state.maxPrice,
-            onPriceChange = { searchViewModel.updateMaxPrice(it) }
+            onPriceChange = { searchViewModel.updateMaxPrice(it) },
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         when {
             state.isLoading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
                     CircularProgressIndicator(color = Color.Black)
                 }
             }
 
             state.error != null -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(text = state.error ?: "Unknown error", color = Color.Red)
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = state.error ?: "Search error",
+                        color = Color.Red
+                    )
                 }
             }
 
             state.filteredProducts.isEmpty() -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No products found", color = Color.Gray)
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "No products found",
+                        color = Color.Gray
+                    )
                 }
             }
 
@@ -79,10 +120,5 @@ fun SearchScreen(
                 }
             }
         }
-    }
-
-    // Automatically update search if user types (debounced in ViewModel)
-    LaunchedEffect(state.searchText) {
-        searchViewModel.updateSearchText(state.searchText)
     }
 }
