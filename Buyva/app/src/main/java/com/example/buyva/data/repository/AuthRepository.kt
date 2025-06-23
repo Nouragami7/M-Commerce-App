@@ -40,22 +40,33 @@ class AuthRepository(
     ): Result<FirebaseUser> {
         return try {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
-            result.user?.let { user ->
-                val profileUpdates = UserProfileChangeRequest.Builder()
-                    .setDisplayName(fullName)
-                    .build()
-                user.updateProfile(profileUpdates).await()
+            val user = result.user ?: return Result.failure(Exception("Firebase user is null"))
+
+            val profileUpdates = UserProfileChangeRequest.Builder()
+                .setDisplayName(fullName)
+                .build()
+            user.updateProfile(profileUpdates).await()
+
+            val createResult = createShopifyCustomer(fullName, email, password)
+            if (createResult.isFailure) {
+                Log.e("1", "Failed to create Shopify customer: ${createResult.exceptionOrNull()?.message}")
+                return Result.failure(Exception("Shopify customer creation failed"))
             }
-            val user = result.user
-            if (user != null) {
-                Result.success(user)
-            } else {
-                Result.failure(Exception("Firebase user is null"))
+
+            val tokenResult = getShopifyAccessToken(email, password)
+            tokenResult.onSuccess { token ->
+                Log.d("1", "Shopify access token: $token")
+                SharedPreferenceImpl.saveToSharedPreferenceInGeneral(USER_TOKEN, token)
+            }.onFailure {
+                Log.e("1", "Failed to get Shopify access token: ${it.message}")
             }
+
+            Result.success(user)
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
+
 
     suspend fun sendVerificationEmail(user: FirebaseUser): Result<Unit> {
         return try {
@@ -74,31 +85,50 @@ class AuthRepository(
 
     suspend fun signInWithEmail(email: String, password: String): FirebaseUser {
         val result = auth.signInWithEmailAndPassword(email, password).await()
-        return result.user ?: throw Exception("User is null")
+        val user = result.user ?: throw Exception("User is null")
+
+
+        val tokenResult = getShopifyAccessToken(email, password)
+        tokenResult.onSuccess { token ->
+            Log.i("1", "Shopify access token from login: $token xx")
+            SharedPreferenceImpl.saveToSharedPreferenceInGeneral(USER_TOKEN, token)
+        }.onFailure {
+            Log.e("1", "Failed to fetch Shopify token: ${it.message}")
+        }
+
+        return user
     }
 
     suspend fun getShopifyAccessToken(email: String, password: String): Result<String> {
+        Log.d("1", "Fetching Shopify token for $email")
         return try {
             val response = apolloClient
-                .mutation(CreateCustomerAccessTokenMutation(email = email, password = password))
+                .mutation(CreateCustomerAccessTokenMutation(email, password))
                 .execute()
+
+            Log.d("1", "Response: ${response.data}")
 
             val token = response.data?.customerAccessTokenCreate?.customerAccessToken?.accessToken
             val error = response.data?.customerAccessTokenCreate?.customerUserErrors?.firstOrNull()?.message
-            Log.i("AuthRepository", "Shopify access token: $token")
 
             when {
                 token != null -> {
-                    SharedPreferenceImpl.saveToSharedPreferenceInGeneral(USER_TOKEN, token)
+                    Log.d("1", "Token retrieved successfully: $token")
+                  //  SharedPreferenceImpl.saveToSharedPreferenceInGeneral(USER_TOKEN, token)
                     Result.success(token)
                 }
-                error != null -> Result.failure(Exception(error))
+                error != null -> {
+                    Log.e("1", "Shopify error: $error")
+                    Result.failure(Exception(error))
+                }
                 else -> Result.failure(Exception("Unknown error during token creation"))
             }
         } catch (e: Exception) {
+            Log.e("1", "Exception while getting token: ${e.message}")
             Result.failure(e)
         }
     }
+
 
     suspend fun signInWithGoogle(account: GoogleSignInAccount): FirebaseUser? {
         return try {
@@ -106,7 +136,7 @@ class AuthRepository(
             val result = auth.signInWithCredential(credential).await()
             result.user
         } catch (e: Exception) {
-            Log.e("AuthRepository", "Google sign-in failed", e)
+            Log.e("1", "Google sign-in failed", e)
             null
         }
     }

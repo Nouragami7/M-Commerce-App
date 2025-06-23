@@ -63,7 +63,7 @@ fun PaymentSection(
             ),
             trailingIcon = {
                 IconButton(onClick = {
-onAddressClick()
+                    onAddressClick()
                 }) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit")
                 }

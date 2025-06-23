@@ -24,6 +24,8 @@ suspend fun createCart(email: String, token: String): Flow<ResponseState>
      suspend fun getCustomerAddresses(token: String): Flow<ResponseState>
      suspend fun deleteCustomerAddress(addressId: String, token: String): Flow<ResponseState>
     fun searchProducts(query: String): Flow<List<UiProduct>>
+     suspend fun updateAddress(address: Address, token: String): Flow<ResponseState>
+
 
 
 

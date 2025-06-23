@@ -29,7 +29,7 @@ class AddressViewModel(application: Application,private val repo: IAddressRepo) 
     }
 
 
-    private fun loadAddresses() {
+    fun loadAddresses() {
         viewModelScope.launch {
             if (!token.isNullOrEmpty()) {
                 Log.i("1", "Loading addresses with token: $token")
@@ -60,6 +60,42 @@ class AddressViewModel(application: Application,private val repo: IAddressRepo) 
             }
         }
     }
+    fun saveAddress(address: Address) {
+        viewModelScope.launch {
+            if (token != null) {
+                if (address.id != null) {
+                    repo.updateAddress(address, token).collect {
+                        when (it) {
+                            is ResponseState.Loading -> {
+
+                            }
+                            is ResponseState.Success<*> -> {
+                                Log.d("1", "Updated address successfully")
+                                loadAddresses()
+                            }
+                            is ResponseState.Failure -> {
+                                Log.e("1", "Update failed: ${it.message}")
+                            }
+                        }
+                    }
+                } else {
+                    repo.createAddress(address, token).collect {
+                        when (it) {
+                            is ResponseState.Loading -> { /* show loading */ }
+                            is ResponseState.Success<*> -> {
+                                Log.d("1", "Created new address")
+                                loadAddresses()
+                            }
+                            is ResponseState.Failure-> {
+                                Log.e("1", "Create failed: ${it.message}")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     fun deleteAddress(addressId: String) {
         viewModelScope.launch {

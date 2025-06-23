@@ -1,6 +1,6 @@
 package com.example.buyva.navigation
 
-import com.stripe.android.paymentsheet.PaymentSheet
+import com.example.buyva.data.model.Address
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -25,7 +25,7 @@ sealed class ScreensRoute{
     @Serializable
     data object ProfileScreen: ScreensRoute()
     @Serializable
-    data class AddressDetails(val address: String): ScreensRoute()
+    data class AddressDetails(val address: String, val editable: Boolean, val prefillData: String?, val city: String? = null, val country: String? = null) :ScreensRoute()
     @Serializable
     data object  DeliveryAddressListScreen: ScreensRoute()
     @Serializable
