@@ -1,5 +1,6 @@
 package com.example.buyva.data.repository.paymentRepo
 
+import com.example.buyva.admin.CompleteDraftOrderMutation
 import com.example.buyva.admin.type.DraftOrderInput
 import com.example.buyva.data.model.uistate.ResponseState
 import kotlinx.coroutines.flow.Flow
@@ -13,4 +14,5 @@ interface PaymentRepo {
         ): Response<com.google.gson.JsonObject>
 
        suspend fun createDraftOrder(draftOrderInput: DraftOrderInput): Flow<ResponseState>
+       suspend fun completeDraftOrder(draftOrderId: String): Flow<CompleteDraftOrderMutation.Data>
 }

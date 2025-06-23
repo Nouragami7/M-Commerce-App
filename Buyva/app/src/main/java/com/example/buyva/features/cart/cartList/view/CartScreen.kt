@@ -101,7 +101,6 @@ fun CartScreen(
     val defaultAddressId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}$token")
 
 
-
     val application = context.applicationContext as Application
     val cartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client), SharedPreferenceImpl)
     val addressRepo = AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client))
@@ -167,7 +166,20 @@ fun CartScreen(
     LaunchedEffect(orderState) {
         when (orderState) {
             is ResponseState.Success<*> -> {
-                Log.d("DraftOrder", "Order created successfully!")
+                val fullMessage = (orderState as ResponseState.Success<*>).data.toString()
+                Log.d("DraftOrder", "Success message: $fullMessage")
+
+                val regex = Regex("gid://shopify/DraftOrder/\\d+")
+                val match = regex.find(fullMessage)
+                val draftOrderId = match?.value
+
+                if (!draftOrderId.isNullOrBlank()) {
+                    Log.d("DraftOrder", "Extracted ID: $draftOrderId")
+                    paymentViewModel.completeDraftOrder(draftOrderId)
+                } else {
+                    Log.e("DraftOrder", "Failed to extract draft order ID")
+                }
+
                 Toast.makeText(context, "Order placed successfully!", Toast.LENGTH_SHORT).show()
             }
 
@@ -179,9 +191,9 @@ fun CartScreen(
             ResponseState.Loading -> {
                 Log.d("DraftOrder", "Creating draft order...")
             }
-
         }
     }
+
 
 
     val paymentSheet = rememberPaymentSheet(paymentResultCallback = { result ->

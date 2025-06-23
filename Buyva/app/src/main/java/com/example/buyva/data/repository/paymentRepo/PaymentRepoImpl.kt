@@ -1,5 +1,6 @@
 package com.example.buyva.data.repository.paymentRepo
 import android.util.Log
+import com.example.buyva.admin.CompleteDraftOrderMutation
 import com.example.buyva.admin.type.DraftOrderInput
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.remote.RemoteDataSource
@@ -20,6 +21,10 @@ class PaymentRepoImpl(private val remoteDataSource: RemoteDataSource)  : Payment
         Log.d("OrderRepo", "Calling createDraftOrder with input: $draftOrderInput")
         return remoteDataSource.createDraftOrder(draftOrderInput)
 
+    }
+
+    override suspend fun completeDraftOrder(draftOrderId: String): Flow<CompleteDraftOrderMutation.Data> {
+        return remoteDataSource.completeDraftOrder(draftOrderId)
     }
 
 

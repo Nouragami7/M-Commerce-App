@@ -25,6 +25,10 @@ class PaymentViewModel(
     private val _orderState = MutableStateFlow<ResponseState>(ResponseState.Loading)
     val order: StateFlow<ResponseState> = _orderState
 
+
+    private val _completeOrderState = MutableStateFlow<ResponseState>(ResponseState.Loading)
+    val completeOrderState: StateFlow<ResponseState> = _completeOrderState
+
     fun initiatePaymentFlow(
         amount: Int,
         currency: String = "usd",
@@ -71,6 +75,21 @@ class PaymentViewModel(
             }
         }
     }
+
+    fun completeDraftOrder(draftOrderId: String) {
+        viewModelScope.launch {
+            try {
+                repository.completeDraftOrder(draftOrderId).collect { result ->
+                    Log.d("OrderVM", "Draft order completed: ${result.draftOrderComplete?.draftOrder?.id}")
+                    _completeOrderState.value = ResponseState.Success("Order completed successfully!")
+                }
+            } catch (e: Exception) {
+                _completeOrderState.value = ResponseState.Failure(Throwable(e.message))
+                Log.e("OrderVM", "Error completing draft order: ${e.message}", e)
+            }
+        }
+    }
+
 }
 class PaymentViewModelFactory(
     private val repository: PaymentRepo
