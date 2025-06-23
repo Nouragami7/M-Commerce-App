@@ -188,7 +188,8 @@ fun SetupNavHost(
                     imageUrl = image,
                     onBack = { navController.popBackStack() },
                     onProductClick = { productId ->
-                        navController.navigate("productInfo/$productId")
+                        val encodedId = URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
+                        navController.navigate("productInfo/$encodedId")
                     },
                     onSearchClick = { navController.navigate(ScreensRoute.SearchScreen) },
 
@@ -306,7 +307,8 @@ fun SetupNavHost(
                     searchViewModel = searchViewModel,
                     favouriteViewModel = favouriteViewModel,
                     onProductClick = { productId ->
-                        navController.navigate("productInfo/$productId")
+                        val encodedId = URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
+                        navController.navigate("productInfo/$encodedId")
                     },
                     onBack = {
                         navController.popBackStack()
