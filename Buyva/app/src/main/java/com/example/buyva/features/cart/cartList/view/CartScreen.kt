@@ -205,7 +205,8 @@ onNavigateToOrders()
                 modifier = Modifier
                     .align(Alignment.End)
                     .padding(horizontal = 16.dp, vertical = 4.dp),
-                style = MaterialTheme.typography.bodyLarge,
+                fontSize = 25.sp,
+                fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
                 color = Cold
             )
 

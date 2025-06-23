@@ -41,13 +41,14 @@ import com.example.buyva.utils.components.ScreenTitle
 import com.example.buyva.utils.constants.DEFAULT_ADDRESS_ID
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.extensions.stripTokenFromShopifyGid
+import com.example.buyva.utils.jsonStringToAddress
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 
 @Composable
 fun AddressList(
     addressList: List<Address>,
     onAddressClick: () -> Unit,
-    onAddressDetailsClick: (String?) -> Unit
+    onAddressDetailsClick: (String?, String?) -> Unit
 ){
     val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
     var defaultAddressId by remember { mutableStateOf("") }
@@ -112,9 +113,8 @@ fun AddressList(
                     val isDefault = address.id?.stripTokenFromShopifyGid() == defaultAddressId
                     AddressItem(
                         address = address,
-                        onAddressDetailsClick = {
-                            onAddressDetailsClick(address.address1)
-                        },
+                        onAddressDetailsClick = { address1, addressModel ->
+                            onAddressDetailsClick(address1, addressModel)},
                         isDefault = isDefault,
                         onSetDefault = {
                             val cleanedId = address.id?.stripTokenFromShopifyGid() ?: return@AddressItem

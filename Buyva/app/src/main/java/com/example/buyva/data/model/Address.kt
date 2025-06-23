@@ -1,5 +1,8 @@
 package com.example.buyva.data.model
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Address(
     val id: String? = null,
     val firstName: String,

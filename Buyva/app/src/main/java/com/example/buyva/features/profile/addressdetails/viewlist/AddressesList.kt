@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
@@ -17,14 +18,13 @@ import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
 import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModelFactory
 import com.example.buyva.utils.components.LoadingIndicator
-import com.example.buyva.utils.components.ScreenTitle
 
 
 @Composable
 fun DeliveryAddressListScreen(
     onBackClick: () -> Unit = {},
     onAddressClick: () -> Unit = {},
-    onAddressDetailsClick: (String?) -> Unit = { _ -> },
+    onAddressDetailsClick: (String?, String?) -> Unit = { _ ,_-> },
 ) {
     val application = LocalContext.current.applicationContext as Application
     val viewModel: AddressViewModel = viewModel(
@@ -43,7 +43,7 @@ fun DeliveryAddressListScreen(
         else -> emptyList()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().padding(bottom = 60.dp)) {
 
         AddressList(
             addressList = addressList,

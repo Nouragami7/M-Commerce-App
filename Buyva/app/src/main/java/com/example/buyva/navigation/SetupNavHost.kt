@@ -8,8 +8,10 @@ import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.model.Address
 import com.example.buyva.data.repository.AuthRepository
 import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
@@ -26,18 +28,17 @@ import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.profile.addressdetails.view.AddressDetails
 import com.example.buyva.features.profile.addressdetails.viewlist.DeliveryAddressListScreen
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
-import com.example.buyva.features.authentication.signup.view.SignupScreenHost
 import com.example.buyva.features.authentication.signup.viewmodel.LogoutViewModel
-import com.example.buyva.features.brand.view.BrandProductsScreen
-import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 import com.example.yourapp.ui.screens.OrderScreen
+
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.serialization.json.Json
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-import com.google.firebase.auth.FirebaseAuth
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SetupNavHost(
@@ -213,7 +214,9 @@ fun SetupNavHost(
         composable<ScreensRoute.ProfileScreen> {
             ProfileScreen(
                 logoutViewModel = logoutViewModel,
-                onSettingsClick = {},
+                onFavClick = {
+                    navController.navigate(ScreensRoute.FavouritesScreen)
+                },
                 onAddressClick = {
                     navController.navigate(ScreensRoute.DeliveryAddressListScreen)
                 },
@@ -228,24 +231,31 @@ fun SetupNavHost(
             )
         }
 
-        composable<ScreensRoute.AddressDetails> {
+        composable<ScreensRoute.AddressDetails> { backStackEntry ->
             AddressDetails(
-                address = it.arguments?.getString("address") ?: "",
-                onBackClick = { navController.popBackStack() },
-                onSaveClick = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }
-                )
+                address = backStackEntry.toRoute<ScreensRoute.AddressDetails>().address,
+                editable = backStackEntry.toRoute<ScreensRoute.AddressDetails>().editable,
+                prefillData = backStackEntry.toRoute<ScreensRoute.AddressDetails>().prefillData,
+                onSaveClick = { navController.navigate(ScreensRoute.DeliveryAddressListScreen)
+                }
+            )
         }
 
         composable<ScreensRoute.DeliveryAddressListScreen> {
             DeliveryAddressListScreen(
                 onBackClick = { navController.popBackStack() },
-                onAddressDetailsClick = {  address ->
-                    navController.navigate(ScreensRoute.AddressDetails( address ?: ""))
+                onAddressDetailsClick = { address, prefillData ->
+                    navController.navigate(
+                        ScreensRoute.AddressDetails(
+                            address = address ?: "",
+                            editable = false,
+                            prefillData = prefillData
+                        )
+                    )
                 },
                 onAddressClick = {
                     navController.navigate(ScreensRoute.MapScreen)
                 }
-
             )
         }
 
@@ -255,9 +265,14 @@ fun SetupNavHost(
                 back = { navController.popBackStack() },
                 mapViewModel = mapViewModel,
                 onSelected = { address ->
-                    navController.navigate(ScreensRoute.AddressDetails(address))
+                    navController.navigate(
+                        ScreensRoute.AddressDetails(
+                            address = address,
+                            editable = true,
+                            prefillData = ""
+                        )
+                    )
                 }
-
             )
         }
 

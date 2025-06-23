@@ -23,11 +23,12 @@ import com.example.buyva.ui.theme.Sea
 import com.example.buyva.ui.theme.Teal
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.utils.components.ScreenTitle
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun ProfileScreen(
     logoutViewModel: LogoutViewModel,
-    onSettingsClick: () -> Unit = {},
+    onFavClick: () -> Unit = {},
     onAddressClick: () -> Unit = {},
     onOrdersClick: () -> Unit = {},
     onLoggedOut: () -> Unit = {}
@@ -64,7 +65,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Hello, folan",
+            text = "Hello, ${FirebaseAuth.getInstance().currentUser?.displayName}",
             fontStyle = FontStyle.Italic,
             fontSize = 18.sp,
             color = Cold
@@ -76,10 +77,9 @@ fun ProfileScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             ProfileOption(Icons.Default.LocalShipping, "My Orders", Sea, onOrdersClick)
-            ProfileOption(Icons.Default.FavoriteBorder, "My Wishlist", Sea, onAddressClick)
+            ProfileOption(Icons.Default.FavoriteBorder, "My Wishlist", Sea, onFavClick)
             ProfileOption(Icons.Default.LocationOn, "Delivery Address", Sea, onAddressClick)
-            ProfileOption(Icons.Default.Settings, "Settings", Sea, onSettingsClick)
-            ProfileOption(Icons.Default.Money, "Currency", Sea, onSettingsClick)
+            ProfileOption(Icons.Default.Money, "Currency", Sea, onAddressClick)
         }
 
         Spacer(modifier = Modifier.height(30.dp))

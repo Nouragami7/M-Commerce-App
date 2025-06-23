@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.example.buyva.data.model.Address
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
+import com.example.buyva.utils.addressToJsonString
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.constants.DEFAULT_ADDRESS_ID
 import com.example.buyva.utils.constants.USER_TOKEN
@@ -34,7 +35,7 @@ fun AddressItem(
     address: Address,
     isDefault: Boolean,
     onSetDefault: () -> Unit,
-    onAddressDetailsClick: (String?) -> Unit,
+    onAddressDetailsClick: (String?, String?) -> Unit,
     onDeleteClick: () -> Unit
 ) {
     val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
@@ -52,7 +53,7 @@ Log.i("1", "AddressItem id: ${address.id}")
     ) {
         Row(
             modifier = Modifier
-                .clickable { onAddressDetailsClick(address.address1) }
+                .clickable { onAddressDetailsClick(address.address1,addressToJsonString(address)) }
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
