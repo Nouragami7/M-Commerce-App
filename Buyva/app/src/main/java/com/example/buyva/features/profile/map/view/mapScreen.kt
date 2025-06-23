@@ -34,7 +34,7 @@ import java.util.Locale
 fun MapScreen(
     back: () -> Unit,
     mapViewModel: MapViewModel,
-    onSelected: (lat: Double, lon: Double, address: String?) -> Unit
+    onSelected: (address: String) -> Unit
 ) {
 
     val context = LocalContext.current
@@ -103,8 +103,10 @@ fun MapScreen(
             }
         }
 
-        ConfirmButton(selectedLocation, updatedAddress, back) { lat, lon, address ->
-            onSelected(lat, lon, address)
+        ConfirmButton(selectedLocation, updatedAddress, back) { address ->
+            if (address != null) {
+                onSelected(address)
+            }
         }
         }
     }

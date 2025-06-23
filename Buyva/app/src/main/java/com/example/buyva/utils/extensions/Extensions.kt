@@ -6,3 +6,6 @@ fun Address.getFullAddress(): String {
     return (0..maxAddressLineIndex).joinToString(", ") { getAddressLine(it) }
 }
 
+fun String.stripTokenFromShopifyGid(): String {
+    return this.substringBefore("?")
+}

@@ -4,3 +4,4 @@ package com.example.buyva.utils.constants
     const val Access_Token="4239f82a53f43549e21048ad4c38ad78"
    const val CART_ID = "cartID"
 const val  USER_TOKEN ="userToken"
+const val DEFAULT_ADDRESS_ID = "defaultAddressID"

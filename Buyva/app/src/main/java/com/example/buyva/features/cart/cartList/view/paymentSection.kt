@@ -35,7 +35,8 @@ fun PaymentSection(
     price: Double,
     address: Address,
     onConfirm: (LocalDateTime, PaymentMethod, String) -> Unit,
-    onPayWithCardClick: () -> Unit
+    onPayWithCardClick: () -> Unit,
+    onAddressClick: () -> Unit
 ) {
 
     var selectedMethod by remember { mutableStateOf(PaymentMethod.CashOnDelivery) }
@@ -47,7 +48,7 @@ fun PaymentSection(
 
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedTextField(
-            value = "${address.firstName} ${address.lastName}\n${address.address}",
+            value = "${address.firstName} ${address.lastName}\n${address.address1}",
             onValueChange = {},
             label = { Text("Default Address") },
             readOnly = true,
@@ -62,7 +63,7 @@ fun PaymentSection(
             ),
             trailingIcon = {
                 IconButton(onClick = {
-
+onAddressClick()
                 }) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit")
                 }
@@ -120,7 +121,9 @@ fun PaymentSection(
         errorMessage?.let {
             Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(8.dp))
         }
-    val context = LocalContext.current
+
+        val context = LocalContext.current
+
         Button(
             onClick = {
                 if (selectedMethod == PaymentMethod.PayWithCard) {

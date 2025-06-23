@@ -89,7 +89,14 @@ class CartRepoImpl (
         return sharedPreferences.getFromSharedPreferenceInGeneral(USER_TOKEN) ?: ""
     }
 
+    override suspend fun removeProductFromCart(
+        cartId: String,
+        lineItemId: String
+    ): Flow<ResponseState> {
+        Log.i("1", "removeProductFromCart: $cartId $lineItemId")
+        return remoteDataSource.removeProductFromCart(cartId, lineItemId)
 
+    }
 
 
 }
