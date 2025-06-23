@@ -100,8 +100,13 @@ fun SignupScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color(0xFF006A71),
+                        unfocusedTextColor = Color(0xFF006A71),
                         focusedBorderColor = Color(0xFF006A71),
-                        unfocusedBorderColor = Color.Gray
+                        unfocusedBorderColor = Color.Gray,
+                        cursorColor = Color(0xFF006A71),
+                        focusedLabelColor = Color(0xFF006A71),
+                        unfocusedLabelColor = Color(0xFF006A71)
                     )
                 )
 
@@ -115,8 +120,13 @@ fun SignupScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color(0xFF006A71),
+                        unfocusedTextColor = Color(0xFF006A71),
                         focusedBorderColor = Color(0xFF006A71),
-                        unfocusedBorderColor = Color.Gray
+                        unfocusedBorderColor = Color.Gray,
+                        cursorColor = Color(0xFF006A71),
+                        focusedLabelColor = Color(0xFF006A71),
+                        unfocusedLabelColor = Color(0xFF006A71)
                     )
                 )
 
@@ -140,8 +150,13 @@ fun SignupScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color(0xFF006A71),
+                        unfocusedTextColor = Color(0xFF006A71),
                         focusedBorderColor = Color(0xFF006A71),
-                        unfocusedBorderColor = Color.Gray
+                        unfocusedBorderColor = Color.Gray,
+                        cursorColor = Color(0xFF006A71),
+                        focusedLabelColor = Color(0xFF006A71),
+                        unfocusedLabelColor = Color(0xFF006A71)
                     )
                 )
 
@@ -165,8 +180,13 @@ fun SignupScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color(0xFF006A71),
+                        unfocusedTextColor = Color(0xFF006A71),
                         focusedBorderColor = Color(0xFF006A71),
-                        unfocusedBorderColor = Color.Gray
+                        unfocusedBorderColor = Color.Gray,
+                        cursorColor = Color(0xFF006A71),
+                        focusedLabelColor = Color(0xFF006A71),
+                        unfocusedLabelColor = Color(0xFF006A71)
                     )
                 )
 
