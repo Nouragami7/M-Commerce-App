@@ -3,11 +3,13 @@ package com.example.buyva.data.datasource.remote
 import android.util.Log
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.exception.ApolloException
 import com.example.buyva.AddProductToCartMutation
 import com.example.buyva.CreateAddressMutation
 import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.CreateCartMutation
+import com.example.buyva.CustomerAddressUpdateMutation
 import com.example.buyva.DeleteAddressMutation
 import com.example.buyva.GetAddressesQuery
 import com.example.buyva.GetCartDetailsQuery
@@ -17,6 +19,7 @@ import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.RemoveProductFromCartMutation
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.uistate.ResponseState
+import com.example.buyva.type.MailingAddressInput
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -124,13 +127,11 @@ val mutation = CreateCartMutation(email, token)
                 apolloClient.mutation(mutation).execute()
 
             if (response.hasErrors()) {
-                Log.i("1", "removeProductFromCart: ${response.errors}")
                 val errorMessages = response.errors?.joinToString { it.message } ?: "Unknown error"
                 emit(ResponseState.Failure(Throwable(errorMessages)))
             } else {
                 val data = response.data
                 if (data != null) {
-                    Log.i("1", "removeProductFromCart: $data")
                     emit(ResponseState.Success(data.cartLinesRemove.toString()))
                 } else {
                     emit(ResponseState.Failure(Throwable("Response data is null")))
@@ -212,6 +213,43 @@ val mutation = CreateCartMutation(email, token)
             }
         } catch (e: Exception) {
             emit(ResponseState.Failure(e))
+        }
+    }
+    override suspend fun updateAddress(address: Address, token: String): Flow<ResponseState> = flow {
+        emit(ResponseState.Loading)
+
+        try {
+            val response = apolloClient.mutation(
+                CustomerAddressUpdateMutation(
+                    customerAccessToken = token,
+                    id = address.id!!,
+                    address = MailingAddressInput(
+                        firstName = Optional.Present(address.firstName),
+                        lastName = Optional.Present(address.lastName),
+                        phone = Optional.Present(address.phone),
+                        address1 = Optional.Present(address.address1),
+                        address2 = Optional.Present(address.address2),
+                        city = Optional.Present(address.city),
+                        country = Optional.Present(address.country),
+                    )
+                )
+            ).execute()
+
+            val updated = response.data?.customerAddressUpdate?.customerAddress
+
+            if (updated != null) {
+                emit(ResponseState.Success(address.copy(id = updated.id)))
+            } else {
+                val errors = response.data?.customerAddressUpdate?.customerUserErrors
+                val errorMessage = errors?.joinToString { "${it.field?.joinToString()} - ${it.message}" } ?: "Unknown Shopify error"
+                Log.e("1", errorMessage)
+                emit(ResponseState.Failure(Throwable(errorMessage)))
+            }
+
+        } catch (e: Exception) {
+            emit(ResponseState.Failure(
+                Throwable(e.message ?: "Unknown error")
+            ))
         }
     }
 }

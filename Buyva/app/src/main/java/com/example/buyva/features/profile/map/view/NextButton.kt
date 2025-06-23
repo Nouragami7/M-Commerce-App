@@ -12,8 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.buyva.ui.theme.Cold
+import com.example.buyva.utils.getCityAndCountryFromLocation
 import com.google.android.gms.maps.model.LatLng
 
 @Composable
@@ -21,8 +23,13 @@ fun ConfirmButton(
     selectedLocation: LatLng?,
     updatedAddress: String?,
     back: () -> Unit,
-    onSelected: (String?) -> Unit
+    onSelected: (String?,String?,String?) -> Unit
 ) {
+    val lat = selectedLocation?.latitude ?: 0.0
+    val lon = selectedLocation?.longitude ?: 0.0
+    val context = LocalContext.current
+    val (city, country) = getCityAndCountryFromLocation(context, lat, lon)
+
 
     Column(
         modifier = Modifier
@@ -40,7 +47,7 @@ fun ConfirmButton(
             onClick = {
                 selectedLocation?.let {
                     Log.d("1", "Selected Location: $it")
-                    onSelected(updatedAddress)
+                    onSelected(updatedAddress,city,country)
                 }
             }
         )

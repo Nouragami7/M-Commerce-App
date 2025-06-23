@@ -249,7 +249,7 @@ fun SetupNavHost(
                         ScreensRoute.AddressDetails(
                             address = address ?: "",
                             editable = false,
-                            prefillData = prefillData
+                            prefillData = prefillData,
                         )
                     )
                 },
@@ -264,14 +264,17 @@ fun SetupNavHost(
             MapScreen(
                 back = { navController.popBackStack() },
                 mapViewModel = mapViewModel,
-                onSelected = { address ->
+                onSelected = { address , city, country ->
                     navController.navigate(
                         ScreensRoute.AddressDetails(
                             address = address,
+                            city = city,
+                            country = country,
                             editable = true,
                             prefillData = ""
                         )
                     )
+
                 }
             )
         }

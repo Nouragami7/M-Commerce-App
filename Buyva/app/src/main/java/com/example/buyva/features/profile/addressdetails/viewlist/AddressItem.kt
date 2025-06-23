@@ -42,7 +42,6 @@ fun AddressItem(
 
 
     var showDeleteDialog by remember { mutableStateOf(false) }
-Log.i("1", "AddressItem id: ${address.id}")
     Card(
         modifier = Modifier
             .padding(horizontal = 12.dp, vertical = 6.dp)

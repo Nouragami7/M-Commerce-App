@@ -57,8 +57,6 @@ fun AddressList(
         defaultAddressId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token") ?: ""
     }
 
-    Log.i("1", "AddressList token: ${SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)}")
-  Log.i("1", "default address: ${SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_${USER_TOKEN}")}")
     val viewModel: AddressViewModel = viewModel(
         factory = AddressViewModelFactory(
             application = LocalContext.current.applicationContext as Application,

@@ -54,10 +54,12 @@ import kotlinx.serialization.Contextual
 @Composable
 fun AddressDetails(
     address: String?,
+    city: String? = null,
+    country: String? = null,
     editable: Boolean = false,
     prefillData: String? = null,
     onBackClick: () -> Unit = {},
-    onSaveClick: (Address) -> Unit = {}
+    onSaveClick: () -> Unit = {}
 ) {
     val addressModel = remember(prefillData) {
         jsonStringToAddress(prefillData ?: "")
@@ -89,6 +91,10 @@ fun AddressDetails(
             val parts = it.address2.split(" ")
             buildingNumber.value = parts.getOrNull(2) ?: ""
             floorNumber.value = parts.getOrNull(5) ?: ""
+            Log.d("1", "country  : ${it.country}    from details")
+            Log.d("1", "city  : ${it.city}    from details")
+
+
         }
     }
 
@@ -117,30 +123,25 @@ fun AddressDetails(
             )
 
             if (addressModel != null) {  //from list
-                Log.d("1", "prefillData: $prefillData  not null")
                 if (!isEditable.value) { // no edit
-                    Log.d("1", "prefillData: $prefillData  not editable from list")
                     IconButton(onClick = { isEditable.value = true }) {
                         Icon(Icons.Default.Edit, tint = Cold, contentDescription = "Edit")
                     }
-                } else {  // click on edit btn
-                    Log.d("1", "prefillData: $prefillData  editable from list")
+                } else {
                     TextButton(onClick = {
-                        val city = parts?.getOrNull(parts.size - 2) ?: ""
-                        val country = parts?.getOrNull(parts.size - 1) ?: ""
-
+Log.d("1", "id  : ${addressModel.id}    from list")
                         val newAddress = Address(
+                            id = addressModel.id ,
                             firstName = firstName.value,
                             lastName = lastName.value,
                             phone = phoneNumber.value,
                             address1 = streetAddress.value,
                             address2 = "Building number ${buildingNumber.value} Floor number ${floorNumber.value}",
-                            city = city,
-                            country = country
+                            city = addressModel.city,
+                            country = addressModel.country
                         )
-
-                        viewModel.addAddress(newAddress)
-                        onSaveClick(newAddress)
+                        viewModel.saveAddress(newAddress)
+                       onSaveClick()
                     }) {
                         Text("Save", color = Sea, fontWeight = FontWeight.Bold)
                     }
@@ -192,19 +193,6 @@ fun AddressDetails(
             modifier = Modifier.fillMaxWidth().height(textFieldHeight)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = streetAddress.value,
-            onValueChange = { streetAddress.value = it },
-            enabled = isEditable.value,
-            label = { Text((address ?: "Address"), fontSize = labelFontSize) },
-            leadingIcon = { Icon(Icons.Default.Home, contentDescription = null) },
-            textStyle = TextStyle(fontSize = inputFontSize),
-            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp, max = 200.dp),
-            singleLine = false,
-            maxLines = 5
-        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -233,14 +221,27 @@ fun AddressDetails(
             textStyle = TextStyle(fontSize = inputFontSize),
             modifier = Modifier.fillMaxWidth().height(textFieldHeight)
         )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = streetAddress.value,
+            onValueChange = { streetAddress.value = it },
+            enabled = isEditable.value,
+            label = { Text("Additional Information", fontSize = labelFontSize) },
+            leadingIcon = { Icon(Icons.Default.Home, contentDescription = null) },
+            textStyle = TextStyle(fontSize = inputFontSize),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp, max = 200.dp),
+            singleLine = false,
+            maxLines = 5
+        )
+
 
         Spacer(modifier = Modifier.height(24.dp))
 
         if (isEditable.value && addressModel == null) {
             Button(
                 onClick = {
-                    val city = parts?.getOrNull(parts.size - 2) ?: ""
-                    val country = parts?.getOrNull(parts.size - 1) ?: ""
+
 
                     val newAddress = Address(
                         firstName = firstName.value,
@@ -248,12 +249,12 @@ fun AddressDetails(
                         phone = phoneNumber.value,
                         address1 = streetAddress.value,
                         address2 = "Building number ${buildingNumber.value} Floor number ${floorNumber.value}",
-                        city = city,
-                        country = country
+                        city = city ?: "",
+                        country = country ?: ""
                     )
 
-                    viewModel.addAddress(newAddress)
-                    onSaveClick(newAddress)
+                    viewModel.saveAddress(newAddress)
+                    onSaveClick()
                 },
                 modifier = Modifier.width(280.dp).height(60.dp),
                 shape = RoundedCornerShape(30.dp),

@@ -18,5 +18,7 @@ class AddressRepoImpl(
     }
 
     override suspend fun deleteCustomerAddress(addressId: String, token: String) = remoteDataSource.deleteCustomerAddress(addressId, token)
-
+    override suspend fun updateAddress(address: Address, token: String): Flow<ResponseState>{
+        return remoteDataSource.updateAddress(address, token)
+    }
 }
