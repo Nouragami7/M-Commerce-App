@@ -1,6 +1,8 @@
 package com.example.buyva.data.repository.paymentRepo
 
-import kotlinx.serialization.json.JsonObject
+import com.example.buyva.admin.type.DraftOrderInput
+import com.example.buyva.data.model.uistate.ResponseState
+import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
 interface PaymentRepo {
@@ -10,4 +12,5 @@ interface PaymentRepo {
             paymentMethod: String = "card"
         ): Response<com.google.gson.JsonObject>
 
+       suspend fun createDraftOrder(draftOrderInput: DraftOrderInput): Flow<ResponseState>
 }

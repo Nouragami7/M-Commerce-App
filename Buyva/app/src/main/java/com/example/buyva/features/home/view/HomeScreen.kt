@@ -81,6 +81,7 @@ SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
             is ResponseState.Success<*> ->{
                 val (brands, products) = state.data as Pair<List<BrandsAndProductsQuery.Node3>, List<BrandsAndProductsQuery.Node>>
                 val filteredBrands = brands.filter { it.title.lowercase() != "home page" }
+                println("id +++++++++++++++++++++++ $filteredBrands.get(0).id")
                 BrandSection(
                     brands = filteredBrands,
                     onBrandClick = onBrandClick

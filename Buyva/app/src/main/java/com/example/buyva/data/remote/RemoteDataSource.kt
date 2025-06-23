@@ -1,6 +1,9 @@
 package com.example.buyva.data.remote
 
-import kotlinx.serialization.json.JsonObject
+import com.example.buyva.admin.CompleteDraftOrderMutation
+import com.example.buyva.admin.type.DraftOrderInput
+import com.example.buyva.data.model.uistate.ResponseState
+import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
 interface RemoteDataSource {
@@ -9,4 +12,8 @@ interface RemoteDataSource {
         currency: String,
         paymentMethod: String = "card"
     ): Response<com.google.gson.JsonObject>
+
+    suspend fun createDraftOrder(draftOrderInput: DraftOrderInput): Flow<ResponseState>
+    suspend fun completeDraftOrder(draftOrderId: String): Flow<CompleteDraftOrderMutation.Data>
+
 }
