@@ -8,10 +8,11 @@ data class UiProduct(
 )
 
 data class SearchUiState(
+    val allProducts: List<UiProduct> = emptyList(),
     val searchText: String = "",
     val searchResults: List<UiProduct> = emptyList(),
     val filteredProducts: List<UiProduct> = emptyList(),
-    val maxPrice: Float = 300f,
+    val maxPrice: Float = 10000f,
     val isLoading: Boolean = false,
     val error: String? = null
 )

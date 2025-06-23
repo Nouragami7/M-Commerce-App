@@ -1,11 +1,9 @@
-// SearchRepositoryImpl.kt - Optimized
+// SearchRepositoryImpl.kt
 package com.example.buyva.data.repository.search
 
 import com.example.buyva.data.datasource.remote.RemoteDataSource
 import com.example.buyva.data.model.UiProduct
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 class SearchRepositoryImpl(
@@ -16,11 +14,18 @@ class SearchRepositoryImpl(
         return remoteDataSource.getBrandsAndProduct().map { data ->
             data?.products?.edges?.mapNotNull { edge ->
                 edge.node?.let { node ->
+                    // Extract the first variant's price
+                    val price = node.variants.edges.firstOrNull()?.node?.price?.amount
+                        ?.toString()?.toFloatOrNull() ?: 0f
+
+                    // Extract the featured image URL
+                    val imageUrl = node.featuredImage?.url ?: ""
+
                     UiProduct(
                         id = node.id,
-                        title = node.title ?: "",
-                        imageUrl = (node.featuredImage?.url ?: "").toString(),
-                        price = (node.variants.edges.firstOrNull()?.node?.price?.amount as? Number)?.toFloat() ?: 0f
+                        title = node.title ?: "Untitled",
+                        imageUrl = imageUrl.toString(),
+                        price = price
                     )
                 }
             } ?: emptyList()

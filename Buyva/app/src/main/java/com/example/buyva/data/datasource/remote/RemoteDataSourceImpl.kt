@@ -218,7 +218,11 @@ val mutation = CreateCartMutation(email, token)
     }
 
     override fun searchProducts(query: String): Flow<List<UiProduct>> = flow {
-        val response = apolloClient.query(SearchProductsQuery(query)).execute()
+        Log.d("SearchQuery", "Query sent: $query") // ✅ مهم جدًا
+
+        val formattedQuery = "title:*$query*"
+        val response = apolloClient.query(SearchProductsQuery(formattedQuery)).execute()
+        Log.d("SearchRaw", "Raw response: ${response.data}")
 
         val products = response.data?.products?.edges?.mapNotNull { edge ->
             val node = edge.node ?: return@mapNotNull null
@@ -234,6 +238,8 @@ val mutation = CreateCartMutation(email, token)
         } ?: emptyList()
 
         emit(products)
+        //Log.e("SearchQuery", "Search failed", it) // ✅ علشان تشوف الخطأ الحقيقي
+
     }.catch {
         Log.e("RemoteDataSource", "Search failed", it)
         emit(emptyList())
