@@ -4,7 +4,9 @@ data class UiProduct(
     val id: String,
     val title: String,
     val imageUrl: String,
-    val price: Float
+    val price: Float  ,
+    val vendor: String,
+
 )
 
 data class SearchUiState(
@@ -14,5 +16,7 @@ data class SearchUiState(
     val filteredProducts: List<UiProduct> = emptyList(),
     val maxPrice: Float = 10000f,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val selectedBrand: String? = null
+
 )

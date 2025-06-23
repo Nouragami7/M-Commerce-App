@@ -32,10 +32,19 @@ fun SearchScreen(
     favouriteViewModel: FavouriteScreenViewModel,
     onProductClick: (String) -> Unit = {},
     onBack: () -> Unit = {},
+    brandFilter: String? = null,
+
     onCartClick: () -> Unit = {}
 ) {
     val state by searchViewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
+    LaunchedEffect(Unit) {
+        if (!brandFilter.isNullOrEmpty()) {
+            searchViewModel.setSelectedBrand(brandFilter)
+        } else {
+            searchViewModel.loadAllProducts()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -56,7 +65,9 @@ fun SearchScreen(
             SearchBarWithCartIcon(
                 searchText = state.searchText,
                 onSearchTextChange = { searchViewModel.updateSearchText(it) },
-                onSearchClick = { /* optional */ },
+                onSearchClick = {
+                  //  searchViewModel.performSearch(state.searchText)
+                },
                 onCartClick = onCartClick,
                 modifier = Modifier.weight(1f)
             )
@@ -274,7 +285,7 @@ fun UiProductCard(
                     fontWeight = FontWeight.SemiBold
                 )
 
-                IconButton(onClick = {
+                IconButton(onClick =  {
                     if (isFavourite) {
                         showAlert = true
                     } else {

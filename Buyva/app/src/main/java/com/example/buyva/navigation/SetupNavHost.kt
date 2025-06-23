@@ -188,10 +188,15 @@ fun SetupNavHost(
                     imageUrl = image,
                     onBack = { navController.popBackStack() },
                     onProductClick = { productId ->
-                        val encodedId = URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
+                        val encodedId =
+                            URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
                         navController.navigate("productInfo/$encodedId")
                     },
-                    onSearchClick = { navController.navigate(ScreensRoute.SearchScreen) },
+                    onSearchClick = {
+                        val encodedBrand =
+                            URLEncoder.encode(name, StandardCharsets.UTF_8.toString())
+                        navController.navigate("search?brand=$encodedBrand")
+                    },
 
                     favouriteViewModel = favouriteViewModel
                 )
@@ -307,7 +312,8 @@ fun SetupNavHost(
                     searchViewModel = searchViewModel,
                     favouriteViewModel = favouriteViewModel,
                     onProductClick = { productId ->
-                        val encodedId = URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
+                        val encodedId =
+                            URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
                         navController.navigate("productInfo/$encodedId")
                     },
                     onBack = {
@@ -316,6 +322,39 @@ fun SetupNavHost(
                 )
             }
         }
-    }
-}
 
+        composable("search?brand={brand}") { backStackEntry ->
+            val brand = backStackEntry.arguments?.getString("brand") ?: ""
+
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val favouriteViewModel = remember(currentUser?.uid) {
+                currentUser?.let {
+                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
+                }
+            }
+
+            val remoteDataSource = remember { RemoteDataSourceImpl(apolloClient) }
+            val searchRepository = remember { SearchRepositoryImpl(remoteDataSource) }
+            val searchViewModel = remember { SearchViewModel(searchRepository) }
+
+            if (favouriteViewModel != null) {
+                SearchScreen(
+                    brandFilter = brand,
+                    searchViewModel = searchViewModel,
+                    favouriteViewModel = favouriteViewModel,
+                    onProductClick = { productId ->
+                        val encodedId =
+                            URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
+                        navController.navigate("productInfo/$encodedId")
+                    },
+                    onBack = {
+//                        searchViewModel.clearSearch()
+                        navController.popBackStack()
+                    }
+                )
+            }
+        }
+
+    }
+
+}

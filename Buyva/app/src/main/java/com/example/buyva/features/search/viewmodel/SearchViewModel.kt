@@ -1,4 +1,3 @@
-// SearchViewModel.kt
 package com.example.buyva.features.search.viewmodel
 
 import androidx.lifecycle.ViewModel
@@ -6,14 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.buyva.data.model.SearchUiState
 import com.example.buyva.data.model.UiProduct
 import com.example.buyva.data.repository.search.ISearchRepository
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 
 class SearchViewModel(private val repository: ISearchRepository) : ViewModel() {
 
@@ -36,10 +29,10 @@ class SearchViewModel(private val repository: ISearchRepository) : ViewModel() {
                         it.copy(
                             allProducts = products,
                             searchResults = products,
-                            filteredProducts = products,
                             isLoading = false
                         )
                     }
+                    applyCombinedFilters()
                 }
             } catch (e: Exception) {
                 _uiState.update {
@@ -59,15 +52,16 @@ class SearchViewModel(private val repository: ISearchRepository) : ViewModel() {
     }
 
     fun updateMaxPrice(price: Float) {
-        _uiState.update { state ->
-            state.copy(
-                maxPrice = price,
-                filteredProducts = state.searchResults.filter { it.price <= price }
-            )
-        }
+        _uiState.update { it.copy(maxPrice = price) }
+        applyCombinedFilters()
     }
 
-    private fun performSearch(query: String) {
+    fun setSelectedBrand(brand: String?) {
+        _uiState.update { it.copy(selectedBrand = brand) }
+        applyCombinedFilters()
+    }
+
+    fun performSearch(query: String) {
         searchJob?.cancel()
         _uiState.update { it.copy(isLoading = true, error = null) }
 
@@ -76,7 +70,7 @@ class SearchViewModel(private val repository: ISearchRepository) : ViewModel() {
                 if (query.isNotEmpty()) delay(300)
 
                 val products = if (query.isEmpty()) {
-                    repository.getAllProducts().first()
+                    _uiState.value.allProducts
                 } else {
                     repository.searchProducts(query).first()
                 }
@@ -84,12 +78,13 @@ class SearchViewModel(private val repository: ISearchRepository) : ViewModel() {
                 _uiState.update {
                     it.copy(
                         searchResults = products,
-                        filteredProducts = products.filter { product ->
-                            product.price <= _uiState.value.maxPrice
-                        },
                         isLoading = false
                     )
                 }
+
+                applyCombinedFilters()
+            } catch (e: CancellationException) {
+                // Ignored
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
@@ -99,6 +94,20 @@ class SearchViewModel(private val repository: ISearchRepository) : ViewModel() {
                     )
                 }
             }
+        }
+    }
+
+    private fun applyCombinedFilters() {
+        val state = _uiState.value
+
+        val filteredByBrand = state.selectedBrand?.let { brand ->
+            state.searchResults.filter { it.vendor.equals(brand, ignoreCase = true) }
+        } ?: state.searchResults
+
+        val finalFiltered = filteredByBrand.filter { it.price <= state.maxPrice }
+
+        _uiState.update {
+            it.copy(filteredProducts = finalFiltered)
         }
     }
 }

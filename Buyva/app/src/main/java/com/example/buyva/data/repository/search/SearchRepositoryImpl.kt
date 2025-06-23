@@ -14,18 +14,19 @@ class SearchRepositoryImpl(
         return remoteDataSource.getBrandsAndProduct().map { data ->
             data?.products?.edges?.mapNotNull { edge ->
                 edge.node?.let { node ->
-                    // Extract the first variant's price
                     val price = node.variants.edges.firstOrNull()?.node?.price?.amount
                         ?.toString()?.toFloatOrNull() ?: 0f
 
-                    // Extract the featured image URL
                     val imageUrl = node.featuredImage?.url ?: ""
 
                     UiProduct(
                         id = node.id,
                         title = node.title ?: "Untitled",
                         imageUrl = imageUrl.toString(),
-                        price = price
+                        price = price,
+                        vendor = node.vendor ?: "Unknown"
+
+
                     )
                 }
             } ?: emptyList()
@@ -39,7 +40,8 @@ class SearchRepositoryImpl(
                     id = product.id,
                     title = product.title,
                     imageUrl = product.imageUrl,
-                    price = product.price
+                    price = product.price,
+                    vendor = product.vendor
                 )
             }
         }
