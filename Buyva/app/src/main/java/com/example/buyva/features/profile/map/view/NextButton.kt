@@ -1,5 +1,6 @@
 package com.example.buyva.features.profile.map.view
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,8 +21,9 @@ fun ConfirmButton(
     selectedLocation: LatLng?,
     updatedAddress: String?,
     back: () -> Unit,
-    onSelected: (Double, Double, String?) -> Unit
+    onSelected: (String?) -> Unit
 ) {
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -37,7 +39,8 @@ fun ConfirmButton(
             ),
             onClick = {
                 selectedLocation?.let {
-                    onSelected(it.latitude, it.longitude, updatedAddress)
+                    Log.d("1", "Selected Location: $it")
+                    onSelected(updatedAddress)
                 }
             }
         )

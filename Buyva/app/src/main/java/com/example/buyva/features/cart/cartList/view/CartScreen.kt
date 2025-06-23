@@ -1,5 +1,6 @@
 import android.app.Application
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
@@ -43,6 +44,7 @@ import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.remote.StripeClient
+import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.data.repository.cart.CartRepoImpl
 import com.example.buyva.data.repository.paymentRepo.PaymentRepoImpl
 import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
@@ -63,7 +65,8 @@ import com.stripe.android.paymentsheet.rememberPaymentSheet
 fun CartScreen(
     onBackClick: () -> Unit,
     onCheckoutClick : () -> Unit,
-    onNavigateToOrders : () -> Unit
+    onNavigateToOrders : () -> Unit,
+    onNavigateToAddresses : () -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -71,11 +74,12 @@ fun CartScreen(
     var showSheet by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var itemToDelete by remember { mutableStateOf<CartItem?>(null) }
+
     val application = context.applicationContext as Application
     val cartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client), SharedPreferenceImpl)
-
+val addressRepo = AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client))
     val viewModel: CartViewModel = viewModel(
-        factory = CartViewModelFactory(application, cartRepo)
+        factory = CartViewModelFactory(application, cartRepo, addressRepo)
     )
     val paymentViewModel: PaymentViewModel = viewModel(
         factory = PaymentViewModelFactory(
@@ -84,20 +88,24 @@ fun CartScreen(
     )
 
     val cartState by viewModel.cartProducts.collectAsState()
-    val cartItems = remember { mutableStateListOf<CartItem>() }
+    val cartItems = remember {
+        mutableStateListOf<CartItem>()
+    }
 
     LaunchedEffect(cartState) {
         if (cartState is ResponseState.Success<*>) {
-            val newItems = (cartState as ResponseState.Success<List<CartItem>>).data
             cartItems.clear()
-            cartItems.addAll(newItems)
+            cartItems.addAll((cartState as ResponseState.Success<List<CartItem>>).data)
         }
     }
+
 
 
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
         viewModel.showCart()
+        viewModel.loadDefaultAddress()
+
     }
 
     val totalPrice by remember(cartItems) {
@@ -128,6 +136,8 @@ onNavigateToOrders()
             }
         }
     )
+    val defaultAddress by viewModel.defaultAddress.collectAsState()
+
 
 
     Scaffold { paddingValues ->
@@ -226,15 +236,15 @@ onNavigateToOrders()
         ) {
             PaymentSection(
                 price = totalPrice,
-                address = Address(
-                    firstName = "Ali",
-                    lastName = "Hassan",
-                    address = "123 Nile Street",
-                    country = "Egypt",
-                    city = "Cairo",
-                    floorNumber = "2",
-                    buildingNumber = "12A",
-                    phoneNumber = "01001234567"
+                address = defaultAddress ?:
+                Address(
+                    firstName = "choose default address",
+                    lastName = "",
+                    address1 = "",
+                    city = "",
+                    country = "",
+                    address2 = "",
+                    phone = ""
                 ),
                 onConfirm = { _, _, _ ->
                     showSheet = false
@@ -251,20 +261,28 @@ onNavigateToOrders()
                                 )
                             )
                         }
-                    )})
+                    )},
+                onAddressClick = {
+                    onNavigateToAddresses()
+                }
+                )
         }
     }
 
     if (showDeleteDialog && itemToDelete != null) {
+        Log.i("1", "CartScreen: $itemToDelete")
         CustomAlertDialog(
             title = "Delete Item",
             message = "Are you sure you want to remove ${itemToDelete?.title} from the cart?",
             onConfirm = {
-                //cartItems.remove(itemToDelete)
+                Log.i("1", "CartScreen onConfirm: $itemToDelete")
+                cartItems.remove(itemToDelete)
+                viewModel.removeProductFromCart(itemToDelete!!.id)
                 showDeleteDialog = false
                 itemToDelete = null
             },
             onDismiss = {
+                Log.i("1", "CartScreen onDismiss: $itemToDelete")
                 showDeleteDialog = false
                 itemToDelete = null
             },

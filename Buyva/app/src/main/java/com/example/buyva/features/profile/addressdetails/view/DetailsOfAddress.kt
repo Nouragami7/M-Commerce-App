@@ -1,5 +1,6 @@
 package com.example.buyva.features.profile.addressdetails.view
 
+import android.app.Application
 import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -21,9 +22,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
+import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.model.Address
+import com.example.buyva.data.repository.adresses.AddressRepoImpl
+import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
+import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModelFactory
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
@@ -31,13 +40,23 @@ import com.example.buyva.ui.theme.Teal
 
 @Composable
 fun AddressDetails(
-    lat: Double,
-    lon: Double,
     address: String?,
     onBackClick: () -> Unit = {},
     onSaveClick: () -> Unit = {}
 ) {
-    Log.d("AddressDetails", "lat: $lat, lon: $lon, address: $address")
+    val parts = address?.split(",")?.map { it.trim() }
+
+    val viewModel: AddressViewModel = viewModel(
+        factory = AddressViewModelFactory(
+            application = LocalContext.current.applicationContext as Application,
+            AddressRepoImpl(
+                RemoteDataSourceImpl(
+                    ApolloService.client
+                )
+            )
+        )
+    )
+
     val firstName = remember { mutableStateOf("") }
     val lastName = remember { mutableStateOf("") }
     val phoneNumber = remember { mutableStateOf("") }
@@ -48,6 +67,7 @@ fun AddressDetails(
     val textFieldHeight = 56.dp
     val labelFontSize = 14.sp
     val inputFontSize = 14.sp
+
 
     Column(
         modifier = Modifier
@@ -184,7 +204,29 @@ fun AddressDetails(
         Spacer(modifier = Modifier.height(70.dp))
 
         Button(
-            onClick = {  onSaveClick()},
+            onClick = {
+                if (parts != null) {
+                    val city = parts.getOrNull(parts.size - 2)
+                    val country = parts.getOrNull(parts.size - 1)
+
+                    if (city != null && country != null) {
+                        val newAddress = Address(
+                            firstName = firstName.value,
+                            lastName = lastName.value,
+                            phone = phoneNumber.value,
+                            address1 = address,
+                            address2 = "Building number ${buildingNumber.value} Floor number ${floorNumber.value}",
+                            country = country,
+                            city = city
+                        )
+
+
+                        viewModel.addAddress(newAddress)
+                    }
+                }
+
+
+                onSaveClick()},
             modifier = Modifier
                 .width(280.dp)
                 .height(60.dp),

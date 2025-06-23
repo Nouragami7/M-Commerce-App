@@ -21,18 +21,13 @@ import com.example.buyva.features.favourite.view.FavouriteScreen
 import com.example.buyva.features.home.view.HomeScreen
 import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.profile.addressdetails.view.AddressDetails
-import com.example.buyva.features.profile.addresseslist.view.DeliveryAddressListScreen
+import com.example.buyva.features.profile.addressdetails.viewlist.DeliveryAddressListScreen
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
-import com.example.buyva.features.authentication.signup.view.SignupScreenHost
-import com.example.buyva.features.brand.view.BrandProductsScreen
-import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
-import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.yourapp.ui.screens.OrderScreen
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import com.stripe.android.paymentsheet.PaymentSheet
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -99,7 +94,8 @@ fun SetupNavHost(
         composable<ScreensRoute.CartScreen> { CartScreen(
             onBackClick = { navController.popBackStack() },
             onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
-            onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) }
+            onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) },
+            onNavigateToAddresses = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }
         ) }
 
 
@@ -124,18 +120,16 @@ fun SetupNavHost(
         }
         composable<ScreensRoute.AddressDetails> {
             AddressDetails(
-                lat = it.arguments?.getDouble("lat") ?: 0.0,
-                lon = it.arguments?.getDouble("lon") ?: 0.0,
                 address = it.arguments?.getString("address") ?: "",
                 onBackClick = { navController.popBackStack() },
-                onSaveClick = { navController.popBackStack() }
+                onSaveClick = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }
                 )
         }
         composable<ScreensRoute.DeliveryAddressListScreen> {
             DeliveryAddressListScreen(
                 onBackClick = { navController.popBackStack() },
                 onAddressDetailsClick = {  address ->
-                    navController.navigate(ScreensRoute.AddressDetails(0.0, 0.0, address ?: ""))
+                    navController.navigate(ScreensRoute.AddressDetails( address ?: ""))
                 },
                 onAddressClick = {
                     navController.navigate(ScreensRoute.MapScreen)
@@ -148,8 +142,8 @@ fun SetupNavHost(
             MapScreen(
                 back = { navController.popBackStack() },
                 mapViewModel = mapViewModel,
-                onSelected = { lat, lon, address ->
-                    navController.navigate(ScreensRoute.AddressDetails(lat, lon, address ?: ""))
+                onSelected = { address ->
+                    navController.navigate(ScreensRoute.AddressDetails(address))
                 }
 
             )
