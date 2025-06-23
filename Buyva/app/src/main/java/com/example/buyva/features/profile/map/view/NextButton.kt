@@ -29,6 +29,7 @@ fun ConfirmButton(
     val lon = selectedLocation?.longitude ?: 0.0
     val context = LocalContext.current
     val (city, country) = getCityAndCountryFromLocation(context, lat, lon)
+    Log.d("1", "City: $city, Country: $country")
 
 
     Column(

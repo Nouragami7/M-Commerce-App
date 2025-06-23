@@ -29,7 +29,7 @@ class AddressViewModel(application: Application,private val repo: IAddressRepo) 
     }
 
 
-    private fun loadAddresses() {
+    fun loadAddresses() {
         viewModelScope.launch {
             if (!token.isNullOrEmpty()) {
                 Log.i("1", "Loading addresses with token: $token")

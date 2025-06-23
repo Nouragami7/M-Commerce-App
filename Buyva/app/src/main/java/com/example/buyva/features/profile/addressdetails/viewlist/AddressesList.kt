@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
@@ -18,6 +20,7 @@ import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
 import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModelFactory
 import com.example.buyva.utils.components.LoadingIndicator
+import androidx.compose.runtime.livedata.observeAsState
 
 
 @Composable
@@ -33,6 +36,22 @@ fun DeliveryAddressListScreen(
             AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client))
         )
     )
+    val navController = rememberNavController()
+    val currentBackStackEntry = navController.currentBackStackEntryAsState().value
+    val shouldReload = currentBackStackEntry
+        ?.savedStateHandle
+        ?.getLiveData<Boolean>("ADDRESS_UPDATED")
+        ?.observeAsState()
+
+    LaunchedEffect(shouldReload?.value) {
+        if (shouldReload?.value == true) {
+            viewModel.loadAddresses()
+            currentBackStackEntry
+                ?.savedStateHandle
+                ?.set("ADDRESS_UPDATED", false)
+        }
+    }
+
 
     val addressState by viewModel.addresses.collectAsState()
 

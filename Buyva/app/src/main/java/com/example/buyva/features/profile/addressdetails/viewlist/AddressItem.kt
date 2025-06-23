@@ -38,9 +38,7 @@ fun AddressItem(
     onAddressDetailsClick: (String?, String?) -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
-
-
+    Log.d("1", "AddressItem called ${address.country}  and ${address.city}")
     var showDeleteDialog by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier
@@ -80,12 +78,7 @@ fun AddressItem(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Row(verticalAlignment = Alignment.Top) {
-//                    Icon(
-//                        imageVector = Icons.Default.Home,
-//                        contentDescription = "Address",
-//                        tint = Color.Gray,
-//                        modifier = Modifier.size(18.dp)
-//                    )
+
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Text(
@@ -106,12 +99,7 @@ fun AddressItem(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-//                    Icon(
-//                        imageVector = Icons.Default.LocationOn,
-//                        contentDescription = "Location",
-//                        tint = Color.Gray,
-//                        modifier = Modifier.size(18.dp)
-//                    )
+
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "${address.city}, ${address.country}",

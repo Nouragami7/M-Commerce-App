@@ -109,6 +109,7 @@ fun AddressList(
             ) {
                 items(addressList) { address ->
                     val isDefault = address.id?.stripTokenFromShopifyGid() == defaultAddressId
+Log.d("1", "AddressList called ${address.country}  and ${address.city}")
                     AddressItem(
                         address = address,
                         onAddressDetailsClick = { address1, addressModel ->

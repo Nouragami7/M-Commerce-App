@@ -54,17 +54,17 @@ import kotlinx.serialization.Contextual
 @Composable
 fun AddressDetails(
     address: String?,
-    city: String? = null,
-    country: String? = null,
+    city: String? = null,  //from map to add
+    country: String? = null,  //from map to add
     editable: Boolean = false,
-    prefillData: String? = null,
+    prefillData: String? = null,  //from list to show and update
     onBackClick: () -> Unit = {},
     onSaveClick: () -> Unit = {}
 ) {
     val addressModel = remember(prefillData) {
         jsonStringToAddress(prefillData ?: "")
     }
-
+Log.d("1", "AddressDetails called coutry  : ${country} from details and city  : ${city}")
     val parts = address?.split(",")?.map { it.trim() }
     val viewModel: AddressViewModel = viewModel(
         factory = AddressViewModelFactory(
@@ -93,8 +93,6 @@ fun AddressDetails(
             floorNumber.value = parts.getOrNull(5) ?: ""
             Log.d("1", "country  : ${it.country}    from details")
             Log.d("1", "city  : ${it.city}    from details")
-
-
         }
     }
 
@@ -159,6 +157,13 @@ Log.d("1", "id  : ${addressModel.id}    from list")
             OutlinedTextField(
                 value = firstName.value ?: "No data",
                 onValueChange = { firstName.value = it },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Cold,
+                    unfocusedBorderColor = Color.Black,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedLabelColor = Cold,
+                ),
                 enabled = isEditable.value,
                 label = { Text("First Name", fontSize = labelFontSize) },
                 leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
@@ -170,6 +175,13 @@ Log.d("1", "id  : ${addressModel.id}    from list")
             OutlinedTextField(
                 value = lastName.value,
                 onValueChange = { lastName.value = it },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Cold,
+                    unfocusedBorderColor = Color.Black,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedLabelColor = Cold,
+                ),
                 enabled = isEditable.value,
                 label = { Text("Last Name", fontSize = labelFontSize) },
                 leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
@@ -185,6 +197,13 @@ Log.d("1", "id  : ${addressModel.id}    from list")
             value = phoneNumber.value,
             onValueChange = { phoneNumber.value = it },
             enabled = isEditable.value,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Cold,
+                unfocusedBorderColor = Color.Black,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Cold,
+            ),
             label = { Text("Phone Number", fontSize = labelFontSize) },
             leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -201,6 +220,13 @@ Log.d("1", "id  : ${addressModel.id}    from list")
             onValueChange = { buildingNumber.value = it },
             enabled = isEditable.value,
             label = { Text("Building No.", fontSize = labelFontSize) },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Cold,
+                unfocusedBorderColor = Color.Black,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Cold,
+            ),
             leadingIcon = { Icon(Icons.Default.LocationCity, contentDescription = null) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
@@ -213,6 +239,13 @@ Log.d("1", "id  : ${addressModel.id}    from list")
         OutlinedTextField(
             value = floorNumber.value,
             onValueChange = { floorNumber.value = it },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Cold,
+                unfocusedBorderColor = Color.Black,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Cold,
+            ),
             enabled = isEditable.value,
             label = { Text("Floor No.", fontSize = labelFontSize) },
             leadingIcon = { Icon(Icons.Default.Stairs, contentDescription = null) },
@@ -227,6 +260,13 @@ Log.d("1", "id  : ${addressModel.id}    from list")
             value = streetAddress.value,
             onValueChange = { streetAddress.value = it },
             enabled = isEditable.value,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Cold,
+                unfocusedBorderColor = Color.Black,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Cold,
+            ),
             label = { Text("Additional Information", fontSize = labelFontSize) },
             leadingIcon = { Icon(Icons.Default.Home, contentDescription = null) },
             textStyle = TextStyle(fontSize = inputFontSize),
@@ -241,8 +281,6 @@ Log.d("1", "id  : ${addressModel.id}    from list")
         if (isEditable.value && addressModel == null) {
             Button(
                 onClick = {
-
-
                     val newAddress = Address(
                         firstName = firstName.value,
                         lastName = lastName.value,

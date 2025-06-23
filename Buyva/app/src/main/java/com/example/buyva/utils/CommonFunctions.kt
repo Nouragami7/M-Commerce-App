@@ -24,8 +24,13 @@ fun getCityAndCountryFromLocation(context: Context, lat: Double, lon: Double): P
     return try {
         val addresses = geocoder.getFromLocation(lat, lon, 1)
         if (!addresses.isNullOrEmpty()) {
-            val city = addresses[0].locality
-            val country = addresses[0].countryCode
+            val address = addresses[0]
+
+            val city = address.locality
+                ?: address.subAdminArea
+                ?: address.adminArea
+
+            val country = address.countryCode
             Pair(city, country)
         } else {
             Pair(null, null)

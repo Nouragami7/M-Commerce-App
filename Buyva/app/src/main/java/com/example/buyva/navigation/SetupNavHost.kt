@@ -234,9 +234,16 @@ fun SetupNavHost(
         composable<ScreensRoute.AddressDetails> { backStackEntry ->
             AddressDetails(
                 address = backStackEntry.toRoute<ScreensRoute.AddressDetails>().address,
+                city = backStackEntry.toRoute<ScreensRoute.AddressDetails>().city,
+                country = backStackEntry.toRoute<ScreensRoute.AddressDetails>().country,
                 editable = backStackEntry.toRoute<ScreensRoute.AddressDetails>().editable,
                 prefillData = backStackEntry.toRoute<ScreensRoute.AddressDetails>().prefillData,
-                onSaveClick = { navController.navigate(ScreensRoute.DeliveryAddressListScreen)
+                onSaveClick = {
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("ADDRESS_UPDATED", true)
+                    navController.navigate(ScreensRoute.DeliveryAddressListScreen)
+
                 }
             )
         }
