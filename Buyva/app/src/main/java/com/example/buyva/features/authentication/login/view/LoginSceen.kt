@@ -47,7 +47,6 @@ fun LoginScreen(
     val error = viewModel.errorMessage.collectAsState().value
 
 
-    // Handle login success
     LaunchedEffect(loginState) {
         if (loginState != null) {
             onLoginSuccess()
@@ -96,11 +95,17 @@ fun LoginScreen(
                     textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color(0xFF006A71),
+                        unfocusedTextColor = Color(0xFF006A71),
                         focusedBorderColor = Color(0xFF006A71),
-                        unfocusedBorderColor = Color.Gray
-                    ),
+                        unfocusedBorderColor = Color.Gray,
+                        cursorColor = Color(0xFF006A71),
+                        focusedLabelColor = Color(0xFF006A71),
+                        unfocusedLabelColor = Color(0xFF006A71)
+                        ),
                     shape = RoundedCornerShape(12.dp)
                 )
+
 
                 Spacer(Modifier.height(20.dp))
 
@@ -236,8 +241,13 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
             }
         },
         colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = Color(0xFF006A71),
+            unfocusedTextColor = Color(0xFF006A71),
             focusedBorderColor = Color(0xFF006A71),
-            unfocusedBorderColor = Color.Gray
+            unfocusedBorderColor = Color.Gray,
+            cursorColor = Color(0xFF006A71),
+            focusedLabelColor = Color(0xFF006A71),
+            unfocusedLabelColor = Color(0xFF006A71)
         ),
         singleLine = true,
         shape = RoundedCornerShape(12.dp)

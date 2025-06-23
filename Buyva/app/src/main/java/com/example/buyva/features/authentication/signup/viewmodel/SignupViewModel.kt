@@ -9,18 +9,12 @@ import com.example.buyva.data.model.CustomerData
 import com.example.buyva.data.repository.AuthRepository
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
-import com.google.firebase.auth.FirebaseAuthException
-import com.google.firebase.auth.FirebaseAuthUserCollisionException
-import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.*
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 class SignupViewModel(
@@ -44,7 +38,7 @@ class SignupViewModel(
     val verificationSent: StateFlow<Boolean> = _verificationSent
 
     private var verificationStartTime = 0L
-    private var verificationCheckJob: kotlinx.coroutines.Job? = null
+    private var verificationCheckJob: Job? = null
     private var currentPassword: String = ""
 
     private suspend fun FirebaseUser.reloadSuspend() = withContext(Dispatchers.IO) {
@@ -130,6 +124,8 @@ class SignupViewModel(
     private fun startVerificationCheck(user: FirebaseUser) {
         verificationCheckJob?.cancel()
         verificationCheckJob = viewModelScope.launch {
+            Log.d("DebugCheck", "🚀 startVerificationCheck started")
+
             while (true) {
                 delay(TimeUnit.SECONDS.toMillis(30))
 
@@ -138,7 +134,7 @@ class SignupViewModel(
                     try {
                         repository.deleteCurrentUser()
                     } catch (e: Exception) {
-                        Log.e("SignupVM", "Failed to delete user", e)
+                        Log.e("DebugCheck", "Failed to delete user", e)
                     }
                     stopVerificationCheck()
                     return@launch
@@ -146,6 +142,8 @@ class SignupViewModel(
 
                 try {
                     user.reloadSuspend()
+                    Log.d("DebugCheck", "🔄 Reloaded user, isEmailVerified = ${user.isEmailVerified}")
+
                     if (user.isEmailVerified) {
                         _isEmailVerified.value = true
                         createShopifyAccount(user)
@@ -168,10 +166,15 @@ class SignupViewModel(
         val fullName = user.displayName ?: ""
         val email = user.email ?: ""
 
+        Log.d("DebugCheck", "🛠️ createShopifyAccount started for $email")
+        Log.d("DebugCheck", "📤 createShopifyCustomer called for $email")
+
         try {
             val shopifyResult = repository.createShopifyCustomer(fullName, email, currentPassword)
+
             if (shopifyResult.isSuccess) {
                 val customer = shopifyResult.getOrThrow()
+                Log.d("DebugCheck", "✅ Shopify Customer created: ${customer.id}")
 
                 SharedPreferenceImpl.saveCustomer(
                     context = applicationContext,
@@ -180,23 +183,34 @@ class SignupViewModel(
                     firstName = customer.firstName,
                     lastName = customer.lastName
                 )
+
                 _customerData.value = customer
 
+                Log.d("DebugCheck", "🔑 Trying to get Shopify access token...")
                 val tokenResult = repository.getShopifyAccessToken(email, currentPassword)
+
                 if (tokenResult.isSuccess) {
                     val token = tokenResult.getOrThrow()
+                    Log.d("DebugCheck", "✅ Access Token received: $token")
                     SharedPreferenceImpl.saveToSharedPreferenceInGeneral(USER_TOKEN, token)
+                } else {
+                    val tokenError = tokenResult.exceptionOrNull()?.message ?: "Unknown token error"
+                    Log.e("DebugCheck", "❌ Failed to get access token: $tokenError")
                 }
 
                 _user.value = user
                 _error.value = null
             } else {
-                _error.value = shopifyResult.exceptionOrNull()?.message ?: "Failed to create Shopify account"
+                val error = shopifyResult.exceptionOrNull()?.message ?: "Unknown Shopify error"
+                Log.e("DebugCheck", "❌ Failed to create Shopify Customer: $error")
+                _error.value = error
             }
         } catch (e: Exception) {
+            Log.e("DebugCheck", "💥 Exception during Shopify account creation", e)
             _error.value = "Account setup failed: ${e.message}"
         } finally {
             currentPassword = ""
+            Log.d("DebugCheck", "🎯 Finished createShopifyAccount process")
         }
     }
 
@@ -223,7 +237,6 @@ class SignupViewModel(
             try {
                 val firebaseUser = repository.signInWithGoogle(account)
                 if (firebaseUser != null) {
-                    // Google accounts are pre-verified
                     _isEmailVerified.value = true
 
                     val result = repository.createShopifyCustomerAfterGoogleSignIn(firebaseUser)
