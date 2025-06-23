@@ -1,23 +1,24 @@
 package com.example.buyva.features.search.view
 
-import ProductSection
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.example.buyva.R
 import com.example.buyva.data.model.UiProduct
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.search.viewmodel.SearchViewModel
@@ -30,41 +31,34 @@ fun SearchScreen(
     searchViewModel: SearchViewModel,
     favouriteViewModel: FavouriteScreenViewModel,
     onProductClick: (String) -> Unit = {},
-    onBack: () -> Unit = {}
+    onBack: () -> Unit = {},
+    onCartClick: () -> Unit = {}
 ) {
     val state by searchViewModel.uiState.collectAsState()
+    val scrollState = rememberScrollState()
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(8.dp)
+            .verticalScroll(scrollState)
+            .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
-        // ✅ Search header
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
         ) {
             IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back"
-                )
+                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
             }
 
-            OutlinedTextField(
-                value = state.searchText,
-                onValueChange = { searchViewModel.updateSearchText(it) },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp),
-                placeholder = { Text("Search products") },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search"
-                    )
-                },
-                singleLine = true
+            Spacer(modifier = Modifier.width(8.dp))
+
+            SearchBarWithCartIcon(
+                searchText = state.searchText,
+                onSearchTextChange = { searchViewModel.updateSearchText(it) },
+                onSearchClick = { /* optional */ },
+                onCartClick = onCartClick,
+                modifier = Modifier.weight(1f)
             )
         }
 
@@ -78,20 +72,6 @@ fun SearchScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // ✅ Debug info
-        Text(
-            text = "First product: ${state.filteredProducts.firstOrNull()?.title ?: "None"}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.DarkGray
-        )
-
-        LaunchedEffect(state.filteredProducts) {
-            println("✅ Showing ${state.filteredProducts.size} filtered products")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // ✅ Loading, error, or content
         when {
             state.isLoading -> {
                 Box(
@@ -127,7 +107,6 @@ fun SearchScreen(
             }
 
             else -> {
-                // ✅ Show products
                 UiProductSection(
                     products = state.filteredProducts,
                     onProductClick = onProductClick,
@@ -137,6 +116,60 @@ fun SearchScreen(
         }
     }
 }
+
+@Composable
+fun SearchBarWithCartIcon(
+    searchText: String,
+    onSearchTextChange: (String) -> Unit,
+    onCartClick: () -> Unit = {},
+    onSearchClick: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedTextField(
+            value = searchText,
+            onValueChange = onSearchTextChange,
+            modifier = Modifier
+                .weight(1f)
+                .height(48.dp)
+                .shadow(elevation = 4.dp, shape = RoundedCornerShape(12.dp)),
+            placeholder = { Text("Search") },
+            leadingIcon = {
+                IconButton(onClick = onSearchClick) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search"
+                    )
+                }
+            },
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = Color.White,
+                focusedContainerColor = Color.White,
+                disabledContainerColor = Color.White,
+                focusedBorderColor = Cold,
+                unfocusedBorderColor = Color.White
+            ),
+            singleLine = true
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        IconButton(onClick = onCartClick) {
+            Icon(
+                painter = painterResource(id = R.drawable.baseline_shopping_cart_24),
+                contentDescription = "Cart",
+                tint = Cold,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+    }
+}
+
 @Composable
 fun UiProductSection(
     products: List<UiProduct>,
@@ -174,6 +207,7 @@ fun UiProductSection(
         }
     }
 }
+
 @Composable
 fun UiProductCard(
     product: UiProduct,
@@ -213,8 +247,14 @@ fun UiProductCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            val formattedTitle = product.title
+                .split("|")
+                .take(2)
+                .map { it.trim().split(" ").firstOrNull().orEmpty() }
+                .joinToString(" | ")
+
             Text(
-                text = product.title,
+                text = formattedTitle,
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
@@ -256,9 +296,7 @@ fun UiProductCard(
                             favouriteViewModel.toggleFavourite(product.id)
                             showAlert = false
                         },
-                        onDismiss = {
-                            showAlert = false
-                        },
+                        onDismiss = { showAlert = false },
                         confirmText = "Remove",
                         dismissText = "Cancel"
                     )
@@ -267,4 +305,3 @@ fun UiProductCard(
         }
     }
 }
-
