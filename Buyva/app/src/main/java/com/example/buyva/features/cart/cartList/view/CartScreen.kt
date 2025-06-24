@@ -19,6 +19,7 @@ import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Button
@@ -40,6 +41,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,6 +51,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
+import com.example.buyva.R
+import com.example.buyva.data.model.Address
+import com.example.buyva.data.model.CartItem
+import com.example.buyva.features.cart.cartList.view.CartItemRow
+import com.example.buyva.features.cart.cartList.view.PaymentSection
+import com.example.buyva.ui.theme.Cold
+import com.example.buyva.ui.theme.Teal
+import com.example.buyva.utils.components.CustomAlertDialog
+import kotlinx.coroutines.launch
+import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.BuildConfig
 import com.example.buyva.R
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
@@ -85,7 +100,8 @@ fun CartScreen(
     onBackClick: () -> Unit,
     onCheckoutClick: () -> Unit,
     onNavigateToOrders: () -> Unit,
-    onNavigateToAddresses: () -> Unit
+    onNavigateToAddresses: () -> Unit,
+    onNavigateToProductInfo: (String) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -155,6 +171,21 @@ fun CartScreen(
     LaunchedEffect(Unit) {
         PaymentConfiguration.init(context, BuildConfig.STRIPE_PUBLISHABLE_KEY)
     }
+    val navController = rememberNavController()
+    val refreshFlag = navController
+        .currentBackStackEntry
+        ?.savedStateHandle
+        ?.getLiveData<Boolean>("REFRESH_CART")
+        ?.observeAsState()
+
+    LaunchedEffect(refreshFlag?.value) {
+        if (refreshFlag?.value == true) {
+            viewModel.showCart()
+            navController.currentBackStackEntry
+                ?.savedStateHandle
+                ?.set("REFRESH_CART", false)
+        }
+    }
 
     LaunchedEffect(orderState) {
         when (orderState) {
@@ -189,38 +220,59 @@ fun CartScreen(
     }
 
 
-    val paymentSheet = rememberPaymentSheet(paymentResultCallback = { result ->
-        when (result) {
-            is PaymentSheetResult.Completed -> {
-
+   val paymentSheet = rememberPaymentSheet(
+        paymentResultCallback = { result ->
+            when (result) {
+                is PaymentSheetResult.Completed -> {
                 createOrder(cartItems, defaultAddress, paymentViewModel, context)
-            }
-
-            is PaymentSheetResult.Canceled -> {
-                //  onNavigateToOrders()
-                Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
-            }
-
-            is PaymentSheetResult.Failed -> {
-                // onNavigateToOrders()
-                Toast.makeText(
-                    context, "Payment Failed: ${result.error.message}", Toast.LENGTH_SHORT
-                ).show()
+                    viewModel.clearCart()
+                    Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
+                    onNavigateToOrders()
+                }
+                is PaymentSheetResult.Canceled -> {
+                    onNavigateToOrders()
+                    Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
+                }
+                is PaymentSheetResult.Failed -> {
+                    onNavigateToOrders()
+                    Toast.makeText(context, "Payment Failed: ${result.error.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
-    })
+    )
 
 
+    Scaffold (
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Cart",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Cold,
+                        fontWeight = MaterialTheme.typography.titleLarge.fontWeight
+                    )
+                },
+                navigationIcon = {
+
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Cold
+                        )
 
 
-    Scaffold { paddingValues ->
+                    }
+                }
+            )
+        }
+    ){ paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-
-            ScreenTitle("Cart")
 
 
             if (cartItems.isEmpty()) {
@@ -262,7 +314,8 @@ fun CartScreen(
                                     if (index != -1) {
                                         cartItems[index] = cartItems[index].copy(quantity = newQty)
                                     }
-                                })
+                                },onNavigateToProductInfo
+                                )
 
                             })
                     }
@@ -274,7 +327,8 @@ fun CartScreen(
                 modifier = Modifier
                     .align(Alignment.End)
                     .padding(horizontal = 16.dp, vertical = 4.dp),
-                style = MaterialTheme.typography.bodyLarge,
+                fontSize = 25.sp,
+                fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
                 color = Cold
             )
 
@@ -342,7 +396,7 @@ fun CartScreen(
             onConfirm = {
                 Log.i("1", "CartScreen onConfirm: $itemToDelete")
                 cartItems.remove(itemToDelete)
-                viewModel.removeProductFromCart(itemToDelete!!.id)
+                viewModel.removeProductFromCart(itemToDelete!!.lineId)
                 showDeleteDialog = false
                 itemToDelete = null
             },

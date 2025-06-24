@@ -2,7 +2,6 @@ package com.example.buyva.features.home.view
 
 import OfferBanner
 import ProductSection
-import SearchBarWithCartIcon
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -39,7 +38,9 @@ import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 @Composable
 fun HomeScreen(
     onCartClick: () -> Unit = {},
-    onBrandClick: (String, String, String) -> Unit = { _, _, _ -> },
+    onBrandClick: (String,String, String) -> Unit = { _, _ ,_-> },
+    onSearchClick: () -> Unit = {},
+  //  onTextChanged: (String) -> Unit,
     onProductClick: (String) -> Unit = {},
     favouriteViewModel: FavouriteScreenViewModel
 
@@ -67,7 +68,7 @@ fun HomeScreen(
 
         ScreenTitle("BuyVa")
 
-        SearchBarWithCartIcon(onCartClick)
+        SearchBarWithCartIcon(onCartClick,onSearchClick = onSearchClick)
 
         Spacer(modifier = Modifier.height(16.dp))
 

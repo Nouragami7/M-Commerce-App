@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.example.buyva.data.model.Address
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
+import com.example.buyva.utils.addressToJsonString
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.constants.DEFAULT_ADDRESS_ID
 import com.example.buyva.utils.constants.USER_TOKEN
@@ -34,14 +35,11 @@ fun AddressItem(
     address: Address,
     isDefault: Boolean,
     onSetDefault: () -> Unit,
-    onAddressDetailsClick: (String?) -> Unit,
+    onAddressDetailsClick: (String?, String?) -> Unit,
     onDeleteClick: () -> Unit
 ) {
-    val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
-
-
+    Log.d("1", "AddressItem called ${address.country}  and ${address.city}")
     var showDeleteDialog by remember { mutableStateOf(false) }
-Log.i("1", "AddressItem id: ${address.id}")
     Card(
         modifier = Modifier
             .padding(horizontal = 12.dp, vertical = 6.dp)
@@ -52,7 +50,7 @@ Log.i("1", "AddressItem id: ${address.id}")
     ) {
         Row(
             modifier = Modifier
-                .clickable { onAddressDetailsClick(address.address1) }
+                .clickable { onAddressDetailsClick(address.address1,addressToJsonString(address)) }
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -80,12 +78,7 @@ Log.i("1", "AddressItem id: ${address.id}")
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Row(verticalAlignment = Alignment.Top) {
-//                    Icon(
-//                        imageVector = Icons.Default.Home,
-//                        contentDescription = "Address",
-//                        tint = Color.Gray,
-//                        modifier = Modifier.size(18.dp)
-//                    )
+
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Text(
@@ -106,12 +99,7 @@ Log.i("1", "AddressItem id: ${address.id}")
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-//                    Icon(
-//                        imageVector = Icons.Default.LocationOn,
-//                        contentDescription = "Location",
-//                        tint = Color.Gray,
-//                        modifier = Modifier.size(18.dp)
-//                    )
+
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "${address.city}, ${address.country}",

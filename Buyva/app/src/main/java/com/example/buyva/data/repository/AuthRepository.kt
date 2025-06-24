@@ -112,7 +112,6 @@ class AuthRepository(
             when {
                 token != null -> {
                     Log.d("1", "Token retrieved successfully: $token")
-                    //  SharedPreferenceImpl.saveToSharedPreferenceInGeneral(USER_TOKEN, token)
                     Result.success(token)
                 }
                 error != null -> {

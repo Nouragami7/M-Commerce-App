@@ -13,4 +13,5 @@ interface IAddressRepo {
         token: String
     ): Flow<ResponseState>
      suspend fun deleteCustomerAddress(addressId: String, token: String): Flow<ResponseState>
+     suspend fun updateAddress(address: Address, token: String): Flow<ResponseState>
 }

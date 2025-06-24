@@ -3,11 +3,13 @@ package com.example.buyva.data.datasource.remote
 import android.util.Log
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.exception.ApolloException
 import com.example.buyva.AddProductToCartMutation
 import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.CreateAddressMutation
 import com.example.buyva.CreateCartMutation
+import com.example.buyva.CustomerAddressUpdateMutation
 import com.example.buyva.DeleteAddressMutation
 import com.example.buyva.GetAddressesQuery
 import com.example.buyva.GetCartDetailsQuery
@@ -17,8 +19,11 @@ import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.RemoveProductFromCartMutation
 import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
 import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
+import com.example.buyva.SearchProductsQuery
 import com.example.buyva.data.model.Address
+import com.example.buyva.data.model.UiProduct
 import com.example.buyva.data.model.uistate.ResponseState
+import com.example.buyva.type.MailingAddressInput
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
@@ -127,13 +132,11 @@ class RemoteDataSourceImpl(
                 apolloClient.mutation(mutation).execute()
 
             if (response.hasErrors()) {
-                Log.i("1", "removeProductFromCart: ${response.errors}")
                 val errorMessages = response.errors?.joinToString { it.message } ?: "Unknown error"
                 emit(ResponseState.Failure(Throwable(errorMessages)))
             } else {
                 val data = response.data
                 if (data != null) {
-                    Log.i("1", "removeProductFromCart: $data")
                     emit(ResponseState.Success(data.cartLinesRemove.toString()))
                 } else {
                     emit(ResponseState.Failure(Throwable("Response data is null")))
@@ -236,5 +239,75 @@ class RemoteDataSourceImpl(
 
         }
 
+    override fun searchProducts(query: String): Flow<List<UiProduct>> = flow {
+        Log.d("SearchQuery", "Query sent: $query")
 
+        val formattedQuery = "title:*$query*"
+        val response = apolloClient.query(SearchProductsQuery(formattedQuery)).execute()
+        Log.d("SearchRaw", "Raw response: ${response.data}")
+
+        val products = response.data?.products?.edges?.mapNotNull { edge ->
+            val node = edge.node ?: return@mapNotNull null
+
+            val imageUrl = node.images?.edges?.firstOrNull()?.node?.src as? String ?: ""
+            val price = node.variants?.edges?.firstOrNull()?.node?.priceV2?.amount
+                ?.let { it.toString().toFloatOrNull() } ?: 0f
+
+
+            val vendor = node.vendor ?: ""
+
+            UiProduct(
+                id = node.id,
+                title = node.title,
+                imageUrl = imageUrl,
+                price = price,
+                vendor = vendor
+            )
+        } ?: emptyList()
+
+        emit(products)
+    }.catch {
+        Log.e("RemoteDataSource", "Search failed", it)
+        emit(emptyList())
+    }
+
+    override suspend fun updateAddress(address: Address, token: String): Flow<ResponseState> = flow {
+        emit(ResponseState.Loading)
+
+        try {
+            val response = apolloClient.mutation(
+                CustomerAddressUpdateMutation(
+                    customerAccessToken = token,
+                    id = address.id!!,
+                    address = MailingAddressInput(
+                        firstName = Optional.Present(address.firstName),
+                        lastName = Optional.Present(address.lastName),
+                        phone = Optional.Present(address.phone),
+                        address1 = Optional.Present(address.address1),
+                        address2 = Optional.Present(address.address2),
+                        city = Optional.Present(address.city),
+                        country = Optional.Present(address.country),
+                    )
+                )
+            ).execute()
+
+            val updated = response.data?.customerAddressUpdate?.customerAddress
+
+            if (updated != null) {
+                emit(ResponseState.Success(address.copy(id = updated.id)))
+            } else {
+                val errors = response.data?.customerAddressUpdate?.customerUserErrors
+                val errorMessage = errors?.joinToString { "${it.field?.joinToString()} - ${it.message}" } ?: "Unknown Shopify error"
+                Log.e("1", errorMessage)
+                emit(ResponseState.Failure(Throwable(errorMessage)))
+            }
+
+        } catch (e: Exception) {
+            emit(ResponseState.Failure(
+                Throwable(e.message ?: "Unknown error")
+            ))
+        }
+    }
 }
+
+
