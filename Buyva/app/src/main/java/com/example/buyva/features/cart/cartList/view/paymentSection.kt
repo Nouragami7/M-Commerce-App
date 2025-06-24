@@ -4,18 +4,33 @@ import android.app.Application
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,7 +41,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.model.Address
+import com.example.buyva.data.model.CartItem
 import com.example.buyva.data.model.enums.PaymentMethod
+import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModel
+import com.example.buyva.ui.theme.Cold
+import com.example.buyva.utils.functions.createOrder
 import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.data.repository.cart.CartRepoImpl
 import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
@@ -36,7 +55,6 @@ import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -46,7 +64,10 @@ fun PaymentSection(
     address: Address,
     onConfirm: (LocalDateTime, PaymentMethod, String) -> Unit,
     onPayWithCardClick: () -> Unit,
-    onAddressClick: () -> Unit
+    onAddressClick: () -> Unit,
+    paymentViewModel: PaymentViewModel,
+    cartItems: SnapshotStateList<CartItem>,
+    defaultAddress: Address?
 ) {
     var selectedMethod by remember { mutableStateOf(PaymentMethod.CashOnDelivery) }
     var voucherCode by remember { mutableStateOf("") }
@@ -100,6 +121,7 @@ fun PaymentSection(
                 focusedLabelColor = Cold,
             ),
             trailingIcon = {
+
                 IconButton(onClick = onAddressClick) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit")
                 }
@@ -148,7 +170,6 @@ fun PaymentSection(
             Spacer(modifier = Modifier.width(8.dp))
             Button(
                 onClick = {
-                    // Apply voucher logic here
                 },
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
@@ -174,6 +195,8 @@ fun PaymentSection(
                         onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
                     }
                 } else {
+                    onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
+                    createOrder(cartItems, defaultAddress, paymentViewModel, context)
                     showDialog = true
                 }
             },

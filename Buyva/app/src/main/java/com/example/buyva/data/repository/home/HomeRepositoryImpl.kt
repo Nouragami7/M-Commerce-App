@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 
 class HomeRepositoryImpl(private val remoteDataSource: RemoteDataSource) : IHomeRepository{
     override fun getBrandsAndProduct(): Flow<BrandsAndProductsQuery.Data?> {
-
         return remoteDataSource.getBrandsAndProduct()
     }
     override fun getProductById(productId: String): Flow<GetProductByIdQuery.Data?> {

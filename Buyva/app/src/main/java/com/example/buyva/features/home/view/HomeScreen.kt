@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -45,13 +44,13 @@ fun HomeScreen(
     onProductClick: (String) -> Unit = {},
     favouriteViewModel: FavouriteScreenViewModel
 
-){
+) {
     val viewModelFactory = HomeFactory(
         HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
     )
     val homeViewModel: HomeViewModel = viewModel(factory = viewModelFactory)
 
-SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
+    SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
     Log.i("1", "HomeScreen: ${SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)}")
     val brandsAndProducts by homeViewModel.brandsAndProducts.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
@@ -59,10 +58,13 @@ SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
         homeViewModel.getBrandsAndProduct()
     }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .verticalScroll(rememberScrollState())
-        .padding(8.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(8.dp)
+            .padding(bottom = 60.dp)
+    ) {
 
         ScreenTitle("BuyVa")
 
@@ -78,13 +80,14 @@ SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
             is ResponseState.Failure -> {
                 Text(text = state.message.toString())
             }
+
             ResponseState.Loading -> LoadingIndicator()
-            is ResponseState.Success<*> ->{
+            is ResponseState.Success<*> -> {
                 val (brands, products) = state.data as Pair<List<BrandsAndProductsQuery.Node3>, List<BrandsAndProductsQuery.Node>>
                 val filteredBrands = brands.filter { it.title.lowercase() != "home page" }
+                println("id +++++++++++++++++++++++ $filteredBrands.get(0).id")
                 BrandSection(
-                    brands = filteredBrands,
-                    onBrandClick = onBrandClick
+                    brands = filteredBrands, onBrandClick = onBrandClick
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -98,7 +101,11 @@ SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                ProductSection(products = products, onProductClick = onProductClick,favouriteViewModel = favouriteViewModel)
+                ProductSection(
+                    products = products,
+                    onProductClick = onProductClick,
+                    favouriteViewModel = favouriteViewModel
+                )
 
             }
 

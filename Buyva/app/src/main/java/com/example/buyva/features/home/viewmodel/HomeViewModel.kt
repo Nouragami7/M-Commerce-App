@@ -17,6 +17,7 @@ class HomeViewModel(private val homeRepository: IHomeRepository) : ViewModel() {
                 if (it != null) {
                     val brands = it.brands.nodes
                     val products = it.products.edges.map { edge -> edge.node }
+                    println("brands +++++++++++++++++++++++ ${products.get(0).variants.edges.get(0).node.id}")
                     _brandsAndProducts.value = ResponseState.Success(Pair(brands, products))
                 } else {
                     _brandsAndProducts.value = ResponseState.Failure(Exception("Failed to fetch data"))

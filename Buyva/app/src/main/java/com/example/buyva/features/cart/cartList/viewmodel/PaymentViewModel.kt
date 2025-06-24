@@ -4,10 +4,14 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.buyva.admin.type.DraftOrderInput
+import com.example.buyva.data.model.OrderItem
+import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.paymentRepo.PaymentRepo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import toDraftOrderInput
 
 class PaymentViewModel(
     private val repository: PaymentRepo
@@ -17,6 +21,13 @@ class PaymentViewModel(
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
+
+    private val _orderState = MutableStateFlow<ResponseState>(ResponseState.Loading)
+    val order: StateFlow<ResponseState> = _orderState
+
+
+    private val _completeOrderState = MutableStateFlow<ResponseState>(ResponseState.Loading)
+    val completeOrderState: StateFlow<ResponseState> = _completeOrderState
 
     fun initiatePaymentFlow(
         amount: Int,
@@ -49,8 +60,37 @@ class PaymentViewModel(
         }
     }
 
-}
 
+    fun createDraftOrder(orderItem: OrderItem) {
+        viewModelScope.launch {
+            try {
+                val draftOrderInput: DraftOrderInput = orderItem.toDraftOrderInput()
+                repository.createDraftOrder(draftOrderInput).collect { response ->
+                    _orderState.value = response
+                    Log.d("OrderVM", "Order creation response: $response")
+                }
+            } catch (e: Exception) {
+                _orderState.value = ResponseState.Failure(Throwable(e.message))
+                Log.e("OrderRepoVM", "Error creating draft order: ${e.message}", e)
+            }
+        }
+    }
+
+    fun completeDraftOrder(draftOrderId: String) {
+        viewModelScope.launch {
+            try {
+                repository.completeDraftOrder(draftOrderId).collect { result ->
+                    Log.d("OrderVM", "Draft order completed: ${result.draftOrderComplete?.draftOrder?.id}")
+                    _completeOrderState.value = ResponseState.Success("Order completed successfully!")
+                }
+            } catch (e: Exception) {
+                _completeOrderState.value = ResponseState.Failure(Throwable(e.message))
+                Log.e("OrderVM", "Error completing draft order: ${e.message}", e)
+            }
+        }
+    }
+
+}
 class PaymentViewModelFactory(
     private val repository: PaymentRepo
 ) : ViewModelProvider.Factory {

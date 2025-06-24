@@ -1,5 +1,6 @@
 package com.example.yourapp.ui.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,20 +19,27 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import com.example.buyva.R
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
+import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
+import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.model.uistate.ResponseState
+import com.example.buyva.data.repository.order.OrderRepositoryImpl
 import com.example.buyva.features.order.view.OrderCard
+import com.example.buyva.features.order.viewmodel.OrderFactory
+import com.example.buyva.features.order.viewmodel.OrderViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
-import com.example.buyva.utils.components.EmptyScreen
+import com.example.buyva.utils.components.LoadingIndicator
+import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
@@ -40,29 +48,35 @@ fun OrderScreen(onBack: () -> Unit = {}, onOrderClick: (String) -> Unit = {}) {
         NavigationBar.mutableNavBarState.value = false
     }
 
-    val orderItem = remember {
-        mutableStateListOf(
-            OrderItem("101654", "June 17, 2025", "$120", R.drawable.bag2),
-            OrderItem("25454", "June 15, 2025", "$110", R.drawable.bag2),
-            OrderItem("101654", "June 17, 2025", "$120", R.drawable.bag2)
-        )
+    val orderFactory = OrderFactory(
+        OrderRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
+    )
+
+    val orderViewModel: OrderViewModel = viewModel(factory = orderFactory)
+
+    val orderState by orderViewModel.orders.collectAsStateWithLifecycle()
+
+    val user = FirebaseAuth.getInstance().currentUser
+    val email = user?.email
+
+    LaunchedEffect(Unit) {
+        if (email != null) {
+            orderViewModel.getOrders(email)
+            Log.i("order", "OrderScreen: $email")
+        }
     }
 
-
-    val activeOrders = emptyList<OrderItem>()
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(12.dp)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(top = 16.dp)
+            verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 16.dp)
         ) {
             IconButton(onClick = onBack) {
                 Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back"
+                    Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back"
                 )
             }
 
@@ -80,54 +94,58 @@ fun OrderScreen(onBack: () -> Unit = {}, onOrderClick: (String) -> Unit = {}) {
 
         Spacer(modifier = Modifier.height(6.dp))
 
-        if (orderItem.isEmpty()) {
-           EmptyScreen("No orders yet", 28.sp ,R.raw.empty_order)
-        }
-        else{
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                item {
-                    OrderSection("Active Orders", orderItem, onOrderClick)
+        when (val state = orderState) {
+            is ResponseState.Failure -> {
+                Text(text = state.message.toString())
+            }
+
+            ResponseState.Loading -> LoadingIndicator()
+            is ResponseState.Success<*> -> {
+                val response = state.data as GetOrdersByCustomerEmailQuery.Data
+                val orders = response.orders.edges.map { it.node }
+                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                    item {
+                        OrderSection("Your Orders", orders, onOrderClick)
+                    }
                 }
             }
         }
 
 
     }
+
 }
 
 @Composable
-fun OrderSection(title: String, orders: List<OrderItem>, onOrderClick: (String) -> Unit) {
+fun OrderSection(
+    title: String, orders: List<GetOrdersByCustomerEmailQuery.Node>, onOrderClick: (String) -> Unit
+) {
 
-        Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = Cold,
-                    fontFamily = ubuntuMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+    Column(modifier = Modifier.padding(16.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineMedium,
+                color = Cold,
+                fontFamily = ubuntuMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
+        orders.forEach { order ->
+            OrderCard(order, onOrderClick = { })
             Spacer(modifier = Modifier.height(16.dp))
-
-            orders.forEach { order ->
-                OrderCard(order, onOrderClick = { onOrderClick(order.id) })
-                Spacer(modifier = Modifier.height(16.dp))
-            }
         }
     }
+}
 
 
 
 
-data class OrderItem(
-    val id: String,
-    val date: String,
-    val price: String,
-    val imageRes: Int
-)
+

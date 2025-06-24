@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -28,30 +29,34 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.buyva.R
+import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
-import com.example.yourapp.ui.screens.OrderItem
 
 @Composable
-fun OrderCard(order: OrderItem, onOrderClick: (String) -> Unit) {
+fun OrderCard(order: GetOrdersByCustomerEmailQuery.Node, onOrderClick: (String) -> Unit) {
 
+    val createdAt = order.createdAt.toString()
+    val date = createdAt.substringBefore("T")
+    val time = createdAt.substringAfter("T").substringBefore("Z")
     Card(
-        onClick = { onOrderClick(order.id) },
+        onClick = {  },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(containerColor = Gray),
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp),
+            .height(110.dp),
 
-    ) {
+        ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(12.dp)
         ) {
             Image(
-                painter = painterResource(id = order.imageRes),
+                painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Product Image",
                 modifier = Modifier
                     .size(70.dp)
@@ -71,7 +76,7 @@ fun OrderCard(order: OrderItem, onOrderClick: (String) -> Unit) {
                         tint = Color.Black
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("OrderID: ${order.id}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                    Text("Order: ${order.name}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -84,12 +89,25 @@ fun OrderCard(order: OrderItem, onOrderClick: (String) -> Unit) {
                         tint = Color.Black
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(order.date, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                    Text(date, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                    Text(order.price, style = MaterialTheme.typography.bodyMedium, color = Cold, fontWeight = FontWeight.Bold)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Watch,
+                        contentDescription = "Time",
+                        modifier = Modifier.size(12.dp),
+                        tint = Color.Black
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(time, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text("${order.totalPriceSet.shopMoney.amount} ${order.totalPriceSet.shopMoney.currencyCode}", style = MaterialTheme.typography.bodyMedium, color = Cold, fontWeight = FontWeight.Bold)
 
             }
         }

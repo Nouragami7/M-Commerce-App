@@ -6,8 +6,8 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.exception.ApolloException
 import com.example.buyva.AddProductToCartMutation
-import com.example.buyva.CreateAddressMutation
 import com.example.buyva.BrandsAndProductsQuery
+import com.example.buyva.CreateAddressMutation
 import com.example.buyva.CreateCartMutation
 import com.example.buyva.CustomerAddressUpdateMutation
 import com.example.buyva.DeleteAddressMutation
@@ -17,6 +17,8 @@ import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.RemoveProductFromCartMutation
+import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
+import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
 import com.example.buyva.SearchProductsQuery
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.UiProduct
@@ -26,7 +28,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 
-class RemoteDataSourceImpl(  private val apolloClient: ApolloClient
+class RemoteDataSourceImpl(
+    private val apolloClient: ApolloClient
 ) : RemoteDataSource {
 
     override fun getBrandsAndProduct(): Flow<BrandsAndProductsQuery.Data?> = flow {
@@ -36,12 +39,14 @@ class RemoteDataSourceImpl(  private val apolloClient: ApolloClient
         emit(null)
     }
 
-    override fun getProductsByCollection(collectionId: String): Flow<ProductsByCollectionQuery.Data?> = flow{
-        val response = apolloClient.query(ProductsByCollectionQuery(collectionId)).execute()
-        emit(response.data)
-    }.catch {
-        emit(null)
-    }
+    override fun getProductsByCollection(collectionId: String): Flow<ProductsByCollectionQuery.Data?> =
+        flow {
+            val response = apolloClient.query(ProductsByCollectionQuery(collectionId)).execute()
+            emit(response.data)
+        }.catch {
+            emit(null)
+        }
+
     override fun getProductById(productId: String): Flow<GetProductByIdQuery.Data?> = flow {
         val response = apolloClient.query(GetProductByIdQuery(productId)).execute()
         emit(response.data)
@@ -49,17 +54,16 @@ class RemoteDataSourceImpl(  private val apolloClient: ApolloClient
         emit(null)
     }
 
-    override fun getProductsByCategory(handle: String): Flow<GetProductsByCategoryQuery.Data?> = flow {
-        val response = apolloClient.query(GetProductsByCategoryQuery(handle)).execute()
-        emit(response.data)
-    }.catch{
-        emit(null)
-    }
+    override fun getProductsByCategory(handle: String): Flow<GetProductsByCategoryQuery.Data?> =
+        flow {
+            val response = apolloClient.query(GetProductsByCategoryQuery(handle)).execute()
+            emit(response.data)
+        }.catch {
+            emit(null)
+        }
 
     override fun addToCartById(
-        cartId: String,
-        quantity: Int,
-        variantID: String
+        cartId: String, quantity: Int, variantID: String
     ): Flow<ResponseState> {
         val mutation = AddProductToCartMutation(cartId, quantity, variantID)
         return flow {
@@ -77,7 +81,7 @@ class RemoteDataSourceImpl(  private val apolloClient: ApolloClient
 
 
     override suspend fun createCart(email: String, token: String): Flow<ResponseState> = flow {
-val mutation = CreateCartMutation(email, token)
+        val mutation = CreateCartMutation(email, token)
         try {
             emit(ResponseState.Loading)
 
@@ -117,8 +121,7 @@ val mutation = CreateCartMutation(email, token)
 
 
     override suspend fun removeProductFromCart(
-        cartId: String,
-        lineItemId: String
+        cartId: String, lineItemId: String
     ): Flow<ResponseState> = flow {
         emit(ResponseState.Loading)
 
@@ -145,12 +148,11 @@ val mutation = CreateCartMutation(email, token)
     }
 
     override suspend fun createCustomerAddress(
-        token: String,
-        address: Address
+        token: String, address: Address
     ): Flow<ResponseState> = flow {
         emit(ResponseState.Loading)
         try {
-            val response : ApolloResponse<CreateAddressMutation.Data> = apolloClient.mutation(
+            val response: ApolloResponse<CreateAddressMutation.Data> = apolloClient.mutation(
                 CreateAddressMutation(
                     address1 = address.address1,
                     address2 = address.address2,
@@ -202,14 +204,24 @@ val mutation = CreateCartMutation(email, token)
             emit(ResponseState.Failure(e))
         }
     }
-    override suspend fun deleteCustomerAddress(addressId: String, token: String): Flow<ResponseState> = flow {
+
+    override suspend fun deleteCustomerAddress(
+        addressId: String,
+        token: String
+    ): Flow<ResponseState> = flow {
         emit(ResponseState.Loading)
         try {
             val response = apolloClient.mutation(DeleteAddressMutation(addressId, token)).execute()
 
             val userErrors = response.data?.customerAddressDelete?.userErrors
             if (!userErrors.isNullOrEmpty()) {
-                emit(ResponseState.Failure(Throwable(userErrors.first().message ?: "Unknown error")))
+                emit(
+                    ResponseState.Failure(
+                        Throwable(
+                            userErrors.first().message
+                        )
+                    )
+                )
             } else {
                 emit(ResponseState.Success(response.data?.customerAddressDelete?.deletedCustomerAddressId))
             }
@@ -217,6 +229,15 @@ val mutation = CreateCartMutation(email, token)
             emit(ResponseState.Failure(e))
         }
     }
+
+    override suspend fun getOrders(email: String): Flow<GetOrdersByCustomerEmailQuery.Data?> =
+        flow {
+            val response = ApolloAdmin.admin.query(GetOrdersByCustomerEmailQuery(email)).execute()
+            emit(response.data)
+        }.catch {
+            emit(null)
+
+        }
 
     override fun searchProducts(query: String): Flow<List<UiProduct>> = flow {
         Log.d("SearchQuery", "Query sent: $query")

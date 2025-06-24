@@ -12,8 +12,6 @@ import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
-import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
@@ -114,7 +112,6 @@ class AuthRepository(
             when {
                 token != null -> {
                     Log.d("1", "Token retrieved successfully: $token")
-                  //  SharedPreferenceImpl.saveToSharedPreferenceInGeneral(USER_TOKEN, token)
                     Result.success(token)
                 }
                 error != null -> {

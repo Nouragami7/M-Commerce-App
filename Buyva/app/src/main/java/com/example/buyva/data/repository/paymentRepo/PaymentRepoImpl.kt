@@ -1,8 +1,10 @@
 package com.example.buyva.data.repository.paymentRepo
 import android.util.Log
+import com.example.buyva.admin.CompleteDraftOrderMutation
+import com.example.buyva.admin.type.DraftOrderInput
+import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.remote.RemoteDataSource
-import com.stripe.android.model.PaymentIntent
-import kotlinx.serialization.json.JsonObject
+import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
 class PaymentRepoImpl(private val remoteDataSource: RemoteDataSource)  : PaymentRepo{
@@ -14,4 +16,15 @@ class PaymentRepoImpl(private val remoteDataSource: RemoteDataSource)  : Payment
         Log.d("1", "Calling Stripe with amount=$amount, currency=$currency")
         return remoteDataSource.createPaymentIntent(amount, currency)
     }
+
+    override suspend fun createDraftOrder(draftOrderInput: DraftOrderInput): Flow<ResponseState> {
+        return remoteDataSource.createDraftOrder(draftOrderInput)
+
     }
+
+    override suspend fun completeDraftOrder(draftOrderId: String): Flow<CompleteDraftOrderMutation.Data> {
+        return remoteDataSource.completeDraftOrder(draftOrderId)
+    }
+
+
+}
