@@ -102,7 +102,7 @@ class MainActivity : ComponentActivity()  {
                 )  {
                     EmptyScreen(
                         text = "No internet connection",
-                        fontSize = 20.sp,
+                        fontSize = 24.sp,
                         animation = R.raw.no_internet
                     )
                 }

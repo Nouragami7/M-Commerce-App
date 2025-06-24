@@ -23,12 +23,4 @@ class SharedOrderViewModel : ViewModel() {
             }
     }
 
-    fun extractImageUrlsFromLineItems(order: GetOrdersByCustomerEmailQuery.Node?): List<String> {
-        if (order == null) return emptyList()
-
-        return order.lineItems.edges.map { edge ->
-            edge.node.variant?.image?.url.toString()
-        }
-
-}
 }

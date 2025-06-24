@@ -50,7 +50,7 @@ fun OrderDetailsScreen(
     val order by sharedOrderViewModel.selectedOrder.collectAsState()
 
     val numberOfItems = order?.lineItems?.edges?.size
-    val imageUrls = sharedOrderViewModel.extractImageUrlsFromLineItems(order)
+    val imageUrls = sharedOrderViewModel.extractImageUrlsFromNote(order?.note)
     Log.i("TAG", "OrderDetailsScreen: $imageUrls")
 
     LaunchedEffect(Unit) {
@@ -122,6 +122,7 @@ fun OrderDetailsScreen(
             }
         }
 
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -139,6 +140,32 @@ fun OrderDetailsScreen(
         }
 
         Spacer(modifier = Modifier.height(24.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 12.dp)
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
+            ) {
+                Text(
+                    text = "Ordered Items",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    fontFamily = ubuntuMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+
+                val itemsList = order?.lineItems?.edges ?: emptyList()
+
+                OrderItems(itemsList, imageUrls)
+
+            }
+
+        }
 
         Card(
             modifier = Modifier.fillMaxWidth(),
@@ -179,20 +206,13 @@ fun OrderDetailsScreen(
             }
 
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text(
-                text = "Ordered Items",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                fontFamily = ubuntuMedium,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            HorizontalDivider(
+                modifier = Modifier.padding(horizontal = 32.dp),
+                thickness = 1.dp,
+                color = Color.Gray
             )
+            Spacer(modifier = Modifier.height(16.dp))
 
-            val itemsList = order?.lineItems?.edges ?: emptyList()
-
-            OrderItems(itemsList,imageUrls)
 
             Column(modifier = Modifier.padding(16.dp)) {
 
@@ -209,10 +229,11 @@ fun OrderDetailsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Subtotal:", fontSize = 20.sp)
+                    Text("Subtotal:", fontSize = 20.sp, fontFamily = ubuntuMedium)
                     Text(
                         "${order?.subtotalPriceSet?.shopMoney?.amount} ${order?.subtotalPriceSet?.shopMoney?.currencyCode} ",
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        fontFamily = ubuntuMedium
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -220,14 +241,15 @@ fun OrderDetailsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Total Tax:", fontSize = 20.sp)
+                    Text("Total Tax:", fontSize = 20.sp, fontFamily = ubuntuMedium)
                     Text(
                         "${order?.totalTaxSet?.shopMoney?.amount} ${order?.totalTaxSet?.shopMoney?.currencyCode}",
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        fontFamily = ubuntuMedium
                     )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
-                HorizontalDivider(color = Color.DarkGray)
+                HorizontalDivider(color = Color.Gray)
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -243,7 +265,8 @@ fun OrderDetailsScreen(
                         "${order?.totalPriceSet?.shopMoney?.amount} ${order?.totalPriceSet?.shopMoney?.currencyCode}",
                         color = Cold,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 18.sp
+                        fontSize = 18.sp,
+                        fontFamily = ubuntuMedium
                     )
                 }
             }

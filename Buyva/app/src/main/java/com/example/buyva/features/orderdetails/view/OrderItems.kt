@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
+import com.example.buyva.ui.theme.Teal
 
 @Composable
 fun OrderItems(
@@ -35,11 +36,11 @@ fun OrderItems(
             val item = itemsList[index].node
             Card(
                 modifier = Modifier.Companion
-                    .width(150.dp)
-                    .padding(vertical = 8.dp),
+                    .width(200.dp)
+                    .padding(vertical = 12.dp),
                 shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                colors = CardDefaults.cardColors(containerColor = Teal)
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     val imageUrl = imageUrls.getOrNull(index)
@@ -55,7 +56,11 @@ fun OrderItems(
                     )
 
                     Text(
-                        text = item.title, fontSize = 18.sp, fontWeight = FontWeight.Medium
+                        text = item.title.split("|")
+                            .take(2)
+                            .map { it.trim().split(" ").firstOrNull().orEmpty() }
+                            .joinToString(" | "),
+                        fontSize = 18.sp, fontWeight = FontWeight.Medium
                     )
                     Text(
                         text = "x${item.quantity}",
@@ -67,7 +72,7 @@ fun OrderItems(
                         Text(
                             text = "${price.amount} ${price.currencyCode}",
                             fontSize = 16.sp,
-                            color = Color.Gray
+                            color = Color.DarkGray
                         )
                     }
                 }
