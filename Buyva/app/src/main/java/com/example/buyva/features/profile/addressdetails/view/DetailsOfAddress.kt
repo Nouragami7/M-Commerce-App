@@ -61,8 +61,9 @@ fun AddressDetails(
     onBackClick: () -> Unit = {},
     onSaveClick: () -> Unit = {}
 ) {
-
+Log.d("1", "AddressDetails called address $address")
     val addressFromMap = remember { mutableStateOf(address) }
+
     val addressModel = remember(prefillData) {
         jsonStringToAddress(prefillData ?: "")
     }
@@ -94,6 +95,8 @@ Log.d("1", "AddressDetails called coutry  : ${country} from details and city  : 
             floorNumber.value = parts.getOrNull(5) ?: ""
             Log.d("1", "country  : ${it.country}    from details")
             Log.d("1", "city  : ${it.city}    from details")
+            Log.d("1", "address1  : ${it.address1}    from details")
+
         }
     }
 
@@ -134,7 +137,7 @@ Log.d("1", "id  : ${addressModel.id}    from list")
                             firstName = firstName.value,
                             lastName = lastName.value,
                             phone = phoneNumber.value,
-                            address1 = streetAddress.value,
+                            address1 = streetAddress.value.toString(),
                             address2 = "Building number ${buildingNumber.value} Floor number ${floorNumber.value}",
                             city = addressModel.city,
                             country = addressModel.country
@@ -218,7 +221,7 @@ Log.d("1", "id  : ${addressModel.id}    from list")
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = addressFromMap.value ?: addressModel?.address1 ?: "",
+            value = addressFromMap.value ?: streetAddress.value ?: "",
             onValueChange = { addressFromMap.value = it },
             enabled = false,
             colors = OutlinedTextFieldDefaults.colors(
@@ -298,26 +301,7 @@ Log.d("1", "id  : ${addressModel.id}    from list")
             textStyle = TextStyle(fontSize = inputFontSize),
             modifier = Modifier.fillMaxWidth().height(textFieldHeight)
         )
-        Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = streetAddress.value,
-            onValueChange = { streetAddress.value = it },
-            enabled = isEditable.value,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Cold,
-                unfocusedBorderColor = Color.Black,
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
-                focusedLabelColor = Cold,
-            ),
-            label = { Text("Additional Information", fontSize = labelFontSize) },
-            leadingIcon = { Icon(Icons.Default.Home, contentDescription = null) },
-            textStyle = TextStyle(fontSize = inputFontSize),
-            modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp, max = 200.dp),
-            singleLine = false,
-            maxLines = 5
-        )
 
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -329,8 +313,8 @@ Log.d("1", "id  : ${addressModel.id}    from list")
                         firstName = firstName.value,
                         lastName = lastName.value,
                         phone = phoneNumber.value,
-                        address1 = streetAddress.value,
-                        address2 = "Building number ${buildingNumber.value} Floor number ${floorNumber.value}",
+                        address1 = addressFromMap.value ?: "",
+                        address2 = "Building number: ${buildingNumber.value} Floor number:  ${floorNumber.value}",
                         city = city ?: "",
                         country = country ?: ""
                     )

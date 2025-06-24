@@ -86,6 +86,7 @@ fun AddressItem(
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.DarkGray
                         )
+                        Spacer(modifier = Modifier.height(6.dp))
                         if (address.address2.isNotBlank()) {
                             Text(
                                 text = address.address2,
@@ -93,20 +94,17 @@ fun AddressItem(
                                 color = Color.DarkGray
                             )
                         }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "${address.city}, ${address.country}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.DarkGray
+                        )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
 
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "${address.city}, ${address.country}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.DarkGray
-                    )
-                }
             }
             Column(
                 modifier = Modifier.padding(end = 12.dp),
