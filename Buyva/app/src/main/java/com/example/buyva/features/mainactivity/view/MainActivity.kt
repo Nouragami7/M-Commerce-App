@@ -3,21 +3,12 @@ package com.example.buyva.features.mainactivity.view
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,23 +16,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
-import com.example.buyva.BuildConfig
+import com.example.buyva.R
 import com.example.buyva.features.SplashScreen
-import com.example.buyva.features.authentication.signup.viewmodel.SignupViewModel
 import com.example.buyva.navigation.ScreensRoute
 import com.example.buyva.navigation.SetupNavHost
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.navigation.navbar.NavigationBar.ShowCurvedNavBar
-import com.example.buyva.ui.theme.Cold
-import com.example.buyva.ui.theme.ubuntuMedium
-import com.stripe.android.PaymentConfiguration
-import com.stripe.android.paymentsheet.PaymentSheet
-import com.stripe.android.paymentsheet.PaymentSheetResult
-import com.stripe.android.paymentsheet.PaymentSheetResultCallback
+import com.example.buyva.utils.components.EmptyScreen
+import com.example.buyva.utils.functions.ConnectivityObserver
 
 class MainActivity : ComponentActivity()  {
 
@@ -52,7 +43,6 @@ class MainActivity : ComponentActivity()  {
         setContent {
             var displaySplashScreen by remember { mutableStateOf(true) }
             var startDestination by remember { mutableStateOf("splash") }
-
             LaunchedEffect(Unit) {
                 val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
                 startDestination = if (user != null) {
@@ -61,7 +51,6 @@ class MainActivity : ComponentActivity()  {
                     ScreensRoute.WelcomeScreen::class.qualifiedName!!
                 }
             }
-
 
 
             if (displaySplashScreen) {
@@ -79,22 +68,11 @@ class MainActivity : ComponentActivity()  {
     fun MainScreen(startDestination: String) {
         val navController = rememberNavController()
         val isNavBarVisible = NavigationBar.mutableNavBarState.collectAsStateWithLifecycle()
+        val context = LocalContext.current
+        val connectivityObserver = ConnectivityObserver(context)
+        val isConnected by connectivityObserver.isConnected.collectAsStateWithLifecycle()
+
         Scaffold(
-            topBar = {
-//                Box(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(vertical = 12.dp)
-//                ) {
-//                    Text(
-//                        text = "BuyVa",
-//                        style = MaterialTheme.typography.headlineSmall,
-//                        color = Cold,
-//                        fontFamily = ubuntuMedium,
-//                        modifier = Modifier.align(Alignment.Center)
-//                    )
- //               }
-            },
             bottomBar = {
             when (isNavBarVisible.value) {
 
@@ -112,7 +90,22 @@ class MainActivity : ComponentActivity()  {
         ) { _ ->
             Box(modifier = Modifier.fillMaxSize().background(color = Color.White)) {
                 SetupNavHost(navController = navController, startDestination = startDestination)
-
+            }
+            if (!isConnected) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.White.copy(alpha = 0.95f))
+                        .zIndex(1f)
+                        .pointerInput(Unit) {},
+                    contentAlignment = Alignment.Center
+                )  {
+                    EmptyScreen(
+                        text = "No internet connection",
+                        fontSize = 20.sp,
+                        animation = R.raw.no_internet
+                    )
+                }
             }
 
         }
