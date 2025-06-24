@@ -119,7 +119,7 @@ fun SetupNavHost(
 
 
         composable<ScreensRoute.CartScreen> { CartScreen(
-            onBackClick = { navController.popBackStack() },
+            onBackClick = { navController.navigate(ScreensRoute.HomeScreen) },
             onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
             onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) },
             onNavigateToAddresses = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }

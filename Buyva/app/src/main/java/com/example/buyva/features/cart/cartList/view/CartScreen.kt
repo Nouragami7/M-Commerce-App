@@ -18,6 +18,7 @@ import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.*
@@ -162,14 +163,37 @@ onNavigateToOrders()
 
 
 
-    Scaffold { paddingValues ->
+    Scaffold (
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Cart",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Cold,
+                        fontWeight = MaterialTheme.typography.titleLarge.fontWeight
+                    )
+                },
+                navigationIcon = {
+
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Cold
+                        )
+
+
+                    }
+                }
+            )
+        }
+    ){ paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-
-            ScreenTitle("Cart")
 
 
             if (cartItems.isEmpty()) {
