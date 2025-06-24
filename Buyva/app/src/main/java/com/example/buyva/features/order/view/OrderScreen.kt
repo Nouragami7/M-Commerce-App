@@ -43,7 +43,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
-fun OrderScreen(onBack: () -> Unit = {}, onOrderClick: (String) -> Unit = {}) {
+fun OrderScreen(onBack: () -> Unit = {}, onOrderClick: (GetOrdersByCustomerEmailQuery.Node?) -> Unit ) {
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
     }
@@ -118,7 +118,8 @@ fun OrderScreen(onBack: () -> Unit = {}, onOrderClick: (String) -> Unit = {}) {
 
 @Composable
 fun OrderSection(
-    title: String, orders: List<GetOrdersByCustomerEmailQuery.Node>, onOrderClick: (String) -> Unit
+    title: String, orders: List<GetOrdersByCustomerEmailQuery.Node>,
+    onOrderClick: (GetOrdersByCustomerEmailQuery.Node?) -> Unit
 ) {
 
     Column(modifier = Modifier.padding(16.dp)) {
@@ -139,7 +140,7 @@ fun OrderSection(
         Spacer(modifier = Modifier.height(16.dp))
 
         orders.forEach { order ->
-            OrderCard(order, onOrderClick = { })
+            OrderCard(order,onOrderClick)
             Spacer(modifier = Modifier.height(16.dp))
         }
     }

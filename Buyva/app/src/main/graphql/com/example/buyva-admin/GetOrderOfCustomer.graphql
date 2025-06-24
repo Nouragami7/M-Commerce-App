@@ -6,6 +6,7 @@ query GetOrdersByCustomerEmail($email: String!) {
                 name
                 createdAt
                 email
+                note
 
                 shippingAddress {
                     firstName
@@ -18,6 +19,13 @@ query GetOrdersByCustomerEmail($email: String!) {
                 }
 
                 subtotalPriceSet {
+                    shopMoney {
+                        amount
+                        currencyCode
+                    }
+                }
+
+                totalTaxSet {
                     shopMoney {
                         amount
                         currencyCode
@@ -40,6 +48,11 @@ query GetOrdersByCustomerEmail($email: String!) {
                                 shopMoney {
                                     amount
                                     currencyCode
+                                }
+                            }
+                            variant {
+                                image {
+                                    url
                                 }
                             }
                         }

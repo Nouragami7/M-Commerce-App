@@ -1,6 +1,5 @@
 package com.example.buyva.navigation
 
-import com.example.buyva.data.model.Address
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -37,7 +36,7 @@ sealed class ScreensRoute{
     @Serializable
     data object OrderScreen: ScreensRoute()
     @Serializable
-    data class OrderDetailsScreen(val orderId: String): ScreensRoute()
+    data object OrderDetailsScreen: ScreensRoute()
     @Serializable
     data object SettingsScreen: ScreensRoute()
     @Serializable

@@ -27,24 +27,24 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,19 +54,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.buyva.R
-import com.example.buyva.data.model.Address
-import com.example.buyva.data.model.CartItem
-import com.example.buyva.features.cart.cartList.view.CartItemRow
-import com.example.buyva.features.cart.cartList.view.PaymentSection
-import com.example.buyva.ui.theme.Cold
-import com.example.buyva.ui.theme.Teal
-import com.example.buyva.utils.components.CustomAlertDialog
-import kotlinx.coroutines.launch
-import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.BuildConfig
+import com.example.buyva.R
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.model.Address
+import com.example.buyva.data.model.CartItem
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.remote.StripeClient
 import com.example.buyva.data.repository.adresses.AddressRepoImpl
@@ -78,6 +71,10 @@ import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
 import com.example.buyva.features.cart.cartList.viewmodel.CartViewModelFactory
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModel
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModelFactory
+import com.example.buyva.navigation.navbar.NavigationBar
+import com.example.buyva.ui.theme.Cold
+import com.example.buyva.ui.theme.Teal
+import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.functions.createOrder
@@ -192,10 +189,6 @@ fun CartScreen(
             }
 
             is ResponseState.Failure -> {
-                Log.e(
-                    "DraftOrder",
-                    "Failed to create draft order: ${(orderState as ResponseState.Failure).message}"
-                )
                 Toast.makeText(context, "Failed to place order.", Toast.LENGTH_SHORT).show()
             }
 

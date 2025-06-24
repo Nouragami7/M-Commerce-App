@@ -10,9 +10,17 @@ fun OrderItem.toDraftOrderInput(): DraftOrderInput {
         DraftOrderLineItemInput(
             title = Optional.Present(it.title),
             quantity = it.quantity,
+            variantId = Optional.Present(it.variantId),
             originalUnitPrice = Optional.Present(it.price.toString())
         )
     }
+
+    val noteBuilder = StringBuilder()
+    cartItems.forEachIndexed { index, item ->
+        noteBuilder.append("Item ${index + 1}: ${item.title}, Image: ${item.imageUrl}\n")
+    }
+    val note = noteBuilder.toString().trim()
+
 
     return DraftOrderInput(
         email = Optional.Present(email),
@@ -28,6 +36,8 @@ fun OrderItem.toDraftOrderInput(): DraftOrderInput {
             )
         ),
         lineItems = Optional.Present(lineItems),
-        tags = Optional.Present(listOf("Paid with Stripe"))
+        tags = Optional.Present(listOf("Paid with Stripe")),
+        note = Optional.Present(note),
+
     )
 }
