@@ -23,6 +23,13 @@ mutation CreateDraftOrder($input: DraftOrderInput!) {
                 }
             }
 
+            totalTaxSet {
+                shopMoney {
+                    amount
+                    currencyCode
+                }
+            }
+
             totalPriceSet {
                 shopMoney {
                     amount

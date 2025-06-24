@@ -133,7 +133,7 @@ import com.example.buyva.ui.theme.ubuntuMedium
                 fontFamily = ubuntuMedium
             )
             Spacer(modifier = Modifier.width(14.dp))
-            Text(numberOfItems.toString() + "items", color = Color.DarkGray, fontSize = 20.sp)
+            Text(numberOfItems.toString() + " items", color = Color.DarkGray, fontSize = 20.sp)
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -156,7 +156,7 @@ import com.example.buyva.ui.theme.ubuntuMedium
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Call, contentDescription = "Phone", tint = Color.DarkGray)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(order!!.shippingAddress?.phone.toString(), fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                    Text(order?.shippingAddress?.phone.toString(), fontSize = 18.sp, fontWeight = FontWeight.Medium)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -166,7 +166,7 @@ import com.example.buyva.ui.theme.ubuntuMedium
                         tint = Color.DarkGray
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(order!!.shippingAddress?.address1.toString(), fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                    Text(order?.shippingAddress?.address1.toString(), fontSize = 18.sp, fontWeight = FontWeight.Medium)
                 }
             }
 
@@ -189,7 +189,7 @@ import com.example.buyva.ui.theme.ubuntuMedium
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Subtotal:", fontSize = 20.sp)
-                    Text("${order!!.subtotalPriceSet?.shopMoney?.amount} ${order!!.subtotalPriceSet?.shopMoney?.currencyCode} " , fontSize = 18.sp)
+                    Text("${order?.subtotalPriceSet?.shopMoney?.amount} ${order?.subtotalPriceSet?.shopMoney?.currencyCode} " , fontSize = 18.sp)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -197,7 +197,7 @@ import com.example.buyva.ui.theme.ubuntuMedium
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Total Tax:", fontSize = 20.sp)
-                    Text("0.00 EGP", fontSize = 18.sp)
+                    Text("${order?.totalTaxSet?.shopMoney?.amount} ${order?.totalTaxSet?.shopMoney?.currencyCode}", fontSize = 18.sp)
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 Divider(color = Color.DarkGray)
@@ -213,7 +213,7 @@ import com.example.buyva.ui.theme.ubuntuMedium
                         fontFamily = ubuntuMedium
                     )
                     Text(
-                        "${order!!.totalPriceSet.shopMoney.amount} ${order!!.totalPriceSet.shopMoney.currencyCode}",
+                        "${order?.totalPriceSet?.shopMoney?.amount} ${order?.totalPriceSet?.shopMoney?.currencyCode}",
                         color = Cold,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp
