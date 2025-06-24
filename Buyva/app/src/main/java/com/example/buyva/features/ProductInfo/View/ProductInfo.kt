@@ -331,8 +331,10 @@ fun ProductInfoContent(
                         quantity = 1,
                         variantId = productVariantId
                     )
-
                     Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show()
+                    navController.currentBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("REFRESH_CART", true)
                     navController.navigate(ScreensRoute.CartScreen)
                 },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
