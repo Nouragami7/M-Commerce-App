@@ -1,5 +1,6 @@
 package com.example.buyva.features.cart.cartList.view
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -50,7 +51,7 @@ import com.example.buyva.ui.theme.Teal
 import coil.compose.AsyncImage
 
 @Composable
-fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit) {
+fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToProductInfo: ( String) -> Unit) {
     var quantity by remember { mutableStateOf(item.quantity) }
 
     Card(
@@ -60,7 +61,13 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit) {
             .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Gray)
+        colors = CardDefaults.cardColors(containerColor = Gray),
+        onClick = {
+            Log.i("1", "CartItemRow id: ${item.id}")
+            Log.i("1", "CartItemRow title: ${item.variantId}")
+            onNavigateToProductInfo(item.id)
+
+        }
     ) {
         Row(
             modifier = Modifier

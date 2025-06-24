@@ -1,6 +1,7 @@
 package com.example.buyva.navigation
 
 import CartScreen
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
@@ -11,7 +12,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.model.Address
 import com.example.buyva.data.repository.AuthRepository
 import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
@@ -38,7 +38,6 @@ import com.example.buyva.features.search.viewmodel.SearchViewModel
 import com.example.yourapp.ui.screens.OrderScreen
 
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.serialization.json.Json
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -126,14 +125,18 @@ fun SetupNavHost(
             }
         }
 
-        composable<ScreensRoute.CartScreen> {
-            CartScreen(
-                onBackClick = { navController.popBackStack() },
-                onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
-                onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) },
-                onNavigateToAddresses = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }
-            )
-        }
+
+        composable<ScreensRoute.CartScreen> { CartScreen(
+            onBackClick = { navController.navigate(ScreensRoute.HomeScreen) },
+            onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
+            onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) },
+            onNavigateToAddresses = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }
+            , onNavigateToProductInfo = { productId ->
+                val encodedId = Uri.encode(productId)
+                navController.navigate("productInfo/$encodedId")
+            }
+
+        ) }
 
         composable<ScreensRoute.CategoriesScreen> {
             val currentUser = FirebaseAuth.getInstance().currentUser
@@ -206,23 +209,22 @@ fun SetupNavHost(
 
         composable("productInfo/{productId}") { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
-
+            val variantId = backStackEntry.arguments?.getString("variantId") ?: ""
             val currentUser = FirebaseAuth.getInstance().currentUser
             val favouriteViewModel = remember(currentUser?.uid) {
                 currentUser?.let {
                     FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
                 }
             }
-
             val repository = remember {
                 HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
             }
-
             if (favouriteViewModel != null) {
                 ProductInfoScreen(
                     productId = productId,
                     repository = repository,
                     navController = navController,
+                  //  variantId = variantId ,
                     favouriteViewModel = favouriteViewModel
                 )
             }
@@ -250,9 +252,6 @@ fun SetupNavHost(
 
         composable<ScreensRoute.AddressDetails> { backStackEntry ->
             AddressDetails(
-                address = it.arguments?.getString("address") ?: "",
-                onBackClick = { navController.popBackStack() },
-                onSaveClick = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }
                 address = backStackEntry.toRoute<ScreensRoute.AddressDetails>().address,
                 city = backStackEntry.toRoute<ScreensRoute.AddressDetails>().city,
                 country = backStackEntry.toRoute<ScreensRoute.AddressDetails>().country,
@@ -271,8 +270,6 @@ fun SetupNavHost(
         composable<ScreensRoute.DeliveryAddressListScreen> {
             DeliveryAddressListScreen(
                 onBackClick = { navController.popBackStack() },
-                onAddressDetailsClick = { address ->
-                    navController.navigate(ScreensRoute.AddressDetails(address ?: ""))
                 onAddressDetailsClick = { address, prefillData ->
                     navController.navigate(
                         ScreensRoute.AddressDetails(
@@ -378,7 +375,7 @@ fun SetupNavHost(
                         navController.navigate("productInfo/$encodedId")
                     },
                     onBack = {
-                     searchViewModel.clearSearch()
+                   //  searchViewModel.clearSearch()
                         navController.popBackStack()
                     }
                 )

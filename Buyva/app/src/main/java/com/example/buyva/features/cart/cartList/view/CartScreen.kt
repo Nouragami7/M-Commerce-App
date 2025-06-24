@@ -18,10 +18,12 @@ import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.buyva.R
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.CartItem
@@ -64,9 +67,10 @@ import com.stripe.android.paymentsheet.rememberPaymentSheet
 @Composable
 fun CartScreen(
     onBackClick: () -> Unit,
-    onCheckoutClick : () -> Unit,
-    onNavigateToOrders : () -> Unit,
-    onNavigateToAddresses : () -> Unit
+    onCheckoutClick: () -> Unit,
+    onNavigateToOrders: () -> Unit,
+    onNavigateToAddresses: () -> Unit,
+    onNavigateToProductInfo: (String) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -117,11 +121,29 @@ val addressRepo = AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client))
     LaunchedEffect(Unit) {
         PaymentConfiguration.init(context, BuildConfig.STRIPE_PUBLISHABLE_KEY)
     }
+    val navController = rememberNavController()
+    val refreshFlag = navController
+        .currentBackStackEntry
+        ?.savedStateHandle
+        ?.getLiveData<Boolean>("REFRESH_CART")
+        ?.observeAsState()
+
+    LaunchedEffect(refreshFlag?.value) {
+        if (refreshFlag?.value == true) {
+            viewModel.showCart()
+            navController.currentBackStackEntry
+                ?.savedStateHandle
+                ?.set("REFRESH_CART", false)
+        }
+    }
+
 
     val paymentSheet = rememberPaymentSheet(
         paymentResultCallback = { result ->
             when (result) {
                 is PaymentSheetResult.Completed -> {
+
+                    viewModel.clearCart()
                     Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
 onNavigateToOrders()
                 }
@@ -141,14 +163,37 @@ onNavigateToOrders()
 
 
 
-    Scaffold { paddingValues ->
+    Scaffold (
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Cart",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Cold,
+                        fontWeight = MaterialTheme.typography.titleLarge.fontWeight
+                    )
+                },
+                navigationIcon = {
+
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Cold
+                        )
+
+
+                    }
+                }
+            )
+        }
+    ){ paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-
-            ScreenTitle("Cart")
 
 
             if (cartItems.isEmpty()) {
@@ -193,7 +238,8 @@ onNavigateToOrders()
                                     if (index != -1) {
                                         cartItems[index] = cartItems[index].copy(quantity = newQty)
                                     }
-                                })
+                                },onNavigateToProductInfo
+                                )
 
                             }
                         )
@@ -279,7 +325,7 @@ onNavigateToOrders()
             onConfirm = {
                 Log.i("1", "CartScreen onConfirm: $itemToDelete")
                 cartItems.remove(itemToDelete)
-                viewModel.removeProductFromCart(itemToDelete!!.id)
+                viewModel.removeProductFromCart(itemToDelete!!.lineId)
                 showDeleteDialog = false
                 itemToDelete = null
             },
