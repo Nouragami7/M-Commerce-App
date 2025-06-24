@@ -1,5 +1,6 @@
 package com.example.buyva.features.cart.cartList.view
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,7 +63,10 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(containerColor = Gray),
         onClick = {
+            Log.i("1", "CartItemRow id: ${item.id}")
+            Log.i("1", "CartItemRow title: ${item.variantId}")
             onNavigateToProductInfo(item.id)
+
         }
     ) {
         Row(

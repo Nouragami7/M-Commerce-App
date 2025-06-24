@@ -69,12 +69,12 @@ import com.example.buyva.utils.mappers.toFavouriteProduct
 fun ProductInfoScreen(
     navController: NavController,
     productId: String,
-    variantId: String,
+  //  variantId: String,
     repository: IHomeRepository,
     favouriteViewModel: FavouriteScreenViewModel,
     ) {
     Log.i("1", "ProductInfoScreen productId: $productId")
-    Log.i("1", "ProductInfoScreen variantId: $variantId")
+   // Log.i("1", "ProductInfoScreen variantId: $variantId")
     val application = LocalContext.current.applicationContext as Application
     val authRepo : AuthRepository = AuthRepository(FirebaseAuth.getInstance(), ApolloService.client)
     val cartRepo : CartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client), SharedPreferenceImpl)

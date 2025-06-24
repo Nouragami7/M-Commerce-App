@@ -1,6 +1,7 @@
 package com.example.buyva.navigation
 
 import CartScreen
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
@@ -122,7 +123,10 @@ fun SetupNavHost(
             onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
             onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) },
             onNavigateToAddresses = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }
-            , onNavigateToProductInfo = { navController.navigate(ScreensRoute.ProductInfoScreen) }
+            , onNavigateToProductInfo = { productId ->
+                val encodedId = Uri.encode(productId)
+                navController.navigate("productInfo/$encodedId")
+            }
 
         ) }
 
@@ -202,7 +206,7 @@ fun SetupNavHost(
                     productId = productId,
                     repository = repository,
                     navController = navController,
-                    variantId = variantId ,
+                  //  variantId = variantId ,
                     favouriteViewModel = favouriteViewModel
                 )
             }
