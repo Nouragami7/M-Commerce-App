@@ -1,5 +1,6 @@
 package com.example.buyva.features.orderdetails.view
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +20,7 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,13 +43,15 @@ import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.ubuntuMedium
 
 @Composable
-    fun OrderDetailsScreen(
-    sharedOrderViewModel: SharedOrderViewModel,
-    onBack: () -> Unit = {}) {
+fun OrderDetailsScreen(
+    sharedOrderViewModel: SharedOrderViewModel, onBack: () -> Unit = {}
+) {
 
     val order by sharedOrderViewModel.selectedOrder.collectAsState()
 
     val numberOfItems = order?.lineItems?.edges?.size
+    val imageUrls = sharedOrderViewModel.extractImageUrlsFromLineItems(order)
+    Log.i("TAG", "OrderDetailsScreen: $imageUrls")
 
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
@@ -67,8 +70,7 @@ import com.example.buyva.ui.theme.ubuntuMedium
         ) {
             IconButton(onClick = onBack) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back"
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back"
                 )
             }
             Spacer(modifier = Modifier.width(8.dp))
@@ -156,22 +158,41 @@ import com.example.buyva.ui.theme.ubuntuMedium
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Call, contentDescription = "Phone", tint = Color.DarkGray)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(order?.shippingAddress?.phone.toString(), fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                    Text(
+                        order?.shippingAddress?.phone.toString(),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        Icons.Default.Place,
-                        contentDescription = "Location",
-                        tint = Color.DarkGray
+                        Icons.Default.Place, contentDescription = "Location", tint = Color.DarkGray
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(order?.shippingAddress?.address1.toString(), fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                    Text(
+                        order?.shippingAddress?.address1.toString(),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
 
 
             Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Ordered Items",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                fontFamily = ubuntuMedium,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+
+            val itemsList = order?.lineItems?.edges ?: emptyList()
+
+            OrderItems(itemsList,imageUrls)
 
             Column(modifier = Modifier.padding(16.dp)) {
 
@@ -189,7 +210,10 @@ import com.example.buyva.ui.theme.ubuntuMedium
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Subtotal:", fontSize = 20.sp)
-                    Text("${order?.subtotalPriceSet?.shopMoney?.amount} ${order?.subtotalPriceSet?.shopMoney?.currencyCode} " , fontSize = 18.sp)
+                    Text(
+                        "${order?.subtotalPriceSet?.shopMoney?.amount} ${order?.subtotalPriceSet?.shopMoney?.currencyCode} ",
+                        fontSize = 18.sp
+                    )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -197,10 +221,13 @@ import com.example.buyva.ui.theme.ubuntuMedium
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Total Tax:", fontSize = 20.sp)
-                    Text("${order?.totalTaxSet?.shopMoney?.amount} ${order?.totalTaxSet?.shopMoney?.currencyCode}", fontSize = 18.sp)
+                    Text(
+                        "${order?.totalTaxSet?.shopMoney?.amount} ${order?.totalTaxSet?.shopMoney?.currencyCode}",
+                        fontSize = 18.sp
+                    )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
-                Divider(color = Color.DarkGray)
+                HorizontalDivider(color = Color.DarkGray)
                 Spacer(modifier = Modifier.height(24.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -223,5 +250,5 @@ import com.example.buyva.ui.theme.ubuntuMedium
         }
     }
 
-
 }
+

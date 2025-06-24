@@ -4,6 +4,7 @@ mutation CreateDraftOrder($input: DraftOrderInput!) {
             id
             name
             createdAt
+            note2
 
             email
             shippingAddress {
@@ -46,6 +47,11 @@ mutation CreateDraftOrder($input: DraftOrderInput!) {
                             shopMoney {
                                 amount
                                 currencyCode
+                            }
+                        }
+                        variant {
+                            image {
+                                url
                             }
                         }
                     }

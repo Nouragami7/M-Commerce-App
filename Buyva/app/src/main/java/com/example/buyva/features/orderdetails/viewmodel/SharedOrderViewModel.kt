@@ -13,4 +13,22 @@ class SharedOrderViewModel : ViewModel() {
     fun setOrder(order: GetOrdersByCustomerEmailQuery.Node?) {
         _selectedOrder.value = order
     }
+    fun extractImageUrlsFromNote(note: String?): List<String> {
+        if (note == null) return emptyList()
+        return note.lines()
+            .filter { it.contains("Image: ") }
+            .mapNotNull {
+                val parts = it.split("Image: ")
+                if (parts.size == 2) parts[1].trim() else null
+            }
+    }
+
+    fun extractImageUrlsFromLineItems(order: GetOrdersByCustomerEmailQuery.Node?): List<String> {
+        if (order == null) return emptyList()
+
+        return order.lineItems.edges.map { edge ->
+            edge.node.variant?.image?.url.toString()
+        }
+
+}
 }
