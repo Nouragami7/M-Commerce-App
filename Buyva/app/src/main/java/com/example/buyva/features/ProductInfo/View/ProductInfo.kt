@@ -112,8 +112,11 @@ fun ProductInfoScreen(
 }
 
 @Composable
-
-fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavController,favouriteViewModel: FavouriteScreenViewModel,viewModel: ProductInfoViewModel
+fun ProductInfoContent(
+    product: GetProductByIdQuery.Product,
+    navController: NavController,
+    favouriteViewModel: FavouriteScreenViewModel,
+    viewModel: ProductInfoViewModel
 ) {
     var selectedImage by remember { mutableStateOf<String?>(null) }
     val favouriteProducts by favouriteViewModel.favouriteProducts.collectAsState()
@@ -121,13 +124,9 @@ fun ProductInfoContent(product: GetProductByIdQuery.Product, navController: NavC
     var showDeleteAlert by remember { mutableStateOf(false) }
 
     var isAddedToCart by remember { mutableStateOf(false) }
-    var selectedSize by remember { mutableStateOf<String?>(null) }
-    var selectedColor by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
     val userEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
     val cartId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("CART_ID_${userEmail.lowercase()}")
-    val productVariantId = product.variants.edges.firstOrNull()?.node?.id ?: ""
-val context = LocalContext.current
-
 
     val images = product.images.edges.mapNotNull { it.node.originalSrc?.toString() }
     val title = product.title
@@ -136,10 +135,9 @@ val context = LocalContext.current
     val inStock = (product.totalInventory ?: 0) > 0
 
     val allVariants = product.variants.edges.map { it.node }
+    val allSelectedOptions = allVariants.flatMap { it.selectedOptions }
     val price = allVariants.firstOrNull()?.price?.amount ?: "0.0"
     val currency = allVariants.firstOrNull()?.price?.currencyCode?.name ?: ""
-
-    val allSelectedOptions = allVariants.flatMap { it.selectedOptions }
 
     val availableSizes = allSelectedOptions
         .filter { it.name.equals("Size", ignoreCase = true) }
@@ -151,6 +149,9 @@ val context = LocalContext.current
         .map { it.value }
         .distinct()
 
+    var selectedSize by remember { mutableStateOf(availableSizes.firstOrNull()) }
+    var selectedColor by remember { mutableStateOf(availableColors.firstOrNull()) }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -158,7 +159,7 @@ val context = LocalContext.current
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = 80.dp)
         ) {
-
+            // Header
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -169,20 +170,13 @@ val context = LocalContext.current
                     onClick = { navController.popBackStack() },
                     modifier = Modifier.size(36.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color.Black
-                    )
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Color.Black)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Product Info",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Sea
-                )
+                Text("Product Info", style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold), color = Sea)
             }
 
+            // Image + Favourite
             Card(
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -207,13 +201,11 @@ val context = LocalContext.current
                             .padding(4.dp)
                             .size(28.dp)
                             .clickable {
-                                if (isFavorite) {
-                                    showDeleteAlert = true
-                                } else {
-                                    favouriteViewModel.toggleFavourite(product.id)
-                                }
+                                if (isFavorite) showDeleteAlert = true
+                                else favouriteViewModel.toggleFavourite(product.id)
                             }
                     )
+
                     if (showDeleteAlert) {
                         CustomAlertDialog(
                             title = "Remove from favorites",
@@ -224,24 +216,20 @@ val context = LocalContext.current
                                 favouriteViewModel.toggleFavourite(product.id)
                                 showDeleteAlert = false
                             },
-                            onDismiss = {
-                                showDeleteAlert = false
-                            }
+                            onDismiss = { showDeleteAlert = false }
                         )
                     }
-
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Info
             Card(
                 shape = RoundedCornerShape(16.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
                 colors = CardDefaults.cardColors(containerColor = Gray),
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .fillMaxWidth()
+                modifier = Modifier.padding(horizontal = 12.dp).fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(title, fontWeight = FontWeight.Bold, fontSize = 20.sp)
@@ -250,11 +238,7 @@ val context = LocalContext.current
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("$price $currency", color = Cold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        if (inStock) "In Stock" else "Out of Stock",
-                        color = if (inStock) Color.Red else Color.Gray,
-                        fontSize = 12.sp
-                    )
+                    Text(if (inStock) "In Stock" else "Out of Stock", color = if (inStock) Color.Red else Color.Gray, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(description, fontSize = 16.sp, lineHeight = 22.sp)
                 }
@@ -262,13 +246,11 @@ val context = LocalContext.current
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Sizes
             if (availableSizes.isNotEmpty()) {
                 Text("Select Size", Modifier.padding(start = 16.dp), fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    Modifier.padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     availableSizes.forEach { size ->
                         OutlinedButton(
                             onClick = { selectedSize = size },
@@ -285,13 +267,11 @@ val context = LocalContext.current
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
+            // Colors
             if (availableColors.isNotEmpty()) {
                 Text("Select Color", Modifier.padding(start = 16.dp), fontWeight = FontWeight.SemiBold)
                 Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    Modifier.padding(horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
+                Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     availableColors.forEach { colorName ->
                         val colorValue = colorFromName(colorName)
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -315,6 +295,7 @@ val context = LocalContext.current
             }
         }
 
+        // Bottom Add to Cart
         Box(
             Modifier
                 .align(Alignment.BottomCenter)
@@ -324,21 +305,37 @@ val context = LocalContext.current
         ) {
             OutlinedButton(
                 onClick = {
-                    isAddedToCart = !isAddedToCart
+                    if (selectedSize == null || selectedColor == null) {
+                        Toast.makeText(context, "Please select size and color", Toast.LENGTH_SHORT).show()
+                        return@OutlinedButton
+                    }
+
+                    val matchedVariant = product.variants.edges.map { it.node }.firstOrNull { variant ->
+                        val options = variant.selectedOptions.associate { it.name.lowercase() to it.value.lowercase() }
+                        val selectedSizeMatch = options["size"] == selectedSize?.lowercase()
+                        val selectedColorMatch = options["color"] == selectedColor?.lowercase()
+                        selectedSizeMatch && selectedColorMatch
+                    }
+
+                    val productVariantId = matchedVariant?.id
+
+                    if (productVariantId == null) {
+                        Toast.makeText(context, "No variant matches selected size/color", Toast.LENGTH_SHORT).show()
+                        return@OutlinedButton
+                    }
+
+                    isAddedToCart = true
                     viewModel.addToCartById(
                         email = userEmail,
                         cartId = cartId,
                         quantity = 1,
                         variantId = productVariantId
                     )
-                    if (isAddedToCart) {
-                      Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show()
-                        navController.navigate(ScreensRoute.CartScreen)
-                    }
-                          },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
+
+                    Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show()
+                    navController.navigate(ScreensRoute.CartScreen)
+                },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
                 colors = ButtonDefaults.outlinedButtonColors(
                     containerColor = if (isAddedToCart) Sea else Color.White,
                     contentColor = if (isAddedToCart) Color.White else Sea
@@ -356,6 +353,7 @@ val context = LocalContext.current
         FullscreenImageViewer(imageUrl = it) { selectedImage = null }
     }
 }
+
 
 
 fun colorFromName(name: String): Color {
@@ -380,7 +378,7 @@ fun ImageCarousel(images: List<String>, onImageClick: (String) -> Unit) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp) // ← تحكم ثابت في حجم الصورة
+                .height(200.dp)
                 .clip(RoundedCornerShape(12.dp))
         ) {
             if (images.isEmpty()) {
