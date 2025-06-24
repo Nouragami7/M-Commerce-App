@@ -28,15 +28,16 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.buyva.R
+import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
-import com.example.yourapp.ui.screens.OrderItem
 
 @Composable
-fun OrderCard(order: OrderItem, onOrderClick: (String) -> Unit) {
+fun OrderCard(order: GetOrdersByCustomerEmailQuery.Node, onOrderClick: (String) -> Unit) {
 
     Card(
-        onClick = { onOrderClick(order.id) },
+        onClick = {  },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(containerColor = Gray),
@@ -51,7 +52,7 @@ fun OrderCard(order: OrderItem, onOrderClick: (String) -> Unit) {
                 .padding(12.dp)
         ) {
             Image(
-                painter = painterResource(id = order.imageRes),
+                painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Product Image",
                 modifier = Modifier
                     .size(70.dp)
@@ -71,7 +72,7 @@ fun OrderCard(order: OrderItem, onOrderClick: (String) -> Unit) {
                         tint = Color.Black
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("OrderID: ${order.id}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
+                    Text("Order: ${order.name}", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold)
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -84,12 +85,12 @@ fun OrderCard(order: OrderItem, onOrderClick: (String) -> Unit) {
                         tint = Color.Black
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(order.date, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                    Text(order.createdAt.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                    Text(order.price, style = MaterialTheme.typography.bodyMedium, color = Cold, fontWeight = FontWeight.Bold)
+                    Text(order.totalPriceSet.toString(), style = MaterialTheme.typography.bodyMedium, color = Cold, fontWeight = FontWeight.Bold)
 
             }
         }

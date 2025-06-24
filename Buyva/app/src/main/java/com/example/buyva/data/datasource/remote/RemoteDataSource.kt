@@ -4,6 +4,7 @@ import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
+import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.uistate.ResponseState
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +21,7 @@ suspend fun createCart(email: String, token: String): Flow<ResponseState>
      suspend fun createCustomerAddress(token: String, address: Address): Flow<ResponseState>
      suspend fun getCustomerAddresses(token: String): Flow<ResponseState>
      suspend fun deleteCustomerAddress(addressId: String, token: String): Flow<ResponseState>
-
+     suspend fun getOrders(email: String): Flow<GetOrdersByCustomerEmailQuery.Data?>
 
 
 

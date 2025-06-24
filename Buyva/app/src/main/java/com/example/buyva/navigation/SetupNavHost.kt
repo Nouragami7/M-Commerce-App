@@ -17,6 +17,7 @@ import com.example.buyva.features.ProductInfo.View.ProductInfoScreen
 import com.example.buyva.features.authentication.login.view.LoginScreenHost
 import com.example.buyva.features.authentication.login.view.WelcomeScreen
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
+import com.example.buyva.features.authentication.signup.viewmodel.LogoutViewModel
 import com.example.buyva.features.brand.view.BrandProductsScreen
 import com.example.buyva.features.categories.view.CategoryScreen
 import com.example.buyva.features.favourite.view.FavouriteScreen
@@ -25,19 +26,12 @@ import com.example.buyva.features.home.view.HomeScreen
 import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.profile.addressdetails.view.AddressDetails
 import com.example.buyva.features.profile.addressdetails.viewlist.DeliveryAddressListScreen
-import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
-import com.example.buyva.features.authentication.signup.view.SignupScreenHost
-import com.example.buyva.features.authentication.signup.viewmodel.LogoutViewModel
-import com.example.buyva.features.brand.view.BrandProductsScreen
-import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
-
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
+import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.yourapp.ui.screens.OrderScreen
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
-
 import com.google.firebase.auth.FirebaseAuth
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SetupNavHost(
@@ -264,7 +258,7 @@ fun SetupNavHost(
         composable<ScreensRoute.OrderScreen> {
             OrderScreen(
                 onBack = { navController.popBackStack() },
-                onOrderClick = { navController.navigate(ScreensRoute.OrderDetailsScreen(it)) }
+             //   onOrderClick = { navController.navigate(ScreensRoute.OrderDetailsScreen(it)) }
             )
         }
 

@@ -15,6 +15,8 @@ import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.RemoveProductFromCartMutation
+import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
+import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.uistate.ResponseState
 import kotlinx.coroutines.flow.Flow
@@ -213,6 +215,16 @@ val mutation = CreateCartMutation(email, token)
         } catch (e: Exception) {
             emit(ResponseState.Failure(e))
         }
+    }
+
+    override suspend fun getOrders(email: String): Flow<GetOrdersByCustomerEmailQuery.Data?> = flow {
+        val response = ApolloAdmin.admin.query(GetOrdersByCustomerEmailQuery(email)).execute()
+        emit(response.data)
+        Log.i("order", "getOrders at RemoteDataSourceImpl: ${response.data}")
+    }.catch {
+        emit(null)
+        Log.i("order", "fail")
+
     }
 
 
