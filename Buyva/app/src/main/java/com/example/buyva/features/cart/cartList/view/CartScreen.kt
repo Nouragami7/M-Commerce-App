@@ -63,11 +63,8 @@ import com.example.buyva.utils.components.CustomAlertDialog
 import kotlinx.coroutines.launch
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.BuildConfig
-import com.example.buyva.R
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.model.Address
-import com.example.buyva.data.model.CartItem
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.remote.StripeClient
 import com.example.buyva.data.repository.adresses.AddressRepoImpl
@@ -79,12 +76,7 @@ import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
 import com.example.buyva.features.cart.cartList.viewmodel.CartViewModelFactory
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModel
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModelFactory
-import com.example.buyva.navigation.navbar.NavigationBar
-import com.example.buyva.ui.theme.Cold
-import com.example.buyva.ui.theme.Teal
-import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.components.EmptyScreen
-import com.example.buyva.utils.components.ScreenTitle
 import com.example.buyva.utils.functions.createOrder
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.stripe.android.PaymentConfiguration
