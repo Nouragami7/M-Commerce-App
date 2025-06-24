@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,8 +37,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.buyva.data.model.Address
+import com.example.buyva.data.model.CartItem
 import com.example.buyva.data.model.enums.PaymentMethod
+import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModel
 import com.example.buyva.ui.theme.Cold
+import com.example.buyva.utils.functions.createOrder
 import java.time.LocalDateTime
 
 
@@ -48,7 +52,10 @@ fun PaymentSection(
     address: Address,
     onConfirm: (LocalDateTime, PaymentMethod, String) -> Unit,
     onPayWithCardClick: () -> Unit,
-    onAddressClick: () -> Unit
+    onAddressClick: () -> Unit,
+    paymentViewModel: PaymentViewModel,
+    cartItems: SnapshotStateList<CartItem>,
+    defaultAddress: Address?
 ) {
 
     var selectedMethod by remember { mutableStateOf(PaymentMethod.CashOnDelivery) }
@@ -150,6 +157,8 @@ fun PaymentSection(
                 } else {
                     Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
                     onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
+                    createOrder(cartItems, defaultAddress, paymentViewModel, context)
+
                 }
             },
             modifier = Modifier

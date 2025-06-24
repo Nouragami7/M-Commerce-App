@@ -22,22 +22,17 @@ class RemoteDataSourceImpl(private val stripeAPI: StripeAPI) : RemoteDataSource 
     override suspend fun createDraftOrder(draftOrderInput: DraftOrderInput): Flow<ResponseState> = flow {
         try {
             val response = ApolloAdmin.admin.mutation(CreateDraftOrderMutation(draftOrderInput)).execute()
-            Log.d("OrderRD", "Order creation response: $response")
             val draftOrder = response.data?.draftOrderCreate?.draftOrder
-            Log.d("OrderRD", "Order creation response: $draftOrder")
             if (draftOrder != null) {
                 emit(ResponseState.Success("Draft Order Created: ${draftOrder.id}"))
-                Log.d("OrderRD", "Draft Order Created: ${draftOrder.id}")
             } else {
                 val errorMsg = response.data?.draftOrderCreate?.userErrors
                     ?.joinToString(", ") { it.message }
 
                 emit(ResponseState.Failure(Throwable(errorMsg)))
-                Log.e("OrderRD", "Error creating draft order: $errorMsg")
             }
         } catch (e: Exception) {
             emit(ResponseState.Failure(Throwable(e.message)))
-            Log.e("OrderRD", "Error creating draft order: ${e.message}", e)
         }
     }
 

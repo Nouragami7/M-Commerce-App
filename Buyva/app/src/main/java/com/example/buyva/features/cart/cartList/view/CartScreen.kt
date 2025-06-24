@@ -53,7 +53,6 @@ import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.CartItem
-import com.example.buyva.data.model.OrderItem
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.remote.StripeClient
 import com.example.buyva.data.repository.adresses.AddressRepoImpl
@@ -71,10 +70,8 @@ import com.example.buyva.ui.theme.Teal
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.components.ScreenTitle
-import com.example.buyva.utils.constants.DEFAULT_ADDRESS_ID
-import com.example.buyva.utils.constants.USER_TOKEN
+import com.example.buyva.utils.functions.createOrder
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
-import com.google.firebase.auth.FirebaseAuth
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
@@ -96,9 +93,6 @@ fun CartScreen(
     var showSheet by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
     var itemToDelete by remember { mutableStateOf<CartItem?>(null) }
-
-    val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
-    val defaultAddressId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}$token")
 
 
     val application = context.applicationContext as Application
@@ -152,7 +146,6 @@ fun CartScreen(
     }
 
 
-
     val totalPrice by remember(cartItems) {
         derivedStateOf {
             cartItems.sumOf { it.price * it.quantity }
@@ -167,14 +160,12 @@ fun CartScreen(
         when (orderState) {
             is ResponseState.Success<*> -> {
                 val fullMessage = (orderState as ResponseState.Success<*>).data.toString()
-                Log.d("DraftOrder", "Success message: $fullMessage")
 
                 val regex = Regex("gid://shopify/DraftOrder/\\d+")
                 val match = regex.find(fullMessage)
                 val draftOrderId = match?.value
 
                 if (!draftOrderId.isNullOrBlank()) {
-                    Log.d("DraftOrder", "Extracted ID: $draftOrderId")
                     paymentViewModel.completeDraftOrder(draftOrderId)
                 } else {
                     Log.e("DraftOrder", "Failed to extract draft order ID")
@@ -184,7 +175,10 @@ fun CartScreen(
             }
 
             is ResponseState.Failure -> {
-                Log.e("DraftOrder", "Failed to create draft order: ${(orderState as ResponseState.Failure).message}")
+                Log.e(
+                    "DraftOrder",
+                    "Failed to create draft order: ${(orderState as ResponseState.Failure).message}"
+                )
                 Toast.makeText(context, "Failed to place order.", Toast.LENGTH_SHORT).show()
             }
 
@@ -195,47 +189,22 @@ fun CartScreen(
     }
 
 
-
     val paymentSheet = rememberPaymentSheet(paymentResultCallback = { result ->
         when (result) {
             is PaymentSheetResult.Completed -> {
-                Log.d("DraftOrder", " address is  ${defaultAddress?.address1}" +
-                        "address2 is ${defaultAddress?.address2}")
 
-                println("hiiiiiiiiiiiiiiiiiiiiiii")
-
-                    Log.d("Stripe", "Payment completed!")
-
-                    val email = FirebaseAuth.getInstance().currentUser?.email ?: ""
-                    if (email.isNotBlank() && cartItems.isNotEmpty() && defaultAddress != null) {
-                        Log.d("DraftOrder", "Creating draft order after Stripe payment...")
-                        val orderItem = OrderItem(
-                            email = email,
-                            address = defaultAddress!!,
-                            cartItems = cartItems
-                        )
-                        paymentViewModel.createDraftOrder(orderItem)
-
-                    } else {
-                        Log.e("DraftOrder", "Missing data: email=$email, items=${cartItems.size}, address=$defaultAddress")
-                        Toast.makeText(context, "Cannot create order: missing data", Toast.LENGTH_SHORT).show()
-                    }
-
-
-                //Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
+                createOrder(cartItems, defaultAddress, paymentViewModel, context)
             }
 
             is PaymentSheetResult.Canceled -> {
-              //  onNavigateToOrders()
+                //  onNavigateToOrders()
                 Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
             }
 
             is PaymentSheetResult.Failed -> {
-               // onNavigateToOrders()
+                // onNavigateToOrders()
                 Toast.makeText(
-                    context,
-                    "Payment Failed: ${result.error.message}",
-                    Toast.LENGTH_SHORT
+                    context, "Payment Failed: ${result.error.message}", Toast.LENGTH_SHORT
                 ).show()
             }
         }
@@ -346,7 +315,8 @@ fun CartScreen(
                 showSheet = false
                 Toast.makeText(context, "Order Placed", Toast.LENGTH_SHORT).show()
             }, onPayWithCardClick = {
-                paymentViewModel.initiatePaymentFlow(amount = (totalPrice * 100).toInt(),
+                paymentViewModel.initiatePaymentFlow(
+                    amount = (totalPrice * 100).toInt(),
                     onClientSecretReady = { secret ->
                         paymentSheet.presentWithPaymentIntent(
                             paymentIntentClientSecret = secret,
@@ -355,9 +325,12 @@ fun CartScreen(
                             )
                         )
                     })
-            }, onAddressClick = {
-                onNavigateToAddresses()
-            })
+            },  onAddressClick = { onNavigateToAddresses() },
+                paymentViewModel = paymentViewModel,
+                cartItems = cartItems,
+                defaultAddress = defaultAddress
+
+            )
         }
     }
 
@@ -383,3 +356,4 @@ fun CartScreen(
         )
     }
 }
+

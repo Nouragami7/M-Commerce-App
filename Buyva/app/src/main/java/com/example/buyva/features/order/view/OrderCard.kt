@@ -37,7 +37,7 @@ import com.example.buyva.ui.theme.Gray
 @Composable
 fun OrderCard(order: GetOrdersByCustomerEmailQuery.Node, onOrderClick: (String) -> Unit) {
 
-    val createdAt = order.createdAt.toString() ?: ""
+    val createdAt = order.createdAt.toString()
     val date = createdAt.substringBefore("T")
     val time = createdAt.substringAfter("T").substringBefore("Z")
     Card(

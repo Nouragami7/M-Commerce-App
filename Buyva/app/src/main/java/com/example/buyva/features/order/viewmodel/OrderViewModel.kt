@@ -1,6 +1,5 @@
 package com.example.buyva.features.order.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -17,7 +16,6 @@ class OrderViewModel (private val orderRepository: IOrderRepository) : ViewModel
         viewModelScope.launch {
             _orderState.value = ResponseState.Loading
             orderRepository.getOrders(email).collect { orders ->
-                Log.i("order", "getOrders: $orders")
                 if (orders != null) {
                     _orderState.value = ResponseState.Success(orders)
                 } else {

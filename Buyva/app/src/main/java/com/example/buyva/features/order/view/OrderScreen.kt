@@ -102,7 +102,7 @@ fun OrderScreen(onBack: () -> Unit = {}, onOrderClick: (String) -> Unit = {}) {
             ResponseState.Loading -> LoadingIndicator()
             is ResponseState.Success<*> -> {
                 val response = state.data as GetOrdersByCustomerEmailQuery.Data
-                val orders = response.orders.edges.map { it.node } ?: emptyList()
+                val orders = response.orders.edges.map { it.node }
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     item {
                         OrderSection("Your Orders", orders, onOrderClick)

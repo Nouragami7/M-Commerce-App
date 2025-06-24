@@ -18,7 +18,6 @@ class PaymentRepoImpl(private val remoteDataSource: RemoteDataSource)  : Payment
     }
 
     override suspend fun createDraftOrder(draftOrderInput: DraftOrderInput): Flow<ResponseState> {
-        Log.d("OrderRepo", "Calling createDraftOrder with input: $draftOrderInput")
         return remoteDataSource.createDraftOrder(draftOrderInput)
 
     }
