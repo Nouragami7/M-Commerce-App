@@ -35,13 +35,13 @@ import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 
 @Composable
-fun OrderCard(order: GetOrdersByCustomerEmailQuery.Node, onOrderClick: (String) -> Unit) {
+fun OrderCard(order: GetOrdersByCustomerEmailQuery.Node, onOrderClick: (GetOrdersByCustomerEmailQuery.Node?) -> Unit) {
 
     val createdAt = order.createdAt.toString()
     val date = createdAt.substringBefore("T")
     val time = createdAt.substringAfter("T").substringBefore("Z")
     Card(
-        onClick = {  },
+        onClick = { onOrderClick(order) },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(6.dp),
         colors = CardDefaults.cardColors(containerColor = Gray),

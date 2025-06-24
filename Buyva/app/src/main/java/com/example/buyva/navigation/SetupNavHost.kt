@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,6 +28,7 @@ import com.example.buyva.features.favourite.view.FavouriteScreen
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.home.view.HomeScreen
 import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
+import com.example.buyva.features.orderdetails.viewmodel.SharedOrderViewModel
 import com.example.buyva.features.profile.addressdetails.view.AddressDetails
 import com.example.buyva.features.profile.addressdetails.viewlist.DeliveryAddressListScreen
 import com.example.buyva.features.profile.map.view.MapScreen
@@ -43,9 +45,11 @@ import java.nio.charset.StandardCharsets
 @Composable
 fun SetupNavHost(
     navController: NavHostController,
-    startDestination: String
+    startDestination: String,
 ) {
     val apolloClient = remember { ApolloService.client }
+    val sharedOrderViewModel: SharedOrderViewModel = viewModel()
+
 
     val logoutViewModel = remember {
         LogoutViewModel(
@@ -304,14 +308,19 @@ fun SetupNavHost(
         composable<ScreensRoute.OrderScreen> {
             OrderScreen(
                 onBack = { navController.popBackStack() },
-             //   onOrderClick = { navController.navigate(ScreensRoute.OrderDetailsScreen(it)) }
+                onOrderClick = { selectedOrder ->
+                    sharedOrderViewModel.setOrder(selectedOrder)
+                    navController.navigate(ScreensRoute.OrderDetailsScreen)
+
+                }
+
             )
         }
 
         composable<ScreensRoute.OrderDetailsScreen> {
             OrderDetailsScreen(
-                onBack = { navController.popBackStack() },
-                onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) }
+                sharedOrderViewModel = sharedOrderViewModel,
+                onBack = { navController.popBackStack() }
             )
         }
 

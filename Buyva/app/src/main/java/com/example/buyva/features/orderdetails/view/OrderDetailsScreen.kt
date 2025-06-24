@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
@@ -24,6 +26,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,14 +35,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.buyva.features.orderdetails.viewmodel.SharedOrderViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.ubuntuMedium
 
 @Composable
-    fun OrderDetailsScreen(onBack: () -> Unit = {},     onProductClick: (String) -> Unit // ⬅️ ده تعديلنا
-) {
+    fun OrderDetailsScreen(
+    sharedOrderViewModel: SharedOrderViewModel,
+    onBack: () -> Unit = {}) {
+
+    val order by sharedOrderViewModel.selectedOrder.collectAsState()
+
+    val numberOfItems = order?.lineItems?.edges?.size
 
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
@@ -47,8 +57,9 @@ import com.example.buyva.ui.theme.ubuntuMedium
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F8FA))
+            .background(Color.White)
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -99,12 +110,14 @@ import com.example.buyva.ui.theme.ubuntuMedium
                 fontFamily = ubuntuMedium
             )
             Spacer(modifier = Modifier.width(20.dp))
-            Text(
-                text = "#1090",
-                fontSize = 20.sp,
-                color = Color.Black,
-                fontWeight = FontWeight.Medium
-            )
+            order?.let {
+                Text(
+                    text = it.name,
+                    fontSize = 20.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
 
         Row(
@@ -120,13 +133,8 @@ import com.example.buyva.ui.theme.ubuntuMedium
                 fontFamily = ubuntuMedium
             )
             Spacer(modifier = Modifier.width(14.dp))
-            Text("1 item", color = Color.DarkGray, fontSize = 20.sp)
+            Text(numberOfItems.toString() + "items", color = Color.DarkGray, fontSize = 20.sp)
         }
-
-//        ProductCard(
-//    product = product, // أو أي data class عندك
-//    onClick = { onProductClick(product.id) } // ⬅️ product.id هو الـ ID اللي هتستخدمه في النفيجيشن
-//)
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -148,7 +156,7 @@ import com.example.buyva.ui.theme.ubuntuMedium
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(Icons.Default.Call, contentDescription = "Phone", tint = Color.DarkGray)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("+201126513889", fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                    Text(order!!.shippingAddress?.phone.toString(), fontSize = 18.sp, fontWeight = FontWeight.Medium)
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -158,7 +166,7 @@ import com.example.buyva.ui.theme.ubuntuMedium
                         tint = Color.DarkGray
                     )
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("gamal abdel naser", fontSize = 18.sp, fontWeight = FontWeight.Medium)
+                    Text(order!!.shippingAddress?.address1.toString(), fontSize = 18.sp, fontWeight = FontWeight.Medium)
                 }
             }
 
@@ -181,7 +189,7 @@ import com.example.buyva.ui.theme.ubuntuMedium
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text("Subtotal:", fontSize = 20.sp)
-                    Text("9000.00 EGP", fontSize = 18.sp)
+                    Text("${order!!.subtotalPriceSet?.shopMoney?.amount} ${order!!.subtotalPriceSet?.shopMoney?.currencyCode} " , fontSize = 18.sp)
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -205,7 +213,7 @@ import com.example.buyva.ui.theme.ubuntuMedium
                         fontFamily = ubuntuMedium
                     )
                     Text(
-                        "9000.00 EGP",
+                        "${order!!.totalPriceSet.shopMoney.amount} ${order!!.totalPriceSet.shopMoney.currencyCode}",
                         color = Cold,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp

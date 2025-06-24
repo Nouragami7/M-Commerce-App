@@ -10,6 +10,7 @@ fun OrderItem.toDraftOrderInput(): DraftOrderInput {
         DraftOrderLineItemInput(
             title = Optional.Present(it.title),
             quantity = it.quantity,
+            variantId = Optional.Present(it.variantId),
             originalUnitPrice = Optional.Present(it.price.toString())
         )
     }
