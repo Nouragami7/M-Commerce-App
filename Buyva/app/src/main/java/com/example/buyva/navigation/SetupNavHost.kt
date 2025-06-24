@@ -11,7 +11,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.model.Address
 import com.example.buyva.data.repository.AuthRepository
 import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
@@ -35,9 +34,6 @@ import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 import com.example.yourapp.ui.screens.OrderScreen
 
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.serialization.json.Json
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -126,6 +122,8 @@ fun SetupNavHost(
             onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
             onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) },
             onNavigateToAddresses = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }
+            , onNavigateToProductInfo = { navController.navigate(ScreensRoute.ProductInfoScreen) }
+
         ) }
 
         composable<ScreensRoute.CategoriesScreen> {
@@ -189,23 +187,22 @@ fun SetupNavHost(
 
         composable("productInfo/{productId}") { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
-
+            val variantId = backStackEntry.arguments?.getString("variantId") ?: ""
             val currentUser = FirebaseAuth.getInstance().currentUser
             val favouriteViewModel = remember(currentUser?.uid) {
                 currentUser?.let {
                     FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
                 }
             }
-
             val repository = remember {
                 HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
             }
-
             if (favouriteViewModel != null) {
                 ProductInfoScreen(
                     productId = productId,
                     repository = repository,
                     navController = navController,
+                    variantId = variantId ,
                     favouriteViewModel = favouriteViewModel
                 )
             }

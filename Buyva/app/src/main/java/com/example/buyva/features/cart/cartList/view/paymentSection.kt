@@ -1,5 +1,6 @@
 package com.example.buyva.features.cart.cartList.view
 
+import android.app.Application
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -21,9 +22,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
+import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.enums.PaymentMethod
+import com.example.buyva.data.repository.adresses.AddressRepoImpl
+import com.example.buyva.data.repository.cart.CartRepoImpl
+import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
+import com.example.buyva.features.cart.cartList.viewmodel.CartViewModelFactory
 import com.example.buyva.ui.theme.Cold
+import com.example.buyva.utils.components.CustomAlertDialog
+import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -38,22 +48,50 @@ fun PaymentSection(
     onPayWithCardClick: () -> Unit,
     onAddressClick: () -> Unit
 ) {
-
     var selectedMethod by remember { mutableStateOf(PaymentMethod.CashOnDelivery) }
     var voucherCode by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
+    var showDialog by remember { mutableStateOf(false) }
+    val application = LocalContext.current.applicationContext
+    val cartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client), SharedPreferenceImpl)
+    val addressRepo = AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client))
+    val viewModel : CartViewModel = viewModel(
+        factory = CartViewModelFactory(application as Application, cartRepo, addressRepo)
+    )
+    val context = LocalContext.current
+    val addressDetails = if (address.lastName != "") {
+        "${address.firstName} ${address.lastName}\n${address.address1}"
+    } else {
+        "Choose Default Address !"
+    }
+
+    if (showDialog) {
+        CustomAlertDialog(
+            title = "Error",
+            message = "Please choose default address",
+            onConfirm = {
+                showDialog = false
+                Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
+            },
+            onDismiss = {
+                showDialog = false
+                Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
+            },
+            confirmText = "OK",
+            dismissText = "Cancel"
+        )
+    }
 
     Column(modifier = Modifier.padding(16.dp)) {
-
         Spacer(modifier = Modifier.height(16.dp))
+
         OutlinedTextField(
-            value = "${address.firstName} ${address.lastName}\n${address.address1}",
+            value = addressDetails,
             onValueChange = {},
             label = { Text("Default Address") },
             readOnly = true,
-            modifier = Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Cold,
                 unfocusedBorderColor = Color.Black,
@@ -62,9 +100,7 @@ fun PaymentSection(
                 focusedLabelColor = Cold,
             ),
             trailingIcon = {
-                IconButton(onClick = {
-                    onAddressClick()
-                }) {
+                IconButton(onClick = onAddressClick) {
                     Icon(Icons.Default.Edit, contentDescription = "Edit")
                 }
             },
@@ -72,10 +108,10 @@ fun PaymentSection(
             maxLines = 2
         )
 
-
         Spacer(modifier = Modifier.height(16.dp))
 
         Text("Payment Method", fontWeight = FontWeight.Bold, color = Cold)
+
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             PaymentMethod.entries.forEach { method ->
                 OutlinedButton(
@@ -84,7 +120,9 @@ fun PaymentSection(
                         containerColor = if (selectedMethod == method) Cold else Color.Transparent,
                         contentColor = if (selectedMethod == method) Color.White else Cold
                     ),
-                    modifier = Modifier.weight(1f).padding(4.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(4.dp)
                 ) {
                     Text(method.displayName)
                 }
@@ -99,38 +137,44 @@ fun PaymentSection(
                 onValueChange = { voucherCode = it },
                 label = { Text("Voucher Code") },
                 modifier = Modifier.weight(1f),
-            colors = OutlinedTextFieldDefaults.colors(
+                colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Cold,
-            unfocusedBorderColor = Color.Black,
-            focusedTextColor = Color.Black,
-            unfocusedTextColor = Color.Black,
-            focusedLabelColor = Cold,
-            ),
-
+                    unfocusedBorderColor = Color.Black,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedLabelColor = Cold,
                 )
+            )
             Spacer(modifier = Modifier.width(8.dp))
-            Button(onClick = {
-              //  snackbarHostState.showSnackbar("Voucher applied!")
-            }, modifier =  Modifier.align(Alignment.CenterVertically).padding(top = 8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Cold)) {
+            Button(
+                onClick = {
+                    // Apply voucher logic here
+                },
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(top = 8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Cold)
+            ) {
                 Text("Apply")
             }
-
         }
 
         errorMessage?.let {
             Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(8.dp))
         }
 
-        val context = LocalContext.current
-
         Button(
             onClick = {
-                if (selectedMethod == PaymentMethod.PayWithCard) {
-                    onPayWithCardClick()
+                if (addressDetails != "Choose Default Address !") {
+                    if (selectedMethod == PaymentMethod.PayWithCard) {
+                        onPayWithCardClick()
+                    } else {
+                        viewModel.clearCart()
+                        Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
+                        onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
+                    }
                 } else {
-                    Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
-                    onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
+                    showDialog = true
                 }
             },
             modifier = Modifier
@@ -144,5 +188,6 @@ fun PaymentSection(
         SnackbarHost(hostState = snackbarHostState, modifier = Modifier.padding(16.dp))
     }
 }
+
 
 
