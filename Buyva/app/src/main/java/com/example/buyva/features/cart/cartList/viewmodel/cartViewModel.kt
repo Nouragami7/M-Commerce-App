@@ -20,6 +20,7 @@ import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.extensions.stripTokenFromShopifyGid
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -42,10 +43,6 @@ class CartViewModel(
     private val defaultAddressId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token")
 
 
-    init {
-        showCart()
-    }
-
     fun getCartDetails() {
         viewModelScope.launch {
             cartRepo.getCartProducts(cartId ?: "No cart Id Found!").collect { response ->
@@ -62,22 +59,28 @@ class CartViewModel(
         }
 
 
-    fun showCart() {
-        viewModelScope.launch {
-            cartRepo.getCartProductList(cartId ?: "No cart Id Found!")
-                .collect { response ->
-                    Log.i("1", "showCart: $response")
-                    _cartProducts.value = response
+        fun showCart() {
+            viewModelScope.launch {
+                _cartProducts.value = ResponseState.Loading
+                try {
+                    cartRepo.getCartProductList(cartId ?: "")
+                        .collect { response ->
+                            _cartProducts.value = response
+                        }
+                } catch (e: Exception) {
+                    _cartProducts.value = ResponseState.Failure(Throwable(e.message ?: "Unknown"))
                 }
+            }
         }
-    }
+
+
 
     fun removeProductFromCart(productLineId: String) {
         viewModelScope.launch {
             val cartId = this@CartViewModel.cartId ?: return@launch
             cartRepo.removeProductFromCart(cartId, productLineId).collect { response ->
                 if (response is ResponseState.Success<*>) {
-                    showCart()
+                //    showCart()
                     Log.d("1", "Item removed successfully")
                 } else if (response is ResponseState.Failure) {
                     Log.e("1", "Remove failed: ${response.message}")
@@ -103,7 +106,7 @@ class CartViewModel(
                             }
                         }
                     }
-                    showCart()
+                   showCart()
                     Log.d("1", "Cart cleared successfully")
                 } else if (response is ResponseState.Failure) {
                     Log.e("1", "Failed to load cart for clearing: ${response.message}")

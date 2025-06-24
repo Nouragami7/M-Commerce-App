@@ -56,16 +56,17 @@ fun AddressDetails(
     address: String?,
     city: String? = null,  //from map to add
     country: String? = null,  //from map to add
-    editable: Boolean = false,
+    editableTextFields: Boolean,
     prefillData: String? = null,  //from list to show and update
     onBackClick: () -> Unit = {},
     onSaveClick: () -> Unit = {}
 ) {
+
+    val addressFromMap = remember { mutableStateOf(address) }
     val addressModel = remember(prefillData) {
         jsonStringToAddress(prefillData ?: "")
     }
 Log.d("1", "AddressDetails called coutry  : ${country} from details and city  : ${city}")
-    val parts = address?.split(",")?.map { it.trim() }
     val viewModel: AddressViewModel = viewModel(
         factory = AddressViewModelFactory(
             application = LocalContext.current.applicationContext as Application,
@@ -79,7 +80,7 @@ Log.d("1", "AddressDetails called coutry  : ${country} from details and city  : 
     val streetAddress = remember { mutableStateOf("") }
     val buildingNumber = remember { mutableStateOf("") }
     val floorNumber = remember { mutableStateOf("") }
-    val isEditable = remember { mutableStateOf(editable) }
+    val isEditable = remember { mutableStateOf(editableTextFields) }
 
     LaunchedEffect(prefillData) {
         val model = jsonStringToAddress(prefillData ?: "")
@@ -172,6 +173,7 @@ Log.d("1", "id  : ${addressModel.id}    from list")
                 modifier = Modifier.weight(1f).height(textFieldHeight)
             )
 
+
             OutlinedTextField(
                 value = lastName.value,
                 onValueChange = { lastName.value = it },
@@ -214,6 +216,48 @@ Log.d("1", "id  : ${addressModel.id}    from list")
 
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        OutlinedTextField(
+            value = addressFromMap.value ?: addressModel?.address1 ?: "",
+            onValueChange = { addressFromMap.value = it },
+            enabled = false,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Cold,
+                unfocusedBorderColor = Color.Gray,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Cold,
+                unfocusedLabelColor = Color.Gray,
+                cursorColor = Cold
+            ),
+            label = {
+                Text(
+                    text = "Address Information",
+                    fontSize = labelFontSize,
+                    fontWeight = FontWeight.Medium
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Home,
+                    contentDescription = "Address",
+                    tint = Cold
+                )
+            },
+            textStyle = TextStyle(fontSize = inputFontSize),
+            modifier = Modifier
+                    .heightIn(min = 56.dp, max = 200.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .fillMaxWidth()
+                .background(Color.White),
+            shape = RoundedCornerShape(12.dp),
+            singleLine = false,
+            maxLines = 5
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+
 
         OutlinedTextField(
             value = buildingNumber.value,
@@ -278,7 +322,7 @@ Log.d("1", "id  : ${addressModel.id}    from list")
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        if (isEditable.value && addressModel == null) {
+        if (isEditable.value && addressModel == null) {  // from map
             Button(
                 onClick = {
                     val newAddress = Address(

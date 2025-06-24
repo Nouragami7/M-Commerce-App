@@ -251,7 +251,7 @@ fun SetupNavHost(
                 address = backStackEntry.toRoute<ScreensRoute.AddressDetails>().address,
                 city = backStackEntry.toRoute<ScreensRoute.AddressDetails>().city,
                 country = backStackEntry.toRoute<ScreensRoute.AddressDetails>().country,
-                editable = backStackEntry.toRoute<ScreensRoute.AddressDetails>().editable,
+                editableTextFields = backStackEntry.toRoute<ScreensRoute.AddressDetails>().editableTextFields,
                 prefillData = backStackEntry.toRoute<ScreensRoute.AddressDetails>().prefillData,
                 onSaveClick = {
                     navController.navigate(ScreensRoute.DeliveryAddressListScreen)
@@ -266,7 +266,7 @@ fun SetupNavHost(
                     navController.navigate(
                         ScreensRoute.AddressDetails(
                             address = address ?: "",
-                            editable = false,
+                            editableTextFields = false,
                             prefillData = prefillData,
                         )
                     )
@@ -288,7 +288,7 @@ fun SetupNavHost(
                             address = address,
                             city = city,
                             country = country,
-                            editable = true,
+                            editableTextFields = true,
                             prefillData = ""
                         )
                     )

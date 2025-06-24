@@ -4,6 +4,7 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -48,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -77,6 +79,7 @@ import com.example.buyva.features.cart.cartList.viewmodel.CartViewModelFactory
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModel
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModelFactory
 import com.example.buyva.utils.components.EmptyScreen
+import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.functions.createOrder
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.stripe.android.PaymentConfiguration
@@ -118,38 +121,40 @@ fun CartScreen(
     val defaultAddress by viewModel.defaultAddress.collectAsState()
 
     val orderState by paymentViewModel.order.collectAsState()
-
     val cartState by viewModel.cartProducts.collectAsState()
     val cartItems = remember {
         mutableStateListOf<CartItem>()
     }
 
+
     LaunchedEffect(cartState) {
-        Log.d("CartDebug", "cartState = $cartState")
         when (cartState) {
             is ResponseState.Success<*> -> {
-                cartItems.clear()
-                cartItems.addAll((cartState as ResponseState.Success<List<CartItem>>).data)
+                val data = (cartState as ResponseState.Success<*>).data
+                if (data is List<*>) {
+                    cartItems.clear()
+                    cartItems.addAll(data.filterIsInstance<CartItem>())
+                } else {
+                    Log.e("CartDebug", "Unexpected data type: ${data?.javaClass}")
+                }
             }
-
             is ResponseState.Failure -> {
-                Log.e(
-                    "CartDebug",
-                    "Failed to load cart: ${(cartState as ResponseState.Failure).message}"
-                )
+                Log.e("CartDebug", "Failed to load cart: ${(cartState as ResponseState.Failure).message}")
             }
-
-            else -> Unit
+            is ResponseState.Loading -> {
+                cartItems.clear()
+                Log.d("CartDebug", "Cart is loading...")
+            }
         }
     }
-
-
 
 
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
         viewModel.showCart()
         viewModel.loadDefaultAddress()
+         PaymentConfiguration.init(context, BuildConfig.STRIPE_PUBLISHABLE_KEY)
+
     }
 
 
@@ -159,24 +164,13 @@ fun CartScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        PaymentConfiguration.init(context, BuildConfig.STRIPE_PUBLISHABLE_KEY)
-    }
-    val navController = rememberNavController()
-    val refreshFlag = navController
-        .currentBackStackEntry
-        ?.savedStateHandle
-        ?.getLiveData<Boolean>("REFRESH_CART")
-        ?.observeAsState()
 
-    LaunchedEffect(refreshFlag?.value) {
-        if (refreshFlag?.value == true) {
-            viewModel.showCart()
-            navController.currentBackStackEntry
-                ?.savedStateHandle
-                ?.set("REFRESH_CART", false)
-        }
-    }
+
+
+
+
+
+
 
     LaunchedEffect(orderState) {
         when (orderState) {
@@ -262,83 +256,108 @@ fun CartScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(paddingValues),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
+            when (cartState) {
+                is ResponseState.Loading -> {
+                    cartItems.clear()
+                    CircularProgressIndicator(color = Cold)
+                }
 
+                is ResponseState.Failure -> {
+                    val message = (cartState as ResponseState.Failure).message.message ?: "An error occurred"
+                    Text(
+                        text = message,
+                        color = Color.Red,
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(16.dp),
+                        textAlign = TextAlign.Center
+                    )
+                    cartItems.clear()
+                }
 
-            if (cartItems.isEmpty()) {
-                EmptyScreen("No items in the cart", 28.sp, R.raw.emptycart)
-            } else {
-                LazyColumn(modifier = Modifier.weight(1f)) {
+                is ResponseState.Success<*> -> {
+                    if (!cartItems.isEmpty()) {
+                        LazyColumn(modifier = Modifier.weight(1f)) {
+                            items(cartItems, key = { it.id }) { item ->
+                                val dismissState =
+                                    rememberDismissState(confirmStateChange = { dismissValue ->
+                                        if (dismissValue == DismissValue.DismissedToStart || dismissValue == DismissValue.DismissedToEnd) {
+                                            itemToDelete = item
+                                            showDeleteDialog = true
+                                            false
+                                        } else false
+                                    })
 
-                    items(cartItems, key = { it.id }) { item ->
-                        val dismissState =
-                            rememberDismissState(confirmStateChange = { dismissValue ->
-                                if (dismissValue == DismissValue.DismissedToStart || dismissValue == DismissValue.DismissedToEnd) {
-                                    itemToDelete = item
-                                    showDeleteDialog = true
-                                    false
-                                } else {
-                                    false
-                                }
-                            })
-
-                        SwipeToDismiss(state = dismissState,
-                            directions = setOf(DismissDirection.EndToStart),
-                            background = {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.CenterEnd
-                                ) {
-                                    Icon(
-                                        Icons.Default.Delete,
-                                        contentDescription = "Delete",
-                                        tint = Teal
-                                    )
-                                }
-                            },
-                            dismissContent = {
-                                CartItemRow(item = item, onQuantityChange = { newQty ->
-                                    val index = cartItems.indexOfFirst { it.id == item.id }
-                                    if (index != -1) {
-                                        cartItems[index] = cartItems[index].copy(quantity = newQty)
+                                SwipeToDismiss(
+                                    state = dismissState,
+                                    directions = setOf(DismissDirection.EndToStart),
+                                    background = {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(16.dp),
+                                            contentAlignment = Alignment.CenterEnd
+                                        ) {
+                                            Icon(
+                                                Icons.Default.Delete,
+                                                contentDescription = "Delete",
+                                                tint = Teal
+                                            )
+                                        }
+                                    },
+                                    dismissContent = {
+                                        CartItemRow(
+                                            item = item,
+                                            onQuantityChange = { newQty ->
+                                                val index = cartItems.indexOfFirst { it.id == item.id }
+                                                if (index != -1) {
+                                                    cartItems[index] = cartItems[index].copy(quantity = newQty)
+                                                }
+                                            },
+                                            onNavigateToProductInfo = onNavigateToProductInfo
+                                        )
                                     }
-                                },onNavigateToProductInfo
                                 )
+                            }
+                        }
 
-                            })
+                        Text(
+                            text = "Total: EGP %.2f".format(totalPrice),
+                            modifier = Modifier
+                                .align(Alignment.End)
+                                .padding(horizontal = 16.dp, vertical = 4.dp),
+                            fontSize = 25.sp,
+                            fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
+                            color = Cold
+                        )
+
+                        Button(
+                            onClick = {
+                                showSheet = true
+                                scope.launch { sheetState.show() }
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Cold),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text("Proceed to Payment", color = Color.White)
+                        }
+
+                        Spacer(modifier = Modifier.height(56.dp))
+                    }else{
+
+                        EmptyScreen("No items in the cart", 28.sp, R.raw.emptycart)
+
                     }
                 }
             }
-
-            Text(
-                text = "Total: EGP %.2f".format(totalPrice),
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                fontSize = 25.sp,
-                fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
-                color = Cold
-            )
-
-            Button(
-                onClick = {
-                    showSheet = true
-                    scope.launch { sheetState.show() }
-                },
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Cold),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Text("Proceed to Payment", color = Color.White)
-            }
-
-            Spacer(modifier = Modifier.height(56.dp))
         }
+
     }
 
     if (showSheet) {
