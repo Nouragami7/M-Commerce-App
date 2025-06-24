@@ -32,17 +32,9 @@ import com.example.buyva.features.profile.addressdetails.viewlist.DeliveryAddres
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
-import com.example.yourapp.ui.screens.OrderScreen
-import com.google.firebase.auth.FirebaseAuth
-import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
-import com.example.buyva.features.authentication.signup.viewmodel.LogoutViewModel
-
-import com.example.buyva.features.profile.map.view.MapScreen
-import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 import com.example.buyva.features.search.view.SearchScreen
 import com.example.buyva.features.search.viewmodel.SearchViewModel
 import com.example.yourapp.ui.screens.OrderScreen
-
 import com.google.firebase.auth.FirebaseAuth
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -198,9 +190,7 @@ fun SetupNavHost(
                     imageUrl = image,
                     onBack = { navController.popBackStack() },
                     onProductClick = { productId ->
-                        val encodedId =
-                            URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
-                        navController.navigate("productInfo/$encodedId")
+                        navController.navigate("productInfo/$productId")
                     },
                     onSearchClick = {
                         val encodedBrand =
