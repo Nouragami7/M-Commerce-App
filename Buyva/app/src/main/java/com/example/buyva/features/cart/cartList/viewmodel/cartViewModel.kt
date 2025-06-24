@@ -72,10 +72,10 @@ class CartViewModel(
         }
     }
 
-    fun removeProductFromCart(productVariantId: String) {
+    fun removeProductFromCart(productLineId: String) {
         viewModelScope.launch {
             val cartId = this@CartViewModel.cartId ?: return@launch
-            cartRepo.removeProductFromCart(cartId, productVariantId).collect { response ->
+            cartRepo.removeProductFromCart(cartId, productLineId).collect { response ->
                 if (response is ResponseState.Success<*>) {
                     showCart()
                     Log.d("1", "Item removed successfully")
@@ -85,6 +85,34 @@ class CartViewModel(
             }
         }
     }
+
+
+    fun clearCart() {
+        viewModelScope.launch {
+            val cartId = this@CartViewModel.cartId ?: return@launch
+
+            cartRepo.getCartProducts(cartId).collect { response ->
+                if (response is ResponseState.Success<*>) {
+                    val cart = response.data as? GetCartDetailsQuery.Cart
+                    val lineIds = cart?.lines?.edges?.map { it.node.id } ?: emptyList()
+
+                    lineIds.forEach { lineId ->
+                        cartRepo.removeProductFromCart(cartId, lineId).collect { removeResponse ->
+                            if (removeResponse is ResponseState.Failure) {
+                                Log.e("1", "Failed to remove item: ${removeResponse.message}")
+                            }
+                        }
+                    }
+                    showCart()
+                    Log.d("1", "Cart cleared successfully")
+                } else if (response is ResponseState.Failure) {
+                    Log.e("1", "Failed to load cart for clearing: ${response.message}")
+                }
+            }
+        }
+    }
+
+
     fun loadDefaultAddress() {
         if (token.isNullOrBlank()) return
 

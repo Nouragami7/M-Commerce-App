@@ -6,7 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 
 
 data class CartItem(
+    val lineId: String,
     val id: String,
+    val variantId: String,
     val title: String,
     val imageUrl: String,
     val price: Double,

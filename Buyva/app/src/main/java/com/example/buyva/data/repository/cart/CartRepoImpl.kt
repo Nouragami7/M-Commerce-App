@@ -53,7 +53,9 @@ class CartRepoImpl (
 
 
                             CartItem(
+                                lineId = edge.node.id,
                                 id = product.id,
+                                variantId = variant.id,
                                 title = product.title,
                                 imageUrl = (product.featuredImage?.url ?: "").toString(),
                                 price = price,

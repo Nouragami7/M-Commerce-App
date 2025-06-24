@@ -1,6 +1,7 @@
 package com.example.buyva.features.ProductInfo.View
 
 import android.app.Application
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -68,10 +69,12 @@ import com.example.buyva.utils.mappers.toFavouriteProduct
 fun ProductInfoScreen(
     navController: NavController,
     productId: String,
+  //  variantId: String,
     repository: IHomeRepository,
     favouriteViewModel: FavouriteScreenViewModel,
-
     ) {
+    Log.i("1", "ProductInfoScreen productId: $productId")
+   // Log.i("1", "ProductInfoScreen variantId: $variantId")
     val application = LocalContext.current.applicationContext as Application
     val authRepo : AuthRepository = AuthRepository(FirebaseAuth.getInstance(), ApolloService.client)
     val cartRepo : CartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client), SharedPreferenceImpl)
@@ -333,6 +336,9 @@ val context = LocalContext.current
                     )
                     if (isAddedToCart) {
                       Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show()
+                        navController.currentBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("REFRESH_CART", true)
                         navController.navigate(ScreensRoute.CartScreen)
                     }
                           },
@@ -453,19 +459,4 @@ fun FullscreenImageViewer(imageUrl: String, onDismiss: () -> Unit) {
         )
     }
 }
-//
-//@Preview(
-//    showBackground = true,
-//    showSystemUi = true,
-//    device = "spec:width=360dp,height=800dp,dpi=440",
-//    name = "Product Info Screen Preview"
-//)
-//@Composable
-//fun PreviewProductInfoScreen() {
-//    MaterialTheme {
-//        ProductInfoScreen(
-//            productId = TODO(),
-//            repository = TODO()
-//        )
-//    }
-//}
+
