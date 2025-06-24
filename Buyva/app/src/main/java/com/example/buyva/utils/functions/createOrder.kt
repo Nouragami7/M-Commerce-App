@@ -20,7 +20,7 @@ fun createOrder(
     if (email.isNotBlank() && cartItems.isNotEmpty() && defaultAddress != null) {
         Log.d("DraftOrder", "Creating draft order after Stripe payment...")
         val orderItem = OrderItem(
-            email = email, address = defaultAddress!!, cartItems = cartItems
+            email = email, address = defaultAddress, cartItems = cartItems
         )
         paymentViewModel.createDraftOrder(orderItem)
 

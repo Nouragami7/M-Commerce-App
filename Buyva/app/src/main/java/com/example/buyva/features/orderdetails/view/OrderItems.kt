@@ -1,6 +1,5 @@
 package com.example.buyva.features.orderdetails.view
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,7 +43,6 @@ fun OrderItems(
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
                     val imageUrl = imageUrls.getOrNull(index)
-                    Log.i("TAG", "OrderDetailsScreen: $imageUrl")
                     AsyncImage(
                         model = imageUrl,
                         contentDescription = item.title,

@@ -54,48 +54,40 @@ fun SetupNavHost(
     val logoutViewModel = remember {
         LogoutViewModel(
             AuthRepository(
-                FirebaseAuth.getInstance(),
-                apolloClient
+                FirebaseAuth.getInstance(), apolloClient
             )
         )
     }
 
     NavHost(
-        navController = navController,
-        startDestination = startDestination
+        navController = navController, startDestination = startDestination
     ) {
         composable<ScreensRoute.WelcomeScreen> {
-            WelcomeScreen(
-                onSignInClick = { navController.navigate(ScreensRoute.LoginScreen) },
+            WelcomeScreen(onSignInClick = { navController.navigate(ScreensRoute.LoginScreen) },
                 onSignUpClick = { navController.navigate(ScreensRoute.SignUpScreen) },
                 onSkipClick = {
                     navController.navigate(ScreensRoute.HomeScreen) {
                         popUpTo(0)
                     }
-                }
-            )
+                })
         }
 
         composable<ScreensRoute.LoginScreen> {
-            LoginScreenHost(
-                onSignUpClick = { navController.navigate(ScreensRoute.SignUpScreen) },
+            LoginScreenHost(onSignUpClick = { navController.navigate(ScreensRoute.SignUpScreen) },
                 onSuccess = {
                     navController.navigate(ScreensRoute.HomeScreen) {
                         popUpTo(0)
                     }
-                }
-            )
+                })
         }
 
         composable<ScreensRoute.SignUpScreen> {
-            SignupScreenHost(
-                onSignInClick = { navController.navigate(ScreensRoute.LoginScreen) },
+            SignupScreenHost(onSignInClick = { navController.navigate(ScreensRoute.LoginScreen) },
                 onSuccess = {
                     navController.navigate(ScreensRoute.HomeScreen) {
                         popUpTo(0)
                     }
-                }
-            )
+                })
         }
         composable<ScreensRoute.HomeScreen> {
             val currentUser = FirebaseAuth.getInstance().currentUser
@@ -106,14 +98,11 @@ fun SetupNavHost(
             }
 
             if (favouriteViewModel != null) {
-                HomeScreen(
-                    onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
+                HomeScreen(onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
                     onBrandClick = { brandId, brandTitle, brandImage ->
                         navController.navigate(
                             ScreensRoute.BrandProductsScreen(
-                                brandId,
-                                brandTitle,
-                                brandImage
+                                brandId, brandTitle, brandImage
                             )
                         )
                     },
@@ -128,17 +117,18 @@ fun SetupNavHost(
         }
 
 
-        composable<ScreensRoute.CartScreen> { CartScreen(
-            onBackClick = { navController.navigate(ScreensRoute.HomeScreen) },
-            onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
-            onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) },
-            onNavigateToAddresses = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) }
-            , onNavigateToProductInfo = { productId ->
-                val encodedId = Uri.encode(productId)
-                navController.navigate("productInfo/$encodedId")
-            }
+        composable<ScreensRoute.CartScreen> {
+            CartScreen(onBackClick = { navController.navigate(ScreensRoute.HomeScreen) },
+                onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
+                onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) },
+                onNavigateToAddresses = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) },
+                onNavigateToProductInfo = { productId ->
+                    val encodedId = Uri.encode(productId)
+                    navController.navigate("productInfo/$encodedId")
+                }
 
-        ) }
+            )
+        }
 
         composable<ScreensRoute.CategoriesScreen> {
             val currentUser = FirebaseAuth.getInstance().currentUser
@@ -151,12 +141,15 @@ fun SetupNavHost(
             if (favouriteViewModel != null) {
                 CategoryScreen(
                     onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
-                    onProductClick = { navController.navigate(ScreensRoute.ProductInfoScreen) },
+                    onProductClick = { productId ->
+                        navController.navigate("productInfo/$productId")
+                    },
                     onSearchClick = { navController.navigate(ScreensRoute.SearchScreen) },
 
                     favouriteViewModel = favouriteViewModel
                 )
             }
+
         }
 
         composable<ScreensRoute.FavouritesScreen> {
@@ -169,8 +162,7 @@ fun SetupNavHost(
 
             if (favouriteViewModel != null) {
                 FavouriteScreen(
-                    viewModel = favouriteViewModel,
-                    navController = navController
+                    viewModel = favouriteViewModel, navController = navController
                 )
             }
         }
@@ -221,55 +213,45 @@ fun SetupNavHost(
             }
             if (favouriteViewModel != null) {
                 ProductInfoScreen(
-                    productId = productId,
-                    repository = repository,
-                    navController = navController,
-                  //  variantId = variantId ,
+                    productId = productId, repository = repository, navController = navController,
+                    //  variantId = variantId ,
                     favouriteViewModel = favouriteViewModel
                 )
             }
         }
 
         composable<ScreensRoute.ProfileScreen> {
-            ProfileScreen(
-                logoutViewModel = logoutViewModel,
-                onFavClick = {
-                    navController.navigate(ScreensRoute.FavouritesScreen)
-                },
-                onAddressClick = {
-                    navController.navigate(ScreensRoute.DeliveryAddressListScreen)
-                },
-                onOrdersClick = {
-                    navController.navigate(ScreensRoute.OrderScreen)
-                },
-                onLoggedOut = {
-                    navController.navigate(ScreensRoute.WelcomeScreen) {
-                        popUpTo(0)
-                    }
+            ProfileScreen(logoutViewModel = logoutViewModel, onFavClick = {
+                navController.navigate(ScreensRoute.FavouritesScreen)
+            }, onAddressClick = {
+                navController.navigate(ScreensRoute.DeliveryAddressListScreen)
+            }, onOrdersClick = {
+                navController.navigate(ScreensRoute.OrderScreen)
+            }, onLoggedOut = {
+                navController.navigate(ScreensRoute.WelcomeScreen) {
+                    popUpTo(0)
                 }
-            )
+            })
         }
 
         composable<ScreensRoute.AddressDetails> { backStackEntry ->
-            AddressDetails(
-                address = backStackEntry.toRoute<ScreensRoute.AddressDetails>().address,
+            AddressDetails(address = backStackEntry.toRoute<ScreensRoute.AddressDetails>().address,
                 city = backStackEntry.toRoute<ScreensRoute.AddressDetails>().city,
                 country = backStackEntry.toRoute<ScreensRoute.AddressDetails>().country,
                 editable = backStackEntry.toRoute<ScreensRoute.AddressDetails>().editable,
                 prefillData = backStackEntry.toRoute<ScreensRoute.AddressDetails>().prefillData,
                 onSaveClick = {
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("ADDRESS_UPDATED", true)
+                    navController.previousBackStackEntry?.savedStateHandle?.set(
+                            "ADDRESS_UPDATED",
+                            true
+                        )
                     navController.navigate(ScreensRoute.DeliveryAddressListScreen)
 
-                }
-            )
+                })
         }
 
         composable<ScreensRoute.DeliveryAddressListScreen> {
-            DeliveryAddressListScreen(
-                onBackClick = { navController.popBackStack() },
+            DeliveryAddressListScreen(onBackClick = { navController.popBackStack() },
                 onAddressDetailsClick = { address, prefillData ->
                     navController.navigate(
                         ScreensRoute.AddressDetails(
@@ -281,16 +263,14 @@ fun SetupNavHost(
                 },
                 onAddressClick = {
                     navController.navigate(ScreensRoute.MapScreen)
-                }
-            )
+                })
         }
 
         composable<ScreensRoute.MapScreen> {
             val mapViewModel = MapViewModel()
-            MapScreen(
-                back = { navController.popBackStack() },
+            MapScreen(back = { navController.popBackStack() },
                 mapViewModel = mapViewModel,
-                onSelected = { address , city, country ->
+                onSelected = { address, city, country ->
                     navController.navigate(
                         ScreensRoute.AddressDetails(
                             address = address,
@@ -301,27 +281,22 @@ fun SetupNavHost(
                         )
                     )
 
-                }
-            )
+                })
         }
 
         composable<ScreensRoute.OrderScreen> {
-            OrderScreen(
-                onBack = { navController.popBackStack() },
-                onOrderClick = { selectedOrder ->
-                    sharedOrderViewModel.setOrder(selectedOrder)
-                    navController.navigate(ScreensRoute.OrderDetailsScreen)
+            OrderScreen(onBack = { navController.popBackStack() }, onOrderClick = { selectedOrder ->
+                sharedOrderViewModel.setOrder(selectedOrder)
+                navController.navigate(ScreensRoute.OrderDetailsScreen)
 
-                }
+            }
 
             )
         }
 
         composable<ScreensRoute.OrderDetailsScreen> {
-            OrderDetailsScreen(
-                sharedOrderViewModel = sharedOrderViewModel,
-                onBack = { navController.popBackStack() }
-            )
+            OrderDetailsScreen(sharedOrderViewModel = sharedOrderViewModel,
+                onBack = { navController.popBackStack() })
         }
 
         composable<ScreensRoute.SettingsScreen> { /* Placeholder */ }
@@ -340,8 +315,7 @@ fun SetupNavHost(
             val searchViewModel = remember { SearchViewModel(searchRepository) }
 
             if (favouriteViewModel != null) {
-                SearchScreen(
-                    searchViewModel = searchViewModel,
+                SearchScreen(searchViewModel = searchViewModel,
                     favouriteViewModel = favouriteViewModel,
                     onProductClick = { productId ->
                         val encodedId =
@@ -350,8 +324,7 @@ fun SetupNavHost(
                     },
                     onBack = {
                         navController.popBackStack()
-                    }
-                )
+                    })
             }
         }
 
@@ -370,8 +343,7 @@ fun SetupNavHost(
             val searchViewModel = remember { SearchViewModel(searchRepository) }
 
             if (favouriteViewModel != null) {
-                SearchScreen(
-                    brandFilter = brand,
+                SearchScreen(brandFilter = brand,
                     searchViewModel = searchViewModel,
                     favouriteViewModel = favouriteViewModel,
                     onProductClick = { productId ->
@@ -380,10 +352,9 @@ fun SetupNavHost(
                         navController.navigate("productInfo/$encodedId")
                     },
                     onBack = {
-                   //  searchViewModel.clearSearch()
+                        //  searchViewModel.clearSearch()
                         navController.popBackStack()
-                    }
-                )
+                    })
             }
         }
 
