@@ -46,7 +46,6 @@ import com.example.buyva.ui.theme.DarkGray
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.components.LoadingIndicator
-import com.example.buyva.utils.components.PriceFilterIcon
 import com.example.buyva.utils.components.PriceFilterSlider
 import com.example.buyva.utils.components.ScreenTitle
 
@@ -54,14 +53,14 @@ import com.example.buyva.utils.components.ScreenTitle
 fun CategoryScreen(
     onCartClick: () -> Unit,
     onProductClick: (String) -> Unit,
-favouriteViewModel: FavouriteScreenViewModel
+    favouriteViewModel: FavouriteScreenViewModel
 ) {
     val egyptianBound = 300f
     val westernBound = 200f
 
     var maxPrice by remember { mutableFloatStateOf(egyptianBound) }
     var selectedCategory by remember { mutableStateOf("Men") }
-    var showSlider by remember { mutableStateOf(false) }
+    var showSlider by remember { mutableStateOf(true) }
     val selectedBackground = DarkGray.copy(alpha = 0.20f)
     val unselectedBackground = Color.Transparent
     val selectedSubcategories = remember { mutableStateMapOf<String, String?>() }
@@ -179,7 +178,11 @@ favouriteViewModel: FavouriteScreenViewModel
                                     animation = R.raw.emptycart
                                 )
                             } else {
-                                ProductSection(products = filtered, onProductClick = onProductClick, favouriteViewModel = favouriteViewModel)
+                                ProductSection(
+                                    products = filtered,
+                                    onProductClick = onProductClick,
+                                    favouriteViewModel = favouriteViewModel
+                                )
                             }
                         }
 
@@ -188,14 +191,6 @@ favouriteViewModel: FavouriteScreenViewModel
                 }
 
             }
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp), contentAlignment = Alignment.BottomEnd
-        ) {
-            PriceFilterIcon(onToggle = { showSlider = !showSlider })
         }
     }
 }

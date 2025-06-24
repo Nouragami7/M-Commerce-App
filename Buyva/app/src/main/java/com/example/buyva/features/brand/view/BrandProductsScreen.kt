@@ -47,7 +47,6 @@ import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.ubuntuMedium
 import com.example.buyva.utils.components.LoadingIndicator
-import com.example.buyva.utils.components.PriceFilterIcon
 import com.example.buyva.utils.components.PriceFilterSlider
 import com.example.buyva.utils.components.ScreenTitle
 
@@ -67,7 +66,7 @@ fun BrandProductsScreen(
     val egyptianBound = 300f
     val westernBound = 200f
 
-    var showSlider by remember { mutableStateOf(false) }
+    var showSlider by remember { mutableStateOf(true) }
     var maxPrice by remember { mutableFloatStateOf(egyptianBound) }
 
     val brandFactory = BrandFactory(
@@ -154,8 +153,6 @@ fun BrandProductsScreen(
             .padding(16.dp),
         contentAlignment = Alignment.BottomEnd
     ) {
-        PriceFilterIcon(
-            onToggle = { showSlider = !showSlider }
-        )
+
     }
 }

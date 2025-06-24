@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.Watch
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -36,6 +37,9 @@ import com.example.buyva.ui.theme.Gray
 @Composable
 fun OrderCard(order: GetOrdersByCustomerEmailQuery.Node, onOrderClick: (String) -> Unit) {
 
+    val createdAt = order.createdAt.toString() ?: ""
+    val date = createdAt.substringBefore("T")
+    val time = createdAt.substringAfter("T").substringBefore("Z")
     Card(
         onClick = {  },
         shape = RoundedCornerShape(12.dp),
@@ -43,9 +47,9 @@ fun OrderCard(order: GetOrdersByCustomerEmailQuery.Node, onOrderClick: (String) 
         colors = CardDefaults.cardColors(containerColor = Gray),
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp),
+            .height(110.dp),
 
-    ) {
+        ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
@@ -85,12 +89,25 @@ fun OrderCard(order: GetOrdersByCustomerEmailQuery.Node, onOrderClick: (String) 
                         tint = Color.Black
                     )
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(order.createdAt.toString(), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                    Text(date, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                    Text(order.totalPriceSet.toString(), style = MaterialTheme.typography.bodyMedium, color = Cold, fontWeight = FontWeight.Bold)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Watch,
+                        contentDescription = "Time",
+                        modifier = Modifier.size(12.dp),
+                        tint = Color.Black
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(time, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Bold)
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text("${order.totalPriceSet.shopMoney.amount} ${order.totalPriceSet.shopMoney.currencyCode}", style = MaterialTheme.typography.bodyMedium, color = Cold, fontWeight = FontWeight.Bold)
 
             }
         }
