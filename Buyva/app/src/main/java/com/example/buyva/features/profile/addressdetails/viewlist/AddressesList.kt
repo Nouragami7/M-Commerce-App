@@ -36,23 +36,6 @@ fun DeliveryAddressListScreen(
             AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client))
         )
     )
-    val navController = rememberNavController()
-    val currentBackStackEntry = navController.currentBackStackEntryAsState().value
-    val shouldReload = currentBackStackEntry
-        ?.savedStateHandle
-        ?.getLiveData<Boolean>("ADDRESS_UPDATED")
-        ?.observeAsState()
-
-    LaunchedEffect(shouldReload?.value) {
-        if (shouldReload?.value == true) {
-            viewModel.loadAddresses()
-            currentBackStackEntry
-                ?.savedStateHandle
-                ?.set("ADDRESS_UPDATED", false)
-        }
-    }
-
-
     val addressState by viewModel.addresses.collectAsState()
 
     val addressList = when (addressState) {
@@ -61,6 +44,25 @@ fun DeliveryAddressListScreen(
         }
         else -> emptyList()
     }
+//    val navController = rememberNavController()
+//    val currentBackStackEntry = navController.currentBackStackEntryAsState().value
+//    val shouldReload = currentBackStackEntry
+//        ?.savedStateHandle
+//        ?.getLiveData<Boolean>("ADDRESS_UPDATED")
+//        ?.observeAsState()
+
+ //   LaunchedEffect(shouldReload?.value) {
+    LaunchedEffect(viewModel.addresses) {
+//        if (shouldReload?.value == true) {
+            viewModel.loadAddresses()
+//            currentBackStackEntry
+//                ?.savedStateHandle
+//                ?.set("ADDRESS_UPDATED", false)
+//        }
+    }
+
+
+
 
     Box(modifier = Modifier.fillMaxSize().padding(bottom = 60.dp)) {
 

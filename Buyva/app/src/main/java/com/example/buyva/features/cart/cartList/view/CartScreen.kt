@@ -150,7 +150,6 @@ fun CartScreen(
         NavigationBar.mutableNavBarState.value = false
         viewModel.showCart()
         viewModel.loadDefaultAddress()
-
     }
 
 
@@ -190,6 +189,7 @@ fun CartScreen(
 
                 if (!draftOrderId.isNullOrBlank()) {
                     paymentViewModel.completeDraftOrder(draftOrderId)
+                    viewModel.clearCart()
                 } else {
                     Log.e("DraftOrder", "Failed to extract draft order ID")
                 }
@@ -217,7 +217,6 @@ fun CartScreen(
             when (result) {
                 is PaymentSheetResult.Completed -> {
                 createOrder(cartItems, defaultAddress, paymentViewModel, context)
-                    viewModel.clearCart()
                     Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
                     onNavigateToOrders()
                 }

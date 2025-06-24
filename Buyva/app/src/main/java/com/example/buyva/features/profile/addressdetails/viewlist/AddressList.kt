@@ -53,10 +53,6 @@ fun AddressList(
     val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
     var defaultAddressId by remember { mutableStateOf("") }
 
-    LaunchedEffect(Unit) {
-        defaultAddressId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token") ?: ""
-    }
-
     val viewModel: AddressViewModel = viewModel(
         factory = AddressViewModelFactory(
             application = LocalContext.current.applicationContext as Application,
@@ -67,6 +63,12 @@ fun AddressList(
             )
         )
     )
+    
+    LaunchedEffect(Unit) {
+        defaultAddressId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token") ?: ""
+        viewModel.loadAddresses()
+    }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
