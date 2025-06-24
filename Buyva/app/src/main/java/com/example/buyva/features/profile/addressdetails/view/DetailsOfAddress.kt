@@ -322,25 +322,19 @@ Log.d("1", "id  : ${addressModel.id}    from list")
                     viewModel.saveAddress(newAddress)
                     onSaveClick()
                 },
-                modifier = Modifier.width(280.dp).height(60.dp),
-                shape = RoundedCornerShape(30.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                contentPadding = PaddingValues()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Cold)
             ) {
-                Box(
-                    modifier = Modifier.fillMaxSize().background(
-                        Cold,
-                        shape = RoundedCornerShape(30.dp)
-                    ),
-                    contentAlignment = Alignment.Center
-                ) {
+
                     Text(
                         text = "Save Address",
                         color = Color.White,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold
                     )
-                }
+
             }
         }
 

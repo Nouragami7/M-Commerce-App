@@ -66,7 +66,7 @@ fun AddressList(
     
     LaunchedEffect(Unit) {
         defaultAddressId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token") ?: ""
-        viewModel.loadAddresses()
+       // viewModel.loadAddresses()
     }
 
     Scaffold(
