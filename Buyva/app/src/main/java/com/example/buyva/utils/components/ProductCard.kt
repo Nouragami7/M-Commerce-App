@@ -11,15 +11,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Colors
+
+import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -38,8 +44,11 @@ import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.GetFavouriteProductsByIdsQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
+import com.example.buyva.features.authentication.login.viewmodel.UserSessionManager
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
+import com.example.buyva.navigation.ScreensRoute
 import com.example.buyva.ui.theme.Cold
+import com.example.buyva.ui.theme.Sea
 import com.example.buyva.utils.constants.CURRENCY_RATE
 import com.example.buyva.utils.constants.CURRENCY_UNIT
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
@@ -55,6 +64,9 @@ fun ProductCard(
     val favouriteProducts by favouriteViewModel?.favouriteProducts?.collectAsState()
         ?: remember { mutableStateOf(emptyList()) }
     var showAlert by remember { mutableStateOf(false) }
+    var showGuestAlert by remember { mutableStateOf(false) }
+    var guestActionType by remember { mutableStateOf("") }
+
     val currencyRate: Double =
         SharedPreferenceImpl.getLongFromSharedPreferenceInGeneral(CURRENCY_RATE)
     val currencyUnit: String =
@@ -178,6 +190,12 @@ fun ProductCard(
                 )
 
                 IconButton(onClick = {
+                    if (UserSessionManager.isGuest()) {
+                        guestActionType = "fav"
+                        showGuestAlert = true
+                        return@IconButton
+                    }
+
                     if (isFavourite) {
                         showAlert = true
                     } else {
@@ -190,6 +208,7 @@ fun ProductCard(
                         tint = if (isFavourite) Color.Red else Color.Gray
                     )
                 }
+
 
                 if (showAlert) {
                     CustomAlertDialog(
@@ -206,6 +225,25 @@ fun ProductCard(
                         dismissText = "Cancel"
                     )
                 }
+                if (showGuestAlert) {
+                    AlertDialog(
+                        onDismissRequest = { showGuestAlert = false },
+                        title = { Text("Login Required") },
+                        text = { Text("You need to login to add this product to your favourites.") },
+                        confirmButton = {
+                            TextButton(
+                                onClick = { showGuestAlert = false },
+                                colors = ButtonDefaults.textButtonColors(
+                                    containerColor = Color.Transparent,
+                                    contentColor = Sea
+                                )
+                            ) {
+                                Text("OK")
+                            }
+                        }
+                    )
+                }
+
             }
         }
     }

@@ -23,8 +23,10 @@ import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.data.repository.search.SearchRepositoryImpl
 import com.example.buyva.features.ProductInfo.View.ProductInfoScreen
+import com.example.buyva.features.authentication.login.view.GuestRestrictionScreen
 import com.example.buyva.features.authentication.login.view.LoginScreenHost
 import com.example.buyva.features.authentication.login.view.WelcomeScreen
+import com.example.buyva.features.authentication.login.viewmodel.UserSessionManager
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
 import com.example.buyva.features.authentication.signup.viewmodel.LogoutViewModel
 import com.example.buyva.features.brand.view.BrandProductsScreen
@@ -75,12 +77,15 @@ fun SetupNavHost(
             WelcomeScreen(onSignInClick = { navController.navigate(ScreensRoute.LoginScreen) },
                 onSignUpClick = { navController.navigate(ScreensRoute.SignUpScreen) },
                 onSkipClick = {
-                    Toast.makeText(context, "Login required to continue", Toast.LENGTH_SHORT).show()
-                    navController.navigate(ScreensRoute.HomeScreen)
-                })
-        }
+                    UserSessionManager.setGuestMode(true)
+                    navController.navigate(ScreensRoute.HomeScreen) {
+                        popUpTo(0)
+                    }
+                }
+            )}
 
-        composable<ScreensRoute.LoginScreen> {
+
+                        composable<ScreensRoute.LoginScreen> {
             LoginScreenHost(onSignUpClick = { navController.navigate(ScreensRoute.SignUpScreen) },
                 onSuccess = {
                     navController.navigate(ScreensRoute.HomeScreen) {
@@ -124,17 +129,30 @@ fun SetupNavHost(
 
 
         composable<ScreensRoute.CartScreen> {
-            CartScreen(onBackClick = { navController.navigate(ScreensRoute.HomeScreen) },
-                onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
-                onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) },
-                onNavigateToAddresses = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) },
-                onNavigateToProductInfo = { productId ->
-                    val encodedId = Uri.encode(productId)
-                    navController.navigate("productInfo/$encodedId")
-                }
-
-            )
+            if (UserSessionManager.isGuest()) {
+                GuestRestrictionScreen(
+                    onSignIn = { navController.navigate(ScreensRoute.LoginScreen) },
+                    onSignUp = { navController.navigate(ScreensRoute.SignUpScreen) },
+                    onContinue = {
+                        navController.navigate(ScreensRoute.HomeScreen) {
+                            popUpTo(ScreensRoute.CartScreen) { inclusive = true }
+                        }
+                    }
+                )
+            } else {
+                CartScreen(
+                    onBackClick = { navController.navigate(ScreensRoute.HomeScreen) },
+                    onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
+                    onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) },
+                    onNavigateToAddresses = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) },
+                    onNavigateToProductInfo = { productId ->
+                        val encodedId = Uri.encode(productId)
+                        navController.navigate("productInfo/$encodedId")
+                    }
+                )
+            }
         }
+
 
         composable<ScreensRoute.CategoriesScreen> {
             val currentUser = FirebaseAuth.getInstance().currentUser
@@ -158,17 +176,29 @@ fun SetupNavHost(
         }
 
         composable<ScreensRoute.FavouritesScreen> {
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            val favouriteViewModel = remember(currentUser?.uid) {
-                currentUser?.let {
-                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
+            if (UserSessionManager.isGuest()) {
+                GuestRestrictionScreen(
+                    onSignIn = { navController.navigate(ScreensRoute.LoginScreen) },
+                    onSignUp = { navController.navigate(ScreensRoute.SignUpScreen) },
+                    onContinue = {
+                        navController.navigate(ScreensRoute.HomeScreen) {
+                            popUpTo(ScreensRoute.FavouritesScreen) { inclusive = true }
+                        }
+                    }
+                )
+            } else {
+                val currentUser = FirebaseAuth.getInstance().currentUser
+                val favouriteViewModel = remember(currentUser?.uid) {
+                    currentUser?.let {
+                        FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
+                    }
                 }
-            }
 
                 FavouriteScreen(
-                    viewModel = favouriteViewModel, navController = navController
+                    viewModel = favouriteViewModel,
+                    navController = navController
                 )
-
+            }
         }
 
         composable<ScreensRoute.BrandProductsScreen> { entry ->
