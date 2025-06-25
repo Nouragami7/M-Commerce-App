@@ -5,13 +5,16 @@ import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
@@ -37,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
@@ -52,6 +56,8 @@ import com.example.buyva.ui.theme.Cold
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.functions.createOrder
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
+import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 
@@ -151,30 +157,62 @@ fun PaymentSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = voucherCode,
-                onValueChange = { voucherCode = it },
-                label = { Text("Voucher Code") },
-                modifier = Modifier.weight(1f),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Cold,
-                    unfocusedBorderColor = Color.Black,
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    focusedLabelColor = Cold,
-                )
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = {
-                },
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.Top
+        ) {
+            Column(
                 modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .padding(top = 8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Cold)
+                    .weight(1f)
+                    .padding(end = 8.dp)
             ) {
-                Text("Apply")
+                Box {
+                    OutlinedTextField(
+                        value = voucherCode,
+                        onValueChange = { voucherCode = it },
+                        label = { Text("Voucher Code") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Cold,
+                            unfocusedBorderColor = Color.Gray,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black,
+                            focusedLabelColor = Cold,
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(price* CurrencyManager.currencyRate.value),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Cold,
+                    modifier = Modifier.align(Alignment.Start)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Column(
+                modifier = Modifier.height(50.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    onClick = { /* Apply voucher */ },
+                    modifier = Modifier
+                        .defaultMinSize(minHeight = 30.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Cold)
+                ) {
+                    Text("Apply", fontWeight = FontWeight.Bold, color = Color.White)
+                }
             }
         }
 

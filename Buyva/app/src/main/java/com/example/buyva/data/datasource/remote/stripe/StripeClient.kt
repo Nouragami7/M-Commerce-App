@@ -1,9 +1,8 @@
-package com.example.buyva.data.remote
+package com.example.buyva.data.datasource.remote.stripe
 
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import com.example.buyva.BuildConfig
 
 object StripeClient {
     private const val STRIPE_BASE_URL = "https://api.stripe.com/v1/"

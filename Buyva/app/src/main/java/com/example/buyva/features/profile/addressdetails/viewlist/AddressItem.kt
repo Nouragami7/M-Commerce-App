@@ -1,6 +1,7 @@
 package com.example.buyva.features.profile.addressdetails.viewlist
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.buyva.data.model.Address
 import com.example.buyva.ui.theme.Cold
@@ -40,6 +42,8 @@ fun AddressItem(
 ) {
     Log.d("1", "AddressItem called ${address.country}  and ${address.city}")
     var showDeleteDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .padding(horizontal = 12.dp, vertical = 6.dp)
@@ -86,6 +90,7 @@ fun AddressItem(
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.DarkGray
                         )
+                        Spacer(modifier = Modifier.height(6.dp))
                         if (address.address2.isNotBlank()) {
                             Text(
                                 text = address.address2,
@@ -93,28 +98,27 @@ fun AddressItem(
                                 color = Color.DarkGray
                             )
                         }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "${address.city}, ${address.country}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.DarkGray
+                        )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(6.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
 
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "${address.city}, ${address.country}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.DarkGray
-                    )
-                }
             }
             Column(
                 modifier = Modifier.padding(end = 12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceEvenly
             ) {
-                IconButton(onClick = { onSetDefault() })
-                    {
+                IconButton(onClick = {
+
+                    onSetDefault()
+                } ){
                     Icon(
                         imageVector = if (isDefault) Icons.Filled.Star else Icons.Outlined.StarBorder,
                         contentDescription = "Set as Default",
@@ -129,7 +133,17 @@ fun AddressItem(
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                IconButton(onClick = { showDeleteDialog = true }) {
+                IconButton(onClick = {
+                    if (isDefault) {
+                        showDeleteDialog = true
+
+                        Toast.makeText(context, "Can't delete  default address", Toast.LENGTH_SHORT)
+                            .show()
+                    }else{
+                    showDeleteDialog = true
+                    }
+
+                }) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = "Delete",

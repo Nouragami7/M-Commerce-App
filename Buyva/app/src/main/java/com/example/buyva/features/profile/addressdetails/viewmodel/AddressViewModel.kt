@@ -9,7 +9,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.adresses.IAddressRepo
+import com.example.buyva.utils.constants.DEFAULT_ADDRESS_ID
 import com.example.buyva.utils.constants.USER_TOKEN
+import com.example.buyva.utils.extensions.stripTokenFromShopifyGid
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,22 +22,40 @@ class AddressViewModel(application: Application,private val repo: IAddressRepo) 
     application
 ) {
 
-    private val _addresses = MutableStateFlow<ResponseState>(ResponseState.Loading)
-    val addresses: StateFlow<ResponseState> = _addresses
+    private var _addresses = MutableStateFlow<ResponseState>(ResponseState.Loading)
+    var addresses: StateFlow<ResponseState> = _addresses
     val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
-
-    init {
-        loadAddresses()
-    }
 
 
     fun loadAddresses() {
         viewModelScope.launch {
             if (!token.isNullOrEmpty()) {
                 Log.i("1", "Loading addresses with token: $token")
-                repo.getAddresses(token).collect {
-                    Log.i("1", "Address response: $it")
-                    _addresses.value = it
+                repo.getAddresses(token).collect { response ->
+                    Log.i("1", "Address response: $response")
+                    _addresses.value = response
+
+                    if (response is ResponseState.Success<*>) {
+                        Log.i("1", "Address response data: ${response.data}")
+                        val addressList = response.data as? List<Address>
+                        if (addressList?.size == 1) {
+                            Log.i("1", "Only one address found")
+                            val defaultKey = "${DEFAULT_ADDRESS_ID}_$token"
+                            val alreadySaved =
+                                SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token")
+                            Log.i("1", "Already saved: $alreadySaved")
+                            if (alreadySaved.isNullOrEmpty()) {
+                                Log.i("1", "Saving as default")
+                                val onlyAddress = addressList.first()
+                                val cleanedId = onlyAddress.id?.stripTokenFromShopifyGid()
+                                Log.i("1", "Cleaned ID: $cleanedId")
+                                if (cleanedId != null) {
+                                    SharedPreferenceImpl.saveToSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token", cleanedId)
+                                }
+                                Log.d("1", "Only one address found. Saved as default: ${onlyAddress.id}")
+                            }
+                        }
+                    }
                 }
             } else {
                 Log.e("1", "Token is null or empty")
@@ -43,6 +63,7 @@ class AddressViewModel(application: Application,private val repo: IAddressRepo) 
             }
         }
     }
+
 
     fun addAddress( address: Address) {
 

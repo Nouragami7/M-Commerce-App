@@ -49,6 +49,7 @@ import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
 import com.example.buyva.ui.theme.Teal
 import coil.compose.AsyncImage
+import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 
 @Composable
 fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToProductInfo: ( String) -> Unit) {
@@ -99,7 +100,7 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "EGP %.2f".format(item.price),
+                    text = "${CurrencyManager.currencyUnit.value} %.2f".format(CurrencyManager.currencyRate.value*(item.price.toDouble())),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.DarkGray
                 )

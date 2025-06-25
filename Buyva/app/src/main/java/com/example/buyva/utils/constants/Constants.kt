@@ -6,3 +6,11 @@ package com.example.buyva.utils.constants
    const val CART_ID = "cartID"
     const val  USER_TOKEN ="userToken"
    const val DEFAULT_ADDRESS_ID = "defaultAddressID"
+
+const val CURRENCY_API_BASE_URL = "https://api.currencyapi.com/"
+const val CURRENCY_API_KEY = "cur_live_21jFomgC3oGd1esQ3zieUKyyZvxz7TqcbA4CpmV7"
+const val CURRENCY_RATE = "rate"
+const val CURRENCY_UNIT = "unit"
+const val app_language= "lang"
+const val VALUE_ENGLISH= "en"
+const val VALUE_ARABIC= "ar"

@@ -32,6 +32,8 @@ import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
 import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.components.ScreenTitle
+import com.example.buyva.utils.constants.CURRENCY_RATE
+import com.example.buyva.utils.constants.CURRENCY_UNIT
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 
@@ -49,6 +51,9 @@ fun HomeScreen(
         HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
     )
     val homeViewModel: HomeViewModel = viewModel(factory = viewModelFactory)
+    val currencyRate : Double = SharedPreferenceImpl.getLongFromSharedPreferenceInGeneral(CURRENCY_RATE)
+    val currencyUnit : String =
+        SharedPreferenceImpl.getFromSharedPreferenceInGeneral(CURRENCY_UNIT).toString()
 
     SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
     Log.i("1", "HomeScreen: ${SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)}")

@@ -24,7 +24,7 @@ sealed class ScreensRoute{
     @Serializable
     data object ProfileScreen: ScreensRoute()
     @Serializable
-    data class AddressDetails(val address: String, val editable: Boolean, val prefillData: String?, val city: String? = null, val country: String? = null) :ScreensRoute()
+    data class AddressDetails(val address: String, val editableTextFields: Boolean, val prefillData: String?, val city: String? = null, val country: String? = null) :ScreensRoute()
     @Serializable
     data object  DeliveryAddressListScreen: ScreensRoute()
     @Serializable
@@ -45,6 +45,9 @@ sealed class ScreensRoute{
     data object CheckoutScreen: ScreensRoute()
     @Serializable
     data object SearchScreen : ScreensRoute()
+    @Serializable
+    data object CurrencyScreen : ScreensRoute()
+
 
 
 
