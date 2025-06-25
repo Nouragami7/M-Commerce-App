@@ -2,10 +2,11 @@ package com.example.buyva.features.authentication.signup.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.buyva.data.repository.AuthRepository
+import com.example.buyva.data.repository.Authentication.AuthRepository
+import com.example.buyva.data.repository.Authentication.IAuthRepository
 
 class LogoutViewModel(
-    private val authRepository: AuthRepository
+    private val authRepository: IAuthRepository
 ) : ViewModel() {
 
     fun logout() {
@@ -13,7 +14,7 @@ class LogoutViewModel(
     }
 }
 class LogoutViewModelFactory(
-    private val authRepository: AuthRepository
+    private val authRepository: IAuthRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(LogoutViewModel::class.java)) {

@@ -1,4 +1,4 @@
-package com.example.buyva.data.repository
+package com.example.buyva.data.repository.Authentication
 //////
 import android.util.Log
 import com.apollographql.apollo3.ApolloClient
@@ -20,18 +20,18 @@ import kotlinx.coroutines.tasks.await
 class AuthRepository(
     private val auth: FirebaseAuth,
     private val apolloClient: ApolloClient
-) {
+):IAuthRepository  {
 
-    suspend fun isEmailVerified(): Boolean {
+    override suspend fun isEmailVerified(): Boolean {
         return auth.currentUser?.isEmailVerified ?: false
     }
 
-    suspend fun reloadFirebaseUser(): FirebaseUser? {
+    override suspend fun reloadFirebaseUser(): FirebaseUser? {
         auth.currentUser?.reload()?.await()
         return auth.currentUser
     }
 
-    suspend fun signUpWithEmail(
+    override suspend fun signUpWithEmail(
         email: String,
         password: String,
         fullName: String
@@ -66,7 +66,7 @@ class AuthRepository(
     }
 
 
-    suspend fun sendVerificationEmail(user: FirebaseUser): Result<Unit> {
+    override suspend fun sendVerificationEmail(user: FirebaseUser): Result<Unit> {
         return try {
             val actionCodeSettings = ActionCodeSettings.newBuilder()
                 .setUrl("https://yourapp.page.link/verify-email")
@@ -81,7 +81,7 @@ class AuthRepository(
         }
     }
 
-    suspend fun signInWithEmail(email: String, password: String): FirebaseUser {
+    override suspend fun signInWithEmail(email: String, password: String): FirebaseUser {
         val result = auth.signInWithEmailAndPassword(email, password).await()
         val user = result.user ?: throw Exception("User is null")
 
@@ -97,7 +97,7 @@ class AuthRepository(
         return user
     }
 
-    suspend fun getShopifyAccessToken(email: String, password: String): Result<String> {
+    override suspend fun getShopifyAccessToken(email: String, password: String): Result<String> {
         Log.d("1", "Fetching Shopify token for $email")
         return try {
             val response = apolloClient
@@ -127,7 +127,7 @@ class AuthRepository(
     }
 
 
-    suspend fun signInWithGoogle(account: GoogleSignInAccount): FirebaseUser? {
+    override suspend fun signInWithGoogle(account: GoogleSignInAccount): FirebaseUser? {
         return try {
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
             val result = auth.signInWithCredential(credential).await()
@@ -138,7 +138,7 @@ class AuthRepository(
         }
     }
 
-    suspend fun createShopifyCustomer(fullName: String, email: String, password: String): Result<CustomerData> {
+    override suspend fun createShopifyCustomer(fullName: String, email: String, password: String): Result<CustomerData> {
         val names = fullName.trim().split(" ")
         val firstName = names.firstOrNull() ?: ""
         val lastName = names.drop(1).joinToString(" ")
@@ -160,7 +160,7 @@ class AuthRepository(
         }
     }
 
-    suspend fun createShopifyCustomerAfterGoogleSignIn(
+    override suspend fun createShopifyCustomerAfterGoogleSignIn(
         user: FirebaseUser
     ): Result<CustomerData> {
         return try {
@@ -206,12 +206,12 @@ class AuthRepository(
         }
     }
 
-    fun logout() {
+    override fun logout() {
         auth.signOut()
         SharedPreferenceImpl.clearUserData()
     }
 
-    suspend fun deleteCurrentUser() {
+    override suspend fun deleteCurrentUser() {
         try {
             auth.currentUser?.delete()?.await()
         } catch (e: Exception) {

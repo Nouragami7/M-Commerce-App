@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.features.authentication.login.ui.LoginScreen
 import com.example.buyva.features.authentication.login.viewmodel.LoginViewModel
-import com.example.buyva.data.repository.AuthRepository
+import com.example.buyva.data.repository.Authentication.AuthRepository
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions

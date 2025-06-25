@@ -6,12 +6,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.repository.AuthRepository
+import com.example.buyva.data.repository.Authentication.AuthRepository
 import com.example.buyva.data.repository.cart.CartRepo
 import com.example.buyva.data.repository.home.IHomeRepository
-import com.example.buyva.utils.constants.CART_ID
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
