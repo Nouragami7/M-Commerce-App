@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,7 +47,7 @@ fun HomeScreen(
     onSearchClick: () -> Unit = {},
   //  onTextChanged: (String) -> Unit,
     onProductClick: (String) -> Unit = {},
-    favouriteViewModel: FavouriteScreenViewModel
+    favouriteViewModel: FavouriteScreenViewModel ?
 
 ) {
     val viewModelFactory = HomeFactory(
@@ -80,11 +81,16 @@ fun HomeScreen(
             if (banners.isNotEmpty()) {
                 OfferBanner(banner = banners)
             } else {
-                OfferBanner(
-                banner = listOf(
-                    DiscountBanner("Use Code: TEST1 for 10% Off", 10, "ACTIVE", "2025-06-25T12:00Z","2025-06-25T12:00Z"),
-                    DiscountBanner("Use Code: TEST2 for 20% Off", 20, "ACTIVE", "2025-06-25T12:00Z","2025-06-25T12:00Z")
-                ) )           }
+//                OfferBanner(
+//                banner = listOf(
+//                    DiscountBanner("Use Code: TEST1 for 10% Off", 10, "ACTIVE", "2025-06-25T12:00Z","2025-06-25T12:00Z"),
+//                    DiscountBanner("Use Code: TEST2 for 20% Off", 20, "ACTIVE", "2025-06-25T12:00Z","2025-06-25T12:00Z")
+//                ) )
+//                CircularProgressIndicator(
+//                    modifier = Modifier.padding(16.dp)
+//                )
+                LoadingIndicator()
+                }
         Spacer(modifier = Modifier.height(16.dp))
 
         when (val state = brandsAndProducts) {

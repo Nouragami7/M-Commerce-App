@@ -14,7 +14,10 @@ data class SearchUiState(
     val searchText: String = "",
     val searchResults: List<UiProduct> = emptyList(),
     val filteredProducts: List<UiProduct> = emptyList(),
-    val maxPrice: Float = 10000f,
+    val minPrice: Float = 0f,
+    val maxPrice: Float = 0f,
+    val selectedPriceLimit: Float = 0f, // ✅ ده الجديد
+
     val isLoading: Boolean = false,
     val error: String? = null,
     val selectedBrand: String? = null

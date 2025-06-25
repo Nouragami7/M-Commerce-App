@@ -27,6 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.example.buyva.R
 import com.example.buyva.features.SplashScreen
+import com.example.buyva.features.authentication.login.viewmodel.UserSessionManager
 import com.example.buyva.navigation.ScreensRoute
 import com.example.buyva.navigation.SetupNavHost
 import com.example.buyva.navigation.navbar.NavigationBar
@@ -40,17 +41,23 @@ class MainActivity : ComponentActivity()  {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        UserSessionManager.init(applicationContext)
+
         setContent {
             var displaySplashScreen by remember { mutableStateOf(true) }
             var startDestination by remember { mutableStateOf("splash") }
             LaunchedEffect(Unit) {
                 val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-                startDestination = if (user != null) {
+                val isGuest = user == null
+                UserSessionManager.setGuestMode(isGuest)
+
+                startDestination = if (!isGuest) {
                     ScreensRoute.HomeScreen::class.qualifiedName!!
                 } else {
                     ScreensRoute.WelcomeScreen::class.qualifiedName!!
                 }
             }
+
 
 
             if (displaySplashScreen) {

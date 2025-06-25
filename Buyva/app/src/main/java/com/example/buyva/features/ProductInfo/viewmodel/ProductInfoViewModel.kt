@@ -54,8 +54,11 @@ class ProductInfoViewModel(
             val actualCartId = cartId ?: run {
                 val newCartId = createCart(email)
                 SharedPreferenceImpl.saveToSharedPreferenceInGeneral(cartKey, newCartId)
+                Log.e("CartDebug", "🆕 Created new cart for $cartKey -> $newCartId")
+
                 newCartId
             }
+            Log.e("CartDebug", "🛒 Using cartId for add: $actualCartId")
 
             try {
                 cartRepo.addToCartById(actualCartId, quantity, variantId).collect { response ->

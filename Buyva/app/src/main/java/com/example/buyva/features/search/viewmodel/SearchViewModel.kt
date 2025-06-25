@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.buyva.data.model.SearchUiState
 import com.example.buyva.data.model.UiProduct
 import com.example.buyva.data.repository.search.ISearchRepository
+import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
@@ -12,7 +13,8 @@ class SearchViewModel(private val repository: ISearchRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()
-
+    private val _selectedPriceLimit = MutableStateFlow(0f)
+    val selectedPriceLimit: StateFlow<Float> = _selectedPriceLimit.asStateFlow()
     private var searchJob: Job? = null
 
     init {
@@ -25,13 +27,25 @@ class SearchViewModel(private val repository: ISearchRepository) : ViewModel() {
         viewModelScope.launch {
             try {
                 repository.getAllProducts().collect { products ->
+                    val rate = CurrencyManager.currencyRate.value
+                    val prices = products.map { it.price }
+                    val convertedPrices = prices.map { it * rate.toFloat() }
+
+                    val minPrice = convertedPrices.minOrNull() ?: 0f
+                    val maxPrice = convertedPrices.maxOrNull() ?: 0f
+
                     _uiState.update {
                         it.copy(
                             allProducts = products,
                             searchResults = products,
-                            isLoading = false
+                            isLoading = false,
+                            minPrice = minPrice,
+                            maxPrice = maxPrice,
+                            selectedPriceLimit = maxPrice,
+
                         )
                     }
+
                     applyCombinedFilters()
                 }
             } catch (e: Exception) {
@@ -51,10 +65,11 @@ class SearchViewModel(private val repository: ISearchRepository) : ViewModel() {
         performSearch(text)
     }
 
-    fun updateMaxPrice(price: Float) {
-        _uiState.update { it.copy(maxPrice = price) }
+    fun updateSelectedPriceLimit(price: Float) {
+        _uiState.update { it.copy(selectedPriceLimit = price) }
         applyCombinedFilters()
     }
+
 
     fun setSelectedBrand(brand: String?) {
         _uiState.update { it.copy(selectedBrand = brand) }
@@ -99,15 +114,34 @@ class SearchViewModel(private val repository: ISearchRepository) : ViewModel() {
 
     private fun applyCombinedFilters() {
         val state = _uiState.value
+        val rate = CurrencyManager.currencyRate.value.toFloat()
 
+        // فلترة بالبراند
         val filteredByBrand = state.selectedBrand?.let { brand ->
             state.searchResults.filter { it.vendor.equals(brand, ignoreCase = true) }
         } ?: state.searchResults
 
-        val finalFiltered = filteredByBrand.filter { it.price <= state.maxPrice }
+        // استخراج الأسعار الحقيقية (قبل الفلترة النهائية)
+        val prices = filteredByBrand.map { it.price * rate }
+        val newMinPrice = prices.minOrNull() ?: 0f
+        val newMaxPrice = prices.maxOrNull() ?: 0f
 
+        // لو selectedPriceLimit أعلى من الجديد، نزبطه
+        val selectedLimit = if (state.selectedPriceLimit > newMaxPrice) newMaxPrice else state.selectedPriceLimit
+
+        // فلترة نهائية بالسعر
+        val finalFiltered = filteredByBrand.filter {
+            (it.price * rate) <= selectedLimit
+        }
+
+        // تحديث الحالة بالكامل
         _uiState.update {
-            it.copy(filteredProducts = finalFiltered)
+            it.copy(
+                filteredProducts = finalFiltered,
+                minPrice = newMinPrice,
+                maxPrice = newMaxPrice,
+                selectedPriceLimit = selectedLimit
+            )
         }
     }
 }
