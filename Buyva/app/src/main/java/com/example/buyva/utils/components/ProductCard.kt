@@ -132,7 +132,7 @@ fun ProductCard(
     Card(
         modifier = modifier
             .padding(vertical = 4.dp)
-            .height(190.dp),
+            .height(200.dp),
         onClick = {
             if (id.isNotEmpty()) {
                 onProductClick(Uri.encode(id))
@@ -163,7 +163,7 @@ fun ProductCard(
             Text(
                 text = productTitle,
                 style = MaterialTheme.typography.bodyMedium,
-                fontSize = 17.sp,
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold
             )
 

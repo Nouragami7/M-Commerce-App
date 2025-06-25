@@ -20,11 +20,14 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
 import com.example.buyva.ui.theme.Teal
+import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 
 @Composable
 fun OrderItems(
     itemsList: List<GetOrdersByCustomerEmailQuery.Edge1>,
     imageUrls: List<String>) {
+
+
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
@@ -67,8 +70,10 @@ fun OrderItems(
                         modifier = Modifier.padding(vertical = 4.dp)
                     )
                     item.originalUnitPriceSet.shopMoney.let { price ->
+                        val itemPrice = price.amount.toString().toDouble() * CurrencyManager.currencyRate.value
+
                         Text(
-                            text = "${price.amount} ${price.currencyCode}",
+                            text = "%.2f %s".format(itemPrice, CurrencyManager.currencyUnit.value),
                             fontSize = 16.sp,
                             color = Color.DarkGray
                         )
