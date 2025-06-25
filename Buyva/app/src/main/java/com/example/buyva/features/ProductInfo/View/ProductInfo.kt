@@ -1,6 +1,5 @@
 package com.example.buyva.features.ProductInfo.View
 
-import android.app.Application
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
@@ -61,22 +60,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.R
-import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
-import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
-import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.repository.Authentication.AuthRepository
-import com.example.buyva.data.repository.cart.CartRepo
-import com.example.buyva.data.repository.cart.CartRepoImpl
 import com.example.buyva.data.repository.home.IHomeRepository
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModel
-import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModelFactory
 import com.example.buyva.features.authentication.login.viewmodel.UserSessionManager
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.navigation.ScreensRoute
@@ -97,13 +88,7 @@ fun ProductInfoScreen(
 ) {
     Log.i("1", "ProductInfoScreen productId: $productId")
     // Log.i("1", "ProductInfoScreen variantId: $variantId")
-    val application = LocalContext.current.applicationContext as Application
-    val authRepo: AuthRepository = AuthRepository(FirebaseAuth.getInstance(), ApolloService.client)
-    val cartRepo: CartRepo =
-        CartRepoImpl(RemoteDataSourceImpl(ApolloService.client,ApolloAdmin ,StripeClient.api), SharedPreferenceImpl)
-    val factory =
-        remember { ProductInfoViewModelFactory(application, repository, authRepo, cartRepo) }
-    val viewModel: ProductInfoViewModel = viewModel(factory = factory)
+    val viewModel: ProductInfoViewModel = hiltViewModel()
     val state by viewModel.product.collectAsState()
     val addingState by viewModel.addingToCart.collectAsState()
 
@@ -176,7 +161,7 @@ fun ProductInfoContent(
 
     val allVariants = product.variants.edges.map { it.node }
     val allSelectedOptions = allVariants.flatMap { it.selectedOptions }
-    val price : String = (allVariants.firstOrNull()?.price?.amount ?: "0.0").toString()
+    val price: String = (allVariants.firstOrNull()?.price?.amount ?: "0.0").toString()
     CurrencyManager.loadFromPreferences()
     val newPrice = CurrencyManager.convertPrice(price.toDouble())
     val currency = allVariants.firstOrNull()?.price?.currencyCode?.name ?: ""
@@ -247,20 +232,20 @@ fun ProductInfoContent(
                             .padding(4.dp)
                             .size(28.dp)
                             .clickable {
-                            if (UserSessionManager.isGuest()) {
-                                guestActionType = "fav"
-                                showGuestAlert = true
-                                return@clickable
-                            }
+                                if (UserSessionManager.isGuest()) {
+                                    guestActionType = "fav"
+                                    showGuestAlert = true
+                                    return@clickable
+                                }
 
-                            if (isFavorite) showDeleteAlert = true
-                            else favouriteViewModel?.toggleFavourite(product.id)
-                        }
+                                if (isFavorite) showDeleteAlert = true
+                                else favouriteViewModel?.toggleFavourite(product.id)
+                            }
 
                     )
 
 
-                        if (showDeleteAlert) {
+                    if (showDeleteAlert) {
                         CustomAlertDialog(title = "Remove from favorites",
                             message = "Are you sure you want to remove this product from favorites?",
                             confirmText = "Remove",
@@ -313,9 +298,7 @@ fun ProductInfoContent(
             // Sizes
             if (availableSizes.isNotEmpty()) {
                 Text(
-                    "Select Size",
-                    Modifier.padding(start = 16.dp),
-                    fontWeight = FontWeight.SemiBold
+                    "Select Size", Modifier.padding(start = 16.dp), fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
@@ -388,11 +371,12 @@ fun ProductInfoContent(
                     }
 
                     if (selectedSize == null || selectedColor == null) {
-                        Toast.makeText(context, "Please select size and color", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Please select size and color", Toast.LENGTH_SHORT)
+                            .show()
                         return@OutlinedButton
                     }
 
-                val matchedVariant =
+                    val matchedVariant =
                         product.variants.edges.map { it.node }.firstOrNull { variant ->
                             val options =
                                 variant.selectedOptions.associate { it.name.lowercase() to it.value.lowercase() }
@@ -405,9 +389,7 @@ fun ProductInfoContent(
 
                     if (productVariantId == null) {
                         Toast.makeText(
-                            context,
-                            "No variant matches selected size/color",
-                            Toast.LENGTH_SHORT
+                            context, "No variant matches selected size/color", Toast.LENGTH_SHORT
                         ).show()
                         return@OutlinedButton
                     }
@@ -438,15 +420,12 @@ fun ProductInfoContent(
         }
     }
     if (showGuestAlert) {
-        AlertDialog(
-            onDismissRequest = { showGuestAlert = false },
+        AlertDialog(onDismissRequest = { showGuestAlert = false },
             title = { Text("Login Required") },
             text = {
                 Text(
-                    if (guestActionType == "fav")
-                        "You need to login to add this product to your favourites."
-                    else
-                        "You need to login to add this product to your cart."
+                    if (guestActionType == "fav") "You need to login to add this product to your favourites."
+                    else "You need to login to add this product to your cart."
                 )
             },
             confirmButton = {
@@ -454,10 +433,8 @@ fun ProductInfoContent(
                     onClick = {
                         showGuestAlert = false
                         navController.navigate(ScreensRoute.LoginScreen)
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = Sea
+                    }, colors = ButtonDefaults.textButtonColors(
+                        containerColor = Color.Transparent, contentColor = Sea
                     )
                 ) {
                     Text("Login")
@@ -465,16 +442,13 @@ fun ProductInfoContent(
             },
             dismissButton = {
                 TextButton(
-                    onClick = { showGuestAlert = false },
-                    colors = ButtonDefaults.textButtonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = Color.Gray
+                    onClick = { showGuestAlert = false }, colors = ButtonDefaults.textButtonColors(
+                        containerColor = Color.Transparent, contentColor = Color.Gray
                     )
                 ) {
                     Text("Cancel")
                 }
-            }
-        )
+            })
     }
 
     selectedImage?.let {

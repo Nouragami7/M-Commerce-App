@@ -13,16 +13,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
-import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
-import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.datasource.remote.stripe.StripeClient
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
-import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModelFactory
 import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
@@ -35,12 +29,7 @@ fun DeliveryAddressListScreen(
     onAddressDetailsClick: (String?, String?) -> Unit = { _, _ -> },
 ) {
     val application = LocalContext.current.applicationContext as Application
-    val viewModel: AddressViewModel = viewModel(
-        factory = AddressViewModelFactory(
-            application,
-            AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client, ApolloAdmin, StripeClient.api))
-        )
-    )
+    val viewModel: AddressViewModel = hiltViewModel()
     val addressState by viewModel.addresses.collectAsState()
 
     val addressList: List<Address> = when (addressState) {

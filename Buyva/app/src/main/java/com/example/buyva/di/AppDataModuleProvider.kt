@@ -2,6 +2,8 @@ package com.example.buyva.di
 
 import android.content.Context
 import com.apollographql.apollo3.ApolloClient
+import com.example.buyva.data.datasource.remote.currency.CurrencyApiService
+import com.example.buyva.data.datasource.remote.currency.CurrencyRetrofitClient
 import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.datasource.remote.stripe.StripeAPI
@@ -54,6 +56,14 @@ object AppDataModuleProvider {
     @Singleton
     fun provideSharedPreferenceImpl(): SharedPreference {
         return SharedPreferenceImpl
+    }
+
+    @Provides
+    @Singleton
+    fun provideCurrencyApiService(): CurrencyApiService {
+        return CurrencyRetrofitClient
+            .getInstance()
+            .create(CurrencyApiService::class.java)
     }
 
 

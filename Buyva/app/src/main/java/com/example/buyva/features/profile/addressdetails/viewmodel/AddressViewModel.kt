@@ -3,8 +3,6 @@ package com.example.buyva.features.profile.addressdetails.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.uistate.ResponseState
@@ -13,12 +11,14 @@ import com.example.buyva.utils.constants.DEFAULT_ADDRESS_ID
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.extensions.stripTokenFromShopifyGid
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AddressViewModel(application: Application,private val repo: IAddressRepo) : AndroidViewModel(
+@HiltViewModel
+class AddressViewModel@Inject constructor(application: Application, private val repo: IAddressRepo) : AndroidViewModel(
     application
 ) {
 
@@ -128,17 +128,5 @@ class AddressViewModel(application: Application,private val repo: IAddressRepo) 
                 }
             }
         }
-    }
-}
-class AddressViewModelFactory(
-    private val application: Application,
-    private val addressRepo: IAddressRepo
-) : ViewModelProvider.AndroidViewModelFactory(application) {
-
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AddressViewModel::class.java)) {
-            return AddressViewModel(application, addressRepo) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

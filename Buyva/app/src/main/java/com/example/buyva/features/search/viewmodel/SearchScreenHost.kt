@@ -1,13 +1,8 @@
 package com.example.buyva.features.search.view
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
-import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
-import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.datasource.remote.stripe.StripeClient
-import com.example.buyva.data.repository.search.SearchRepositoryImpl
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.search.viewmodel.SearchViewModel
 
@@ -17,10 +12,8 @@ fun SearchScreenHost(
     favouriteViewModel: FavouriteScreenViewModel,
     onProductClick: (String) -> Unit
 ) {
-    val apolloClient = remember { ApolloService.client }
-    val remoteDataSource = remember { RemoteDataSourceImpl(apolloClient, ApolloAdmin, StripeClient.api) }
-    val repository = remember { SearchRepositoryImpl(remoteDataSource) }
-    val searchViewModel = remember { SearchViewModel(repository) }
+
+    val searchViewModel : SearchViewModel = hiltViewModel()
 
     SearchScreen(
         searchViewModel = searchViewModel,

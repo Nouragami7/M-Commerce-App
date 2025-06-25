@@ -3,19 +3,20 @@ package com.example.buyva.features.ProductInfo.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.Authentication.AuthRepository
 import com.example.buyva.data.repository.cart.CartRepo
 import com.example.buyva.data.repository.home.IHomeRepository
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ProductInfoViewModel(
+@HiltViewModel
+class ProductInfoViewModel @Inject constructor(
     application: Application,
     private val repository: IHomeRepository,
     private val authRepository: AuthRepository,
@@ -83,20 +84,5 @@ class ProductInfoViewModel(
     }
 
 
-}
-
-class ProductInfoViewModelFactory(
-    private val application: Application,
-    private val repository: IHomeRepository,
-    private val authRepository: AuthRepository,
-    private val cartRepo: CartRepo
-) : ViewModelProvider.AndroidViewModelFactory(application) {
-
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ProductInfoViewModel::class.java)) {
-            return ProductInfoViewModel(application, repository, authRepository,cartRepo) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
 }
 

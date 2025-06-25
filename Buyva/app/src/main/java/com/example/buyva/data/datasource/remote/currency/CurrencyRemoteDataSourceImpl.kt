@@ -2,32 +2,15 @@ package com.omarinc.shopify.network.currency
 
 import com.example.buyva.data.datasource.remote.currency.CurrencyApiService
 import com.example.buyva.data.datasource.remote.currency.CurrencyRemoteDataSource
-import com.example.buyva.data.datasource.remote.currency.CurrencyRetrofitClient
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.utils.constants.CURRENCY_API_KEY
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
-class CurrencyRemoteDataSourceImpl(
-    private  val currencyService : CurrencyApiService =CurrencyRetrofitClient.getInstance().create(CurrencyApiService::class.java)
+class CurrencyRemoteDataSourceImpl @Inject constructor(
+    private val currencyService: CurrencyApiService
 ) : CurrencyRemoteDataSource {
-
-//    private val currencyService : CurrencyApiService by lazy {
-//        CurrencyRetrofitClient.getInstance().create(CurrencyApiService::class.java)
-//    }
-
-    companion object {
-        private var instance: CurrencyRemoteDataSourceImpl? = null
-
-        fun getInstance(): CurrencyRemoteDataSourceImpl {
-            if (instance == null) {
-                instance = CurrencyRemoteDataSourceImpl()
-            }
-            return instance!!
-
-        }
-    }
-
 
     override fun getCurrencyRate(requiredCurrency: String): Flow<ResponseState> {
         return flow {
