@@ -26,8 +26,8 @@ import kotlin.math.abs
 @Composable
 fun OfferBanner(banner: List<DiscountBanner>) {
     val pagerState = rememberPagerState(pageCount = { banner.size })
+    Log.i("1", "OfferBanner: $banner")
 
-Log.i("1", "OfferBanner: $banner")
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -42,7 +42,6 @@ Log.i("1", "OfferBanner: $banner")
         ) { page ->
             val bannerText = banner[page]
             val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
-
             Box(
                 modifier = Modifier
                     .graphicsLayer {
@@ -61,7 +60,6 @@ Log.i("1", "OfferBanner: $banner")
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.matchParentSize()
                 )
-
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopStart)
