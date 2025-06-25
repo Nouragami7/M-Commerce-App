@@ -82,14 +82,16 @@ fun ProductCard(
             productTitle = product.title.split("|").take(2)
                 .map { it.trim().split(" ").firstOrNull().orEmpty() }.joinToString(" | ")
             productType = product.productType
-            price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
+            price = product.variants.edges.firstOrNull()?.node?.price?.amount?.toString() ?: "0"
             currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
         }
+
 
         is ProductsByCollectionQuery.Node -> {
             imageUrl = product.featuredImage?.url?.toString() ?: ""
             productTitle = product.title.split("|").take(2)
                 .map { it.trim().split(" ").firstOrNull().orEmpty() }.joinToString(" | ")
+            price = product.variants.edges.firstOrNull()?.node?.price?.amount?.toString() ?: "0"
             productType = "Shoes"
             currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
         }
@@ -149,7 +151,7 @@ fun ProductCard(
             Text(
                 text = productTitle,
                 style = MaterialTheme.typography.bodyMedium,
-                fontSize = 18.sp,
+                fontSize = 17.sp,
                 fontWeight = FontWeight.Bold
             )
 
