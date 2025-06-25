@@ -6,7 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.buyva.data.model.CustomerData
-import com.example.buyva.data.repository.AuthRepository
+import com.example.buyva.data.repository.Authentication.AuthRepository
+import com.example.buyva.data.repository.Authentication.IAuthRepository
 import com.example.buyva.features.authentication.login.viewmodel.UserSessionManager
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
@@ -19,7 +20,7 @@ import kotlinx.coroutines.tasks.await
 import java.util.concurrent.TimeUnit
 
 class SignupViewModel(
-    private val repository: AuthRepository,
+    private val repository: IAuthRepository,
     private val applicationContext: Context
 ) : ViewModel() {
 

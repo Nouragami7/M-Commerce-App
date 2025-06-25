@@ -9,7 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.R
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.repository.AuthRepository
+import com.example.buyva.data.repository.Authentication.AuthRepository
 import com.example.buyva.features.authentication.signup.viewmodel.SignupViewModel
 import com.example.buyva.features.authentication.signup.viewmodel.SignupViewModelFactory
 import com.google.android.gms.auth.api.signin.GoogleSignIn
