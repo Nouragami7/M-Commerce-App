@@ -29,6 +29,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,14 +46,18 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.CartItem
 import com.example.buyva.data.model.enums.PaymentMethod
 import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.data.repository.cart.CartRepoImpl
+import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
 import com.example.buyva.features.cart.cartList.viewmodel.CartViewModelFactory
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModel
+import com.example.buyva.features.home.viewmodel.HomeFactory
+import com.example.buyva.features.home.viewmodel.HomeViewModel
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.functions.createOrder
@@ -78,10 +84,14 @@ fun PaymentSection(
     val snackbarHostState = remember { SnackbarHostState() }
     var showDialog by remember { mutableStateOf(false) }
     val application = LocalContext.current.applicationContext
-    val cartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client), SharedPreferenceImpl)
-    val addressRepo = AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client))
+    val cartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api), SharedPreferenceImpl)
+    val addressRepo = AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client,StripeClient.api))
     val viewModel : CartViewModel = viewModel(
         factory = CartViewModelFactory(application as Application, cartRepo, addressRepo)
+    )
+    val homeRepo = HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client,StripeClient.api))
+    val homeViewModel : HomeViewModel = viewModel(
+        factory = HomeFactory( homeRepo)
     )
     val context = LocalContext.current
     val addressDetails = if (address.lastName != "") {
@@ -89,6 +99,14 @@ fun PaymentSection(
     } else {
         "Choose Default Address !"
     }
+    var discountedPrice by remember { mutableStateOf(price) }
+    var voucherCodeprice by remember { mutableStateOf("") }
+    val discountBanners by homeViewModel.discountBanners.collectAsState()
+
+LaunchedEffect(Unit) {
+    homeViewModel.fetchDiscounts()
+
+}
 
     if (showDialog) {
         CustomAlertDialog(
@@ -189,7 +207,7 @@ fun PaymentSection(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(price* CurrencyManager.currencyRate.value),
+                    text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(discountedPrice * CurrencyManager.currencyRate.value),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Cold,
@@ -204,7 +222,15 @@ fun PaymentSection(
                 verticalArrangement = Arrangement.Center
             ) {
                 Button(
-                    onClick = { /* Apply voucher */ },
+                    onClick = {
+                        val matchedDiscount = discountBanners.find { it.code.contains(voucherCodeprice.trim(), ignoreCase = true) }
+                        if (matchedDiscount != null) {
+                            val discountValue = price * (matchedDiscount.percentage / 100f)
+                            discountedPrice = price - discountValue
+                        } else {
+                            discountedPrice = price
+                        }
+                    },
                     modifier = Modifier
                         .defaultMinSize(minHeight = 30.dp),
                     shape = RoundedCornerShape(12.dp),

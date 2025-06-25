@@ -4,11 +4,16 @@ import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
+import com.example.buyva.admin.CompleteDraftOrderMutation
+import com.example.buyva.admin.GetDiscountAmountDetailsQuery
 import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
+import com.example.buyva.admin.type.DraftOrderInput
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.UiProduct
 import com.example.buyva.data.model.uistate.ResponseState
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import retrofit2.Response
 
 interface RemoteDataSource {
     fun getBrandsAndProduct(): Flow<BrandsAndProductsQuery.Data?>
@@ -25,6 +30,15 @@ suspend fun createCart(email: String, token: String): Flow<ResponseState>
      suspend fun getOrders(email: String): Flow<GetOrdersByCustomerEmailQuery.Data?>
     fun searchProducts(query: String): Flow<List<UiProduct>>
      suspend fun updateAddress(address: Address, token: String): Flow<ResponseState>
+     suspend fun getDiscountDetails(): Flow<GetDiscountAmountDetailsQuery.Data>
+    suspend fun createPaymentIntent(
+        amount: Int,
+        currency: String,
+        paymentMethod: String = "card"
+    ): Response<com.google.gson.JsonObject>
+
+    suspend fun createDraftOrder(draftOrderInput: DraftOrderInput): Flow<ResponseState>
+    suspend fun completeDraftOrder(draftOrderId: String): Flow<CompleteDraftOrderMutation.Data>
 
 
 

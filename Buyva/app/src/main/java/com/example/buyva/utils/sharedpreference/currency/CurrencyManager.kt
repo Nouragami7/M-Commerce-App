@@ -23,7 +23,6 @@ object CurrencyManager {
 
     fun convertPrice(egpPrice: Double): String {
         val converted = egpPrice * _currencyRate.value
-        Log.i("1", "convertPrice: ${String.format("%.2f %s", converted, _currencyUnit.value)}")
         return String.format("%.2f %s", converted, _currencyUnit.value)
     }
 

@@ -17,6 +17,7 @@ import com.example.buyva.data.datasource.remote.currency.CurrencyApiService
 import com.example.buyva.data.datasource.remote.currency.CurrencyRetrofitClient
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.repository.Authentication.AuthRepository
+import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.repository.currency.CurrencyRepo
 import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
@@ -240,7 +241,7 @@ fun SetupNavHost(
                 }
             }
             val repository = remember {
-                HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
+                HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api))
             }
                 ProductInfoScreen(
                     productId = productId, repository = repository, navController = navController,
@@ -344,7 +345,7 @@ fun SetupNavHost(
                 }
             }
 
-            val remoteDataSource = remember { RemoteDataSourceImpl(apolloClient) }
+            val remoteDataSource = remember { RemoteDataSourceImpl(apolloClient,StripeClient.api) }
             val searchRepository = remember { SearchRepositoryImpl(remoteDataSource) }
             val searchViewModel = remember { SearchViewModel(searchRepository) }
 
@@ -372,7 +373,7 @@ fun SetupNavHost(
                 }
             }
 
-            val remoteDataSource = remember { RemoteDataSourceImpl(apolloClient) }
+            val remoteDataSource = remember { RemoteDataSourceImpl(apolloClient,StripeClient.api) }
             val searchRepository = remember { SearchRepositoryImpl(remoteDataSource) }
             val searchViewModel = remember { SearchViewModel(searchRepository) }
 

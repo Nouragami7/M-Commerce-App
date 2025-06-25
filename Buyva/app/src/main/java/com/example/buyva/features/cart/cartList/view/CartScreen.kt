@@ -105,14 +105,14 @@ fun CartScreen(
 
 
     val application = context.applicationContext as Application
-    val cartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client), SharedPreferenceImpl)
-    val addressRepo = AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client))
+    val cartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client,StripeClient.api), SharedPreferenceImpl)
+    val addressRepo = AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client,StripeClient.api))
     val viewModel: CartViewModel = viewModel(
         factory = CartViewModelFactory(application, cartRepo, addressRepo)
     )
     val paymentViewModel: PaymentViewModel = viewModel(
         factory = PaymentViewModelFactory(
-            PaymentRepoImpl(com.example.buyva.data.remote.RemoteDataSourceImpl(StripeClient.api))
+            PaymentRepoImpl(com.example.buyva.data.datasource.remote.RemoteDataSourceImpl(ApolloService.client,StripeClient.api))
         )
     )
 
