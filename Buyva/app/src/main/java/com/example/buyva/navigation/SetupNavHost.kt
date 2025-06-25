@@ -4,7 +4,6 @@ import CartScreen
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -16,7 +15,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.currency.CurrencyApiService
-import com.example.buyva.data.datasource.remote.currency.CurrencyRemoteDataSource
 import com.example.buyva.data.datasource.remote.currency.CurrencyRetrofitClient
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.repository.AuthRepository
@@ -242,7 +240,6 @@ fun SetupNavHost(
                 },
                 onCurrencyClick ={
                     navController.navigate(ScreensRoute.CurrencyScreen)
-                }
             })
         }
 

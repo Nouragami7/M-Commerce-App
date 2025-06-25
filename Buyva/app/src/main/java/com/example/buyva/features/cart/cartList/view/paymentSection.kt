@@ -57,7 +57,6 @@ import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.functions.createOrder
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 
@@ -226,13 +225,13 @@ fun PaymentSection(
                     if (selectedMethod == PaymentMethod.PayWithCard) {
                         onPayWithCardClick()
                     } else {
+                        createOrder(cartItems, defaultAddress, paymentViewModel, context)
                         viewModel.clearCart()
                         Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
                         onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
                     }
                 } else {
                     onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
-                    createOrder(cartItems, defaultAddress, paymentViewModel, context)
                     showDialog = true
                 }
             },
