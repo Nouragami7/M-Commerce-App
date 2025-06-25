@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,6 +48,7 @@ import com.example.buyva.ui.theme.ubuntuMedium
 import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.components.PriceFilterSlider
 import com.example.buyva.utils.components.ScreenTitle
+import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 
 
 @Composable
@@ -65,11 +65,13 @@ fun BrandProductsScreen(
 
 ) {
 
-    val egyptianBound = 300f
-    val westernBound = 200f
+    CurrencyManager.loadFromPreferences()
+    val currentRate = CurrencyManager.currencyRate.value.toFloat()
+    val currentCurrency = CurrencyManager.currencyUnit.value
 
-    var showSlider by remember { mutableStateOf(true) }
-    var maxPrice by remember { mutableFloatStateOf(egyptianBound) }
+    var minSliderValue by remember { mutableFloatStateOf(0f) }
+    var maxSliderValue by remember { mutableFloatStateOf(0f) }
+    var selectedPriceLimit by remember { mutableFloatStateOf(0f) }
 
     val brandFactory = BrandFactory(
         HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
@@ -121,11 +123,13 @@ fun BrandProductsScreen(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        AnimatedVisibility(visible = showSlider) {
+        AnimatedVisibility(visible = maxSliderValue > 0f) {
             PriceFilterSlider(
-                maxPrice = maxPrice,
-                onPriceChange = { maxPrice = it },
-                modifier = Modifier.fillMaxWidth()
+                minPrice = minSliderValue,
+                maxPrice = maxSliderValue,
+                onPriceChange = { selectedPriceLimit = it },
+                modifier = Modifier.fillMaxWidth(),
+                currency = currentCurrency
             )
         }
 
@@ -138,16 +142,38 @@ fun BrandProductsScreen(
             ResponseState.Loading -> LoadingIndicator()
             is ResponseState.Success<*> -> {
                 val products = (state as? ResponseState.Success<List<ProductsByCollectionQuery.Node>>)?.data
-                if (products != null) {
-                    val filteredProducts = products.filter {
-                        val priceString = it.variants.edges.firstOrNull()?.node?.price?.amount?.toString()
-                        val price = priceString?.toFloatOrNull() ?: 0f
-                        price <= maxPrice
+
+                if (!products.isNullOrEmpty()) {
+                    val rawPrices = products.mapNotNull {
+                        it.variants.edges.firstOrNull()?.node?.price?.amount?.toString()?.toDoubleOrNull()
                     }
 
-                    ProductSection(products = filteredProducts, onProductClick = onProductClick, favouriteViewModel = favouriteViewModel)
-                }
+                    val minRaw = rawPrices.minOrNull() ?: 0.0
+                    val maxRaw = rawPrices.maxOrNull() ?: 0.0
 
+                    val minConverted = (minRaw * currentRate).toFloat()
+                    val maxConverted = (maxRaw * currentRate).toFloat()
+
+                    LaunchedEffect(minConverted, maxConverted) {
+                        if (minSliderValue == 0f && maxSliderValue == 0f && maxConverted > 0f) {
+                            minSliderValue = minConverted
+                            maxSliderValue = maxConverted
+                            selectedPriceLimit = maxConverted
+                        }
+                    }
+
+                    val filteredProducts = products.filter {
+                        val rawPrice = it.variants.edges.firstOrNull()?.node?.price?.amount?.toString()?.toDoubleOrNull() ?: 0.0
+                        val convertedPrice = (rawPrice * currentRate).toFloat()
+                        convertedPrice in minSliderValue..selectedPriceLimit
+                    }
+
+                    ProductSection(
+                        products = filteredProducts,
+                        onProductClick = onProductClick,
+                        favouriteViewModel = favouriteViewModel
+                    )
+                }
             }
         }
     }

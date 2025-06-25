@@ -48,7 +48,9 @@ import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.components.PriceFilterSlider
 import com.example.buyva.utils.components.ScreenTitle
- //val imageUrl = node.featuredImage?.url ?: ""
+import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
+
+//val imageUrl = node.featuredImage?.url ?: ""
 //                val price = (node.variants.edges.firstOrNull()?.node?.price?.amount as? Number)?.toFloat() ?: 0f
 @Composable
 fun CategoryScreen(
@@ -58,16 +60,20 @@ fun CategoryScreen(
     //onTextChanged: (String) -> Unit,
     favouriteViewModel: FavouriteScreenViewModel ?
 ) {
-    val egyptianBound = 300f
-    val westernBound = 200f
 
-    var maxPrice by remember { mutableFloatStateOf(egyptianBound) }
+    CurrencyManager.loadFromPreferences()
+
+    val currentRate = CurrencyManager.currencyRate.value.toFloat()
+    val currentCurrency = CurrencyManager.currencyUnit.value
+
+    var minSliderValue by remember { mutableFloatStateOf(0f) }
+    var maxSliderValue by remember { mutableFloatStateOf(0f) }
+    var selectedPriceLimit by remember { mutableFloatStateOf(0f) }
+
     var selectedCategory by remember { mutableStateOf("Men") }
-    var showSlider by remember { mutableStateOf(true) }
     val selectedBackground = DarkGray.copy(alpha = 0.20f)
     val unselectedBackground = Color.Transparent
     val selectedSubcategories = remember { mutableStateMapOf<String, String?>() }
-
 
     val viewModelFactory = CategoryFactory(
         CategoryRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
@@ -100,14 +106,15 @@ fun CategoryScreen(
                 onCartClick = onCartClick,onSearchClick = onSearchClick)
             Spacer(modifier = Modifier.height(12.dp))
 
-            AnimatedVisibility(visible = showSlider) {
-
-                PriceFilterSlider(
-                    maxPrice = maxPrice,
-                    onPriceChange = { maxPrice = it },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+                AnimatedVisibility(visible = maxSliderValue > 0f) {
+                    PriceFilterSlider(
+                        minPrice = minSliderValue,
+                        maxPrice = maxSliderValue,
+                        onPriceChange = { selectedPriceLimit = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        currency = currentCurrency
+                    )
+                }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -128,7 +135,6 @@ fun CategoryScreen(
                                 onSubcategorySelect = { filter ->
                                     selectedSubcategories[category.name] = filter
                                     selectedCategory = category.name
-                                    showSlider = false
                                 },
                                 backgroundColor = if (selectedCategory == category.name) selectedBackground else unselectedBackground
                             ) {
@@ -138,7 +144,6 @@ fun CategoryScreen(
                                     }
                                 }
                                 selectedCategory = category.name
-                                showSlider = false
                             }
 
 
@@ -157,20 +162,37 @@ fun CategoryScreen(
 
                         is ResponseState.Success<*> -> {
                             val products = (state.data as List<GetProductsByCategoryQuery.Node>)
+                            val rawPrices = products.mapNotNull {
+                                it.variants.edges.firstOrNull()?.node?.price?.amount?.toString()?.toDoubleOrNull()
+                            }
+
+                            val minRaw = rawPrices.minOrNull() ?: 0.0
+                            val maxRaw = rawPrices.maxOrNull() ?: 0.0
+
+                            val minConverted = (minRaw * currentRate).toFloat()
+                            val maxConverted = (maxRaw * currentRate).toFloat()
+
+                            LaunchedEffect(minConverted, maxConverted) {
+                                if (minSliderValue == 0f && maxSliderValue == 0f && maxConverted > 0f) {
+                                    minSliderValue = minConverted
+                                    maxSliderValue = maxConverted
+                                    selectedPriceLimit = maxConverted
+                                }
+                            }
+
                             val selectedSubcategory = selectedSubcategories[selectedCategory]
+
                             val filtered = products.filter { product ->
                                 val productType = product.productType
-                                val priceAmount =
-                                    product.variants.edges.firstOrNull()?.node?.price?.amount?.toString()
-                                        ?.toFloatOrNull() ?: 0f
+                                val rawPrice = product.variants.edges.firstOrNull()?.node?.price?.amount?.toString()?.toDoubleOrNull() ?: 0.0
+                                val convertedPrice = (rawPrice * currentRate).toFloat()
 
                                 val matchesSubcategory = selectedSubcategory?.let {
                                     productType.equals(it, ignoreCase = true)
                                 } ?: true
 
-                                matchesSubcategory && priceAmount <= maxPrice
+                                matchesSubcategory && convertedPrice in minSliderValue..selectedPriceLimit
                             }
-
 
                             if (filtered.isEmpty()) {
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -187,6 +209,7 @@ fun CategoryScreen(
                                 )
                             }
                         }
+
 
 
                     }
