@@ -56,7 +56,7 @@ fun CategoryScreen(
     onProductClick: (String) -> Unit,
     onSearchClick: () -> Unit,
     //onTextChanged: (String) -> Unit,
-    favouriteViewModel: FavouriteScreenViewModel
+    favouriteViewModel: FavouriteScreenViewModel ?
 ) {
     val egyptianBound = 300f
     val westernBound = 200f

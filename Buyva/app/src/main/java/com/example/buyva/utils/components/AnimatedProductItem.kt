@@ -29,7 +29,7 @@ fun AnimatedProductItem(
     product: Any,
     onProductClick: (String) -> Unit,
     modifier: Modifier = Modifier,
-    favouriteViewModel: FavouriteScreenViewModel
+    favouriteViewModel: FavouriteScreenViewModel ? = null
 
 
 ) {
