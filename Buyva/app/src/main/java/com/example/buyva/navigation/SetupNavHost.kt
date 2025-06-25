@@ -3,9 +3,11 @@ package com.example.buyva.navigation
 import CartScreen
 import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -49,7 +51,7 @@ fun SetupNavHost(
 ) {
     val apolloClient = remember { ApolloService.client }
     val sharedOrderViewModel: SharedOrderViewModel = viewModel()
-
+    val context = LocalContext.current
 
     val logoutViewModel = remember {
         LogoutViewModel(
@@ -66,9 +68,8 @@ fun SetupNavHost(
             WelcomeScreen(onSignInClick = { navController.navigate(ScreensRoute.LoginScreen) },
                 onSignUpClick = { navController.navigate(ScreensRoute.SignUpScreen) },
                 onSkipClick = {
-                    navController.navigate(ScreensRoute.HomeScreen) {
-                        popUpTo(0)
-                    }
+                    Toast.makeText(context, "Login required to continue", Toast.LENGTH_SHORT).show()
+                    navController.navigate(ScreensRoute.HomeScreen)
                 })
         }
 
@@ -97,7 +98,6 @@ fun SetupNavHost(
                 }
             }
 
-            if (favouriteViewModel != null) {
                 HomeScreen(onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
                     onBrandClick = { brandId, brandTitle, brandImage ->
                         navController.navigate(
@@ -113,7 +113,6 @@ fun SetupNavHost(
                     favouriteViewModel = favouriteViewModel
 
                 )
-            }
         }
 
 
@@ -138,7 +137,6 @@ fun SetupNavHost(
                 }
             }
 
-            if (favouriteViewModel != null) {
                 CategoryScreen(
                     onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
                     onProductClick = { productId ->
@@ -148,7 +146,7 @@ fun SetupNavHost(
 
                     favouriteViewModel = favouriteViewModel
                 )
-            }
+
 
         }
 
@@ -160,11 +158,10 @@ fun SetupNavHost(
                 }
             }
 
-            if (favouriteViewModel != null) {
                 FavouriteScreen(
                     viewModel = favouriteViewModel, navController = navController
                 )
-            }
+
         }
 
         composable<ScreensRoute.BrandProductsScreen> { entry ->
@@ -179,7 +176,6 @@ fun SetupNavHost(
                 }
             }
 
-            if (favouriteViewModel != null) {
                 BrandProductsScreen(
                     brandId = id,
                     brandName = name,
@@ -196,7 +192,6 @@ fun SetupNavHost(
 
                     favouriteViewModel = favouriteViewModel
                 )
-            }
         }
 
         composable("productInfo/{productId}") { backStackEntry ->
@@ -211,13 +206,12 @@ fun SetupNavHost(
             val repository = remember {
                 HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
             }
-            if (favouriteViewModel != null) {
                 ProductInfoScreen(
                     productId = productId, repository = repository, navController = navController,
                     //  variantId = variantId ,
                     favouriteViewModel = favouriteViewModel
                 )
-            }
+
         }
 
         composable<ScreensRoute.ProfileScreen> {

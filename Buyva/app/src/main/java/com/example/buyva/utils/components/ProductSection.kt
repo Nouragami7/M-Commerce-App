@@ -1,3 +1,4 @@
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,14 +14,14 @@ import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.GetFavouriteProductsByIdsQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
-import com.example.buyva.data.model.FavouriteProduct
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.utils.components.AnimatedProductItem
+
 @Composable
 fun ProductSection(
     products: List<*>,
     onProductClick: (String) -> Unit,
-    favouriteViewModel: FavouriteScreenViewModel
+    favouriteViewModel: FavouriteScreenViewModel ? = null
 ) {
     Column(
         modifier = Modifier

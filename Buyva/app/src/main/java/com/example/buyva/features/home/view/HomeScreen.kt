@@ -42,7 +42,7 @@ fun HomeScreen(
     onSearchClick: () -> Unit = {},
   //  onTextChanged: (String) -> Unit,
     onProductClick: (String) -> Unit = {},
-    favouriteViewModel: FavouriteScreenViewModel
+    favouriteViewModel: FavouriteScreenViewModel ?
 
 ) {
     val viewModelFactory = HomeFactory(

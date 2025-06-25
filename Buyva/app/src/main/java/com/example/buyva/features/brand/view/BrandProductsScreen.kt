@@ -58,7 +58,7 @@ fun BrandProductsScreen(
     imageUrl: String,
     onBack: () -> Unit,
     onProductClick: (String) -> Unit,
-    favouriteViewModel: FavouriteScreenViewModel,
+    favouriteViewModel: FavouriteScreenViewModel ?,
     onSearchClick: () -> Unit = {},
    // onTextChanged: (String) -> Unit
 
