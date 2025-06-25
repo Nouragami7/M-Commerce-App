@@ -1,6 +1,7 @@
     package com.example.buyva.utils.components
 
     import android.net.Uri
+    import android.util.Log
     import androidx.compose.foundation.layout.Arrangement
     import androidx.compose.foundation.layout.Column
     import androidx.compose.foundation.layout.Row
@@ -40,6 +41,11 @@
     import com.example.buyva.data.model.FavouriteProduct
     import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
     import com.example.buyva.ui.theme.Cold
+    import com.example.buyva.utils.constants.CURRENCY_RATE
+    import com.example.buyva.utils.constants.CURRENCY_UNIT
+    import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
+    import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
+
     @Composable
     fun ProductCard(
         product: Any,
@@ -49,7 +55,9 @@
     ) {
         val favouriteProducts by favouriteViewModel.favouriteProducts.collectAsState()
         var showAlert by remember { mutableStateOf(false) }
-
+val currencyRate : Double = SharedPreferenceImpl.getLongFromSharedPreferenceInGeneral(CURRENCY_RATE)
+        val currencyUnit : String =
+            SharedPreferenceImpl.getFromSharedPreferenceInGeneral(CURRENCY_UNIT).toString()
 
         val id = when (product) {
             is BrandsAndProductsQuery.Node -> product.id
@@ -88,7 +96,6 @@
                     .map { it.trim().split(" ").firstOrNull().orEmpty() }
                     .joinToString(" | ")
                 productType = "Shoes"
-                price = product.variants.edges.firstOrNull()?.node?.price?.amount.toString()
                 currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
             }
 
@@ -112,7 +119,9 @@
                 currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
             }
         }
-
+Log.i("1", "ProductCurrency: $currency")
+        CurrencyManager.loadFromPreferences()
+val newPrice = CurrencyManager.convertPrice(price.toDouble())
         Card(
             modifier = modifier
                 .padding(vertical = 4.dp)
@@ -169,7 +178,7 @@
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "$price $currency",
+                        text = newPrice,
                         color = Cold,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold

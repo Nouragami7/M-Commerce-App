@@ -5,7 +5,9 @@ import com.example.buyva.admin.CompleteDraftOrderMutation
 import com.example.buyva.admin.CreateDraftOrderMutation
 import com.example.buyva.admin.type.DraftOrderInput
 import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
+import com.example.buyva.data.datasource.remote.stripe.StripeAPI
 import com.example.buyva.data.model.uistate.ResponseState
+import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import retrofit2.Response
@@ -16,10 +18,11 @@ class RemoteDataSourceImpl(private val stripeAPI: StripeAPI) : RemoteDataSource 
         currency: String,
         paymentMethod: String
     ): Response<com.google.gson.JsonObject> {
-        return stripeAPI.createPaymentIntent(amount, currency, paymentMethod)
+        return stripeAPI.createPaymentIntent(amount, CurrencyManager.currencyUnit.value.lowercase(), paymentMethod)
     }
 
     override suspend fun createDraftOrder(draftOrderInput: DraftOrderInput): Flow<ResponseState> = flow {
+
         try {
             val response = ApolloAdmin.admin.mutation(CreateDraftOrderMutation(draftOrderInput)).execute()
             val draftOrder = response.data?.draftOrderCreate?.draftOrder

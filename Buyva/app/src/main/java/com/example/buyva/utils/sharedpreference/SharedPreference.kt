@@ -18,6 +18,9 @@ interface SharedPreference {
     fun getCartId(): String?
     fun saveToSharedPreferenceInGeneral( key: String, value: String)
     fun getFromSharedPreferenceInGeneral( key: String): String?
+    fun saveLongToSharedPreferenceInGeneral(key: String, value: Double)
+    fun getLongFromSharedPreferenceInGeneral(key: String): Double
+
 
 
 

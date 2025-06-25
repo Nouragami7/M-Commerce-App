@@ -45,6 +45,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -61,7 +62,7 @@ import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.CartItem
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.remote.StripeClient
+import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.data.repository.cart.CartRepoImpl
 import com.example.buyva.data.repository.paymentRepo.PaymentRepoImpl
@@ -76,9 +77,9 @@ import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Teal
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.components.EmptyScreen
-import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.functions.createOrder
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
+import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
@@ -151,6 +152,8 @@ fun CartScreen(
         viewModel.showCart()
         viewModel.loadDefaultAddress()
          PaymentConfiguration.init(context, BuildConfig.STRIPE_PUBLISHABLE_KEY)
+        CurrencyManager.loadFromPreferences()
+
 
     }
 
@@ -318,7 +321,7 @@ fun CartScreen(
                         }
 
                         Text(
-                            text = "Total: EGP %.2f".format(totalPrice),
+                            text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(CurrencyManager.currencyRate.value*totalPrice),
                             modifier = Modifier
                                 .align(Alignment.End)
                                 .padding(horizontal = 16.dp, vertical = 4.dp),

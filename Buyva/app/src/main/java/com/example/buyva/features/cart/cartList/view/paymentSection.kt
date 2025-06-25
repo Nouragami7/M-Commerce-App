@@ -56,6 +56,8 @@ import com.example.buyva.ui.theme.Cold
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.functions.createOrder
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
+import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 
@@ -188,7 +190,7 @@ fun PaymentSection(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = "Total: EGP %.2f".format(price),
+                    text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(price* CurrencyManager.currencyRate.value),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Cold,

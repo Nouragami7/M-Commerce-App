@@ -64,6 +64,7 @@ import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 import com.example.buyva.utils.mappers.toFavouriteProduct
+import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 
 @Composable
 fun ProductInfoScreen(
@@ -139,7 +140,9 @@ fun ProductInfoContent(
 
     val allVariants = product.variants.edges.map { it.node }
     val allSelectedOptions = allVariants.flatMap { it.selectedOptions }
-    val price = allVariants.firstOrNull()?.price?.amount ?: "0.0"
+    val price : String = (allVariants.firstOrNull()?.price?.amount ?: "0.0").toString()
+    CurrencyManager.loadFromPreferences()
+    val newPrice = CurrencyManager.convertPrice(price.toDouble())
     val currency = allVariants.firstOrNull()?.price?.currencyCode?.name ?: ""
 
     val availableSizes = allSelectedOptions
@@ -239,7 +242,7 @@ fun ProductInfoContent(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(vendor ?: "", color = Color.Gray, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("$price $currency", color = Cold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text("$newPrice", color = Cold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(if (inStock) "In Stock" else "Out of Stock", color = if (inStock) Color.Red else Color.Gray, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(16.dp))
