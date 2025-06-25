@@ -43,8 +43,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -53,7 +51,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import com.example.buyva.R
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.CartItem
@@ -68,25 +65,22 @@ import com.example.buyva.BuildConfig
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.remote.StripeClient
+import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.data.repository.cart.CartRepoImpl
 import com.example.buyva.data.repository.paymentRepo.PaymentRepoImpl
-import com.example.buyva.features.cart.cartList.view.CartItemRow
-import com.example.buyva.features.cart.cartList.view.PaymentSection
 import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
 import com.example.buyva.features.cart.cartList.viewmodel.CartViewModelFactory
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModel
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModelFactory
 import com.example.buyva.utils.components.EmptyScreen
-import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.functions.createOrder
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
+import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheet
 import com.stripe.android.paymentsheet.PaymentSheetResult
 import com.stripe.android.paymentsheet.rememberPaymentSheet
-import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -154,6 +148,8 @@ fun CartScreen(
         viewModel.showCart()
         viewModel.loadDefaultAddress()
          PaymentConfiguration.init(context, BuildConfig.STRIPE_PUBLISHABLE_KEY)
+        CurrencyManager.loadFromPreferences()
+
 
     }
 
@@ -325,7 +321,7 @@ fun CartScreen(
                         }
 
                         Text(
-                            text = "Total: EGP %.2f".format(totalPrice),
+                            text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(CurrencyManager.currencyRate.value*totalPrice),
                             modifier = Modifier
                                 .align(Alignment.End)
                                 .padding(horizontal = 16.dp, vertical = 4.dp),

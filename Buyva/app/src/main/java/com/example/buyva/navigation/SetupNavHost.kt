@@ -3,16 +3,22 @@ package com.example.buyva.navigation
 import CartScreen
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
+import com.example.buyva.data.datasource.remote.currency.CurrencyApiService
+import com.example.buyva.data.datasource.remote.currency.CurrencyRemoteDataSource
+import com.example.buyva.data.datasource.remote.currency.CurrencyRetrofitClient
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.repository.AuthRepository
+import com.example.buyva.data.repository.currency.CurrencyRepo
 import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.data.repository.search.SearchRepositoryImpl
@@ -29,6 +35,9 @@ import com.example.buyva.features.home.view.HomeScreen
 import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.profile.addressdetails.view.AddressDetails
 import com.example.buyva.features.profile.addressdetails.viewlist.DeliveryAddressListScreen
+import com.example.buyva.features.profile.currency.viewcurrency.CurrencyScreen
+import com.example.buyva.features.profile.currency.viewmodel.CurrencyViewModel
+import com.example.buyva.features.profile.currency.viewmodel.CurrencyViewModelFactory
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
@@ -36,6 +45,7 @@ import com.example.buyva.features.search.view.SearchScreen
 import com.example.buyva.features.search.viewmodel.SearchViewModel
 import com.example.yourapp.ui.screens.OrderScreen
 import com.google.firebase.auth.FirebaseAuth
+import com.omarinc.shopify.network.currency.CurrencyRemoteDataSourceImpl
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -242,6 +252,9 @@ fun SetupNavHost(
                     navController.navigate(ScreensRoute.WelcomeScreen) {
                         popUpTo(0)
                     }
+                },
+                onCurrencyClick ={
+                    navController.navigate(ScreensRoute.CurrencyScreen)
                 }
             )
         }
@@ -373,6 +386,27 @@ fun SetupNavHost(
                 )
             }
         }
+
+
+
+        composable<ScreensRoute.CurrencyScreen> {
+            val viewModel: CurrencyViewModel = viewModel(
+                factory = CurrencyViewModelFactory(
+                    CurrencyRepo(
+                        CurrencyRemoteDataSourceImpl(CurrencyRetrofitClient.getInstance().create(CurrencyApiService::class.java)
+                        )
+
+                    )
+                )
+            )
+
+            CurrencyScreen(
+                viewModel = viewModel,
+                onBackClick = {
+                    navController.popBackStack()
+                })
+        }
+
 
     }
 

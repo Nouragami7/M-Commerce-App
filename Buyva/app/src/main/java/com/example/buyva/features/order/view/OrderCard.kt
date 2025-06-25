@@ -33,6 +33,7 @@ import com.example.buyva.R
 import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
+import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 
 @Composable
 fun OrderCard(order: GetOrdersByCustomerEmailQuery.Node, onOrderClick: (String) -> Unit) {
@@ -107,7 +108,7 @@ fun OrderCard(order: GetOrdersByCustomerEmailQuery.Node, onOrderClick: (String) 
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Text("${order.totalPriceSet.shopMoney.amount} ${order.totalPriceSet.shopMoney.currencyCode}", style = MaterialTheme.typography.bodyMedium, color = Cold, fontWeight = FontWeight.Bold)
+                Text("${order.totalPriceSet.shopMoney.amount.toString().toDouble()*CurrencyManager.currencyRate.value} ${CurrencyManager.currencyUnit.value}", style = MaterialTheme.typography.bodyMedium, color = Cold, fontWeight = FontWeight.Bold)
 
             }
         }

@@ -1,5 +1,6 @@
 package com.example.buyva.features.profile.profileoptions.view
 
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -23,6 +24,9 @@ import com.example.buyva.ui.theme.Sea
 import com.example.buyva.ui.theme.Teal
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.utils.components.ScreenTitle
+import com.example.buyva.utils.constants.CURRENCY_RATE
+import com.example.buyva.utils.constants.CURRENCY_UNIT
+import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -31,8 +35,11 @@ fun ProfileScreen(
     onFavClick: () -> Unit = {},
     onAddressClick: () -> Unit = {},
     onOrdersClick: () -> Unit = {},
-    onLoggedOut: () -> Unit = {}
+    onLoggedOut: () -> Unit = {},
+    onCurrencyClick: () -> Unit = {}
 ) {
+    Log.d("1", "${SharedPreferenceImpl.getFromSharedPreferenceInGeneral(CURRENCY_UNIT)}")
+    Log.d("1", "${SharedPreferenceImpl.getLongFromSharedPreferenceInGeneral(CURRENCY_RATE)}")
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = true
     }
@@ -79,7 +86,7 @@ fun ProfileScreen(
             ProfileOption(Icons.Default.LocalShipping, "My Orders", Sea, onOrdersClick)
             ProfileOption(Icons.Default.FavoriteBorder, "My Wishlist", Sea, onFavClick)
             ProfileOption(Icons.Default.LocationOn, "Delivery Address", Sea, onAddressClick)
-            ProfileOption(Icons.Default.Money, "Currency", Sea, onAddressClick)
+            ProfileOption(Icons.Default.Money, "Currency", Sea, onCurrencyClick)
         }
 
         Spacer(modifier = Modifier.height(30.dp))

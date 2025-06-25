@@ -93,10 +93,25 @@ object SharedPreferenceImpl : SharedPreference {
             this?.apply()
         }
     }
-
     override fun getFromSharedPreferenceInGeneral(key: String): String? {
         val sharedPref = appContext?.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        return sharedPref?.getString(key, null)    }
+        return sharedPref?.getString(key, null)
+    }
+
+    override fun saveLongToSharedPreferenceInGeneral(key: String, value: Double) {
+        val sharedPref = appContext?.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        with(sharedPref?.edit()) {
+            this?.putLong(key, java.lang.Double.doubleToRawLongBits(value))
+            this?.apply()
+        }
+    }
+
+    override fun getLongFromSharedPreferenceInGeneral(key: String): Double {
+        val sharedPref = appContext?.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        val longBits = sharedPref?.getLong(key, java.lang.Double.doubleToRawLongBits(1.0)) ?: java.lang.Double.doubleToRawLongBits(1.0)
+        return java.lang.Double.longBitsToDouble(longBits)
+    }
+
 
     fun clearUserData() {
         val prefs = appContext?.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
