@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -180,12 +181,7 @@ fun SetupNavHost(
                     }
                 )
             } else {
-                val currentUser = FirebaseAuth.getInstance().currentUser
-                val favouriteViewModel = remember(currentUser?.uid) {
-                    currentUser?.let {
-                        FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
-                    }
-                }
+                val favouriteViewModel : FavouriteScreenViewModel = hiltViewModel()
 
                 FavouriteScreen(
                     viewModel = favouriteViewModel,
@@ -199,12 +195,7 @@ fun SetupNavHost(
             val name = entry.arguments?.getString("brandName") ?: "Adidas"
             val image = entry.arguments?.getString("brandImage") ?: ""
 
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            val favouriteViewModel = remember(currentUser?.uid) {
-                currentUser?.let {
-                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
-                }
-            }
+            val favouriteViewModel: FavouriteScreenViewModel = hiltViewModel()
 
                 BrandProductsScreen(
                     brandId = id,

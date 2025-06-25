@@ -4,8 +4,9 @@ import com.example.buyva.data.datasource.remote.currency.CurrencyRemoteDataSourc
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class CurrencyRepo(
+class CurrencyRepo @Inject constructor(
     private val currencyRemoteDataSource: CurrencyRemoteDataSource,
 ) : ICurrencyRepo {
     override suspend fun getCurrencyRate(requiredCurrency: String): Flow<ResponseState> {

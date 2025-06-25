@@ -10,12 +10,18 @@ import com.example.buyva.data.repository.cart.CartRepo
 import com.example.buyva.data.repository.cart.CartRepoImpl
 import com.example.buyva.data.repository.categories.CategoryRepositoryImpl
 import com.example.buyva.data.repository.categories.ICategoryRepository
+import com.example.buyva.data.repository.currency.CurrencyRepo
+import com.example.buyva.data.repository.currency.ICurrencyRepo
+import com.example.buyva.data.repository.favourite.FavouriteRepository
+import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.data.repository.home.IHomeRepository
 import com.example.buyva.data.repository.order.IOrderRepository
 import com.example.buyva.data.repository.order.OrderRepositoryImpl
 import com.example.buyva.data.repository.paymentRepo.PaymentRepo
 import com.example.buyva.data.repository.paymentRepo.PaymentRepoImpl
+import com.example.buyva.data.repository.search.ISearchRepository
+import com.example.buyva.data.repository.search.SearchRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -73,5 +79,23 @@ abstract class AppSourceModule {
         abstract fun bindPaymentRepository(
             paymentRepository: PaymentRepoImpl
         ): PaymentRepo
+
+        @Binds
+        @Singleton
+        abstract fun bindCurrencyRepository(
+            currencyRepository: CurrencyRepo
+        ):ICurrencyRepo
+
+        @Binds
+        @Singleton
+        abstract fun bindFavouriteRepository(
+            favouriteRepository: FavouriteRepositoryImpl
+        ): FavouriteRepository
+
+        @Binds
+        @Singleton
+        abstract fun bindSearchRepository(
+            searchRepository: SearchRepositoryImpl
+        ): ISearchRepository
 
 }
