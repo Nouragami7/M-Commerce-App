@@ -32,6 +32,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -40,6 +41,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -73,6 +75,7 @@ import com.example.buyva.data.repository.cart.CartRepoImpl
 import com.example.buyva.data.repository.home.IHomeRepository
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModel
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModelFactory
+import com.example.buyva.features.authentication.login.viewmodel.UserSessionManager
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.navigation.ScreensRoute
 import com.example.buyva.navigation.navbar.NavigationBar
@@ -155,6 +158,9 @@ fun ProductInfoContent(
     }
     val isFavorite = favouriteProducts.any { it.id == product.id }
     var showDeleteAlert by remember { mutableStateOf(false) }
+
+    var showGuestAlert by remember { mutableStateOf(false) }
+    var guestActionType by remember { mutableStateOf("") }
 
     var isAddedToCart by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -241,11 +247,20 @@ fun ProductInfoContent(
                             .padding(4.dp)
                             .size(28.dp)
                             .clickable {
-                                if (isFavorite) showDeleteAlert = true
-                                else favouriteViewModel?.toggleFavourite(product.id)
-                            })
+                            if (UserSessionManager.isGuest()) {
+                                guestActionType = "fav"
+                                showGuestAlert = true
+                                return@clickable
+                            }
 
-                    if (showDeleteAlert) {
+                            if (isFavorite) showDeleteAlert = true
+                            else favouriteViewModel?.toggleFavourite(product.id)
+                        }
+
+                    )
+
+
+                        if (showDeleteAlert) {
                         CustomAlertDialog(title = "Remove from favorites",
                             message = "Are you sure you want to remove this product from favorites?",
                             confirmText = "Remove",
@@ -366,13 +381,18 @@ fun ProductInfoContent(
         ) {
             OutlinedButton(
                 onClick = {
-                    if (selectedSize == null || selectedColor == null) {
-                        Toast.makeText(context, "Please select size and color", Toast.LENGTH_SHORT)
-                            .show()
+                    if (UserSessionManager.isGuest()) {
+                        guestActionType = "cart"
+                        showGuestAlert = true
                         return@OutlinedButton
                     }
 
-                    val matchedVariant =
+                    if (selectedSize == null || selectedColor == null) {
+                        Toast.makeText(context, "Please select size and color", Toast.LENGTH_SHORT).show()
+                        return@OutlinedButton
+                    }
+
+                val matchedVariant =
                         product.variants.edges.map { it.node }.firstOrNull { variant ->
                             val options =
                                 variant.selectedOptions.associate { it.name.lowercase() to it.value.lowercase() }
@@ -417,10 +437,50 @@ fun ProductInfoContent(
             }
         }
     }
+    if (showGuestAlert) {
+        AlertDialog(
+            onDismissRequest = { showGuestAlert = false },
+            title = { Text("Login Required") },
+            text = {
+                Text(
+                    if (guestActionType == "fav")
+                        "You need to login to add this product to your favourites."
+                    else
+                        "You need to login to add this product to your cart."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showGuestAlert = false
+                        navController.navigate(ScreensRoute.LoginScreen)
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Sea
+                    )
+                ) {
+                    Text("Login")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showGuestAlert = false },
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = Color.Transparent,
+                        contentColor = Color.Gray
+                    )
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
     selectedImage?.let {
         FullscreenImageViewer(imageUrl = it) { selectedImage = null }
     }
+
 }
 
 
