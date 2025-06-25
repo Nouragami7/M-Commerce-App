@@ -99,6 +99,7 @@ fun CategoryScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(12.dp)
+                .padding(bottom = 12.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             ScreenTitle("Categories")
