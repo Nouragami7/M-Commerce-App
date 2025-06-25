@@ -121,7 +121,7 @@ Log.d("1", "AddressList called ${address.country}  and ${address.city}")
                         isDefault = isDefault,
                         onSetDefault = {
                             val cleanedId = address.id?.stripTokenFromShopifyGid() ?: return@AddressItem
-                            SharedPreferenceImpl.saveToSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token", cleanedId)
+                            viewModel.setDefaultAddress(cleanedId)
                             defaultAddressId = cleanedId
                         },
                         onDeleteClick = {

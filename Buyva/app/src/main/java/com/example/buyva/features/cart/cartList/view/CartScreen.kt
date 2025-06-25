@@ -153,8 +153,6 @@ fun CartScreen(
         viewModel.loadDefaultAddress()
          PaymentConfiguration.init(context, BuildConfig.STRIPE_PUBLISHABLE_KEY)
         CurrencyManager.loadFromPreferences()
-
-
     }
 
 

@@ -93,9 +93,15 @@ fun PaymentSection(
     val homeViewModel : HomeViewModel = viewModel(
         factory = HomeFactory( homeRepo)
     )
+    LaunchedEffect(Unit) {
+        viewModel.loadDefaultAddress()
+
+    }
+    val defAddress by viewModel.defaultAddress.collectAsState()
+
     val context = LocalContext.current
-    val addressDetails = if (address.lastName != "") {
-        "${address.firstName} ${address.lastName}\n${address.address1}"
+    val addressDetails = if (!defAddress?.lastName.isNullOrEmpty()) {
+        "${defAddress?.firstName} ${defAddress?.lastName}\n${defAddress?.address1}"
     } else {
         "Choose Default Address !"
     }
@@ -105,7 +111,6 @@ fun PaymentSection(
 
 LaunchedEffect(Unit) {
     homeViewModel.fetchDiscounts()
-
 }
 
     if (showDialog) {

@@ -35,7 +35,7 @@ class CartViewModel(
     val cartProducts: StateFlow<ResponseState> = _cartProducts
     private val userEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
     val cartId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("CART_ID_${userEmail.lowercase()}")
-   private var cartLinesId = MutableStateFlow<List<String>>(emptyList())
+    private var cartLinesId = MutableStateFlow<List<String>>(emptyList())
     private val _defaultAddress = MutableStateFlow<Address?>(null)
     val defaultAddress: StateFlow<Address?> = _defaultAddress
 
@@ -58,7 +58,6 @@ class CartViewModel(
             }
         }
 
-
         fun showCart() {
             viewModelScope.launch {
                 _cartProducts.value = ResponseState.Loading
@@ -73,8 +72,6 @@ class CartViewModel(
             }
         }
 
-
-
     fun removeProductFromCart(productLineId: String) {
         viewModelScope.launch {
             val cartId = this@CartViewModel.cartId ?: return@launch
@@ -88,7 +85,6 @@ class CartViewModel(
             }
         }
     }
-
 
     fun clearCart() {
         viewModelScope.launch {
@@ -115,7 +111,6 @@ class CartViewModel(
         }
     }
 
-
     fun loadDefaultAddress() {
         if (token.isNullOrBlank()) return
 
@@ -125,14 +120,13 @@ class CartViewModel(
                     val addressList = response.data as? List<Address> ?: emptyList()
                     val default = addressList.find { it.id?.stripTokenFromShopifyGid() == defaultAddressId }
                     _defaultAddress.value = default
+                    Log.d("1", "Default address loaded successfully in cart screen ${defaultAddress.value?.address1}")
                 } else if (response is ResponseState.Failure) {
                     Log.e("1", "Failed to load addresses: ${response.message}")
                 }
             }
         }
     }
-
-
 }
 
 
