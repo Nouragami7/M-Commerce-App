@@ -47,6 +47,7 @@ import androidx.compose.ui.Modifier
 
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
 import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.utils.jsonStringToAddress
 import kotlinx.serialization.Contextual
@@ -72,7 +73,7 @@ Log.d("1", "AddressDetails called coutry  : ${country} from details and city  : 
     val viewModel: AddressViewModel = viewModel(
         factory = AddressViewModelFactory(
             application = LocalContext.current.applicationContext as Application,
-            AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api))
+            AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client, ApolloAdmin, StripeClient.api))
         )
     )
 

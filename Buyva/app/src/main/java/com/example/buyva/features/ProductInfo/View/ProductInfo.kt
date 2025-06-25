@@ -67,6 +67,7 @@ import coil.compose.AsyncImage
 import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.R
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
+import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.uistate.ResponseState
@@ -85,8 +86,8 @@ import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
-import com.google.firebase.auth.FirebaseAuth
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun ProductInfoScreen(
@@ -99,7 +100,7 @@ fun ProductInfoScreen(
     val application = LocalContext.current.applicationContext as Application
     val authRepo: AuthRepository = AuthRepository(FirebaseAuth.getInstance(), ApolloService.client)
     val cartRepo: CartRepo =
-        CartRepoImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api), SharedPreferenceImpl)
+        CartRepoImpl(RemoteDataSourceImpl(ApolloService.client,ApolloAdmin ,StripeClient.api), SharedPreferenceImpl)
     val factory =
         remember { ProductInfoViewModelFactory(application, repository, authRepo, cartRepo) }
     val viewModel: ProductInfoViewModel = viewModel(factory = factory)

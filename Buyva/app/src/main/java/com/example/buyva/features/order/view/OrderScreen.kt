@@ -25,16 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
-import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
-import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.repository.order.OrderRepositoryImpl
 import com.example.buyva.features.order.view.OrderCard
-import com.example.buyva.features.order.viewmodel.OrderFactory
 import com.example.buyva.features.order.viewmodel.OrderViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
@@ -49,11 +44,7 @@ fun OrderScreen(onBack: () -> Unit = {}, onOrderClick: (GetOrdersByCustomerEmail
         NavigationBar.mutableNavBarState.value = false
     }
 
-    val orderFactory = OrderFactory(
-        OrderRepositoryImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api))
-    )
-
-    val orderViewModel: OrderViewModel = viewModel(factory = orderFactory)
+    val orderViewModel: OrderViewModel = hiltViewModel()
 
     val orderState by orderViewModel.orders.collectAsStateWithLifecycle()
 

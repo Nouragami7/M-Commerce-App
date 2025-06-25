@@ -1,21 +1,22 @@
 package com.example.buyva.features.authentication.login.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.buyva.data.repository.Authentication.AuthRepository
 import com.example.buyva.data.repository.Authentication.IAuthRepository
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.firebase.auth.FirebaseAuthEmailException
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
-import com.google.firebase.auth.FirebaseAuthEmailException
 import com.google.firebase.auth.FirebaseUser
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LoginViewModel(
+@HiltViewModel
+class LoginViewModel @Inject constructor(
     private val authRepository: IAuthRepository
 ) : ViewModel() {
 
@@ -42,7 +43,8 @@ class LoginViewModel(
 
                 // Check if email is verified
                 if (!user.isEmailVerified) {
-                    _errorMessage.value = "Please verify your email first. Check your inbox or spam folder."
+                    _errorMessage.value =
+                        "Please verify your email first. Check your inbox or spam folder."
                     authRepository.logout()
                     return@launch
                 }
@@ -81,18 +83,6 @@ class LoginViewModel(
             } catch (e: Exception) {
                 _errorMessage.value = "Google Sign-In failed: ${e.message}"
             }
-        }
-    }
-
-    class LoginViewModelFactory(
-        private val authRepository: AuthRepository
-    ) : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return LoginViewModel(authRepository) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
 }

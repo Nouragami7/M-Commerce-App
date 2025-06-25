@@ -6,8 +6,9 @@ import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.admin.GetDiscountAmountDetailsQuery
 import com.example.buyva.data.datasource.remote.RemoteDataSource
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class HomeRepositoryImpl(private val remoteDataSource: RemoteDataSource) : IHomeRepository{
+class HomeRepositoryImpl@Inject constructor(private val remoteDataSource: RemoteDataSource) : IHomeRepository{
     override fun getBrandsAndProduct(): Flow<BrandsAndProductsQuery.Data?> {
         return remoteDataSource.getBrandsAndProduct()
     }

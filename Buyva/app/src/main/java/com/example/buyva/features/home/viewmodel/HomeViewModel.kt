@@ -2,18 +2,19 @@ package com.example.buyva.features.home.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.buyva.data.model.DiscountBanner
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.home.IHomeRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-
-class HomeViewModel(private val homeRepository: IHomeRepository) : ViewModel() {
+@HiltViewModel
+class HomeViewModel @Inject constructor(private val homeRepository: IHomeRepository) : ViewModel() {
 
     private val _brandsAndProducts = MutableStateFlow<ResponseState>(ResponseState.Loading)
     val brandsAndProducts: StateFlow<ResponseState> = _brandsAndProducts
@@ -28,8 +29,6 @@ class HomeViewModel(private val homeRepository: IHomeRepository) : ViewModel() {
                 if (it != null) {
                     val brands = it.brands.nodes
                     val products = it.products.edges.map { edge -> edge.node }
-
-                    println("brands +++++++++++++++++++++++ ${products[0].variants.edges[0].node.id}")
                     _brandsAndProducts.value = ResponseState.Success(Pair(brands, products))
                 } else {
                     _brandsAndProducts.value = ResponseState.Failure(Exception("Failed to fetch data"))
@@ -73,12 +72,12 @@ class HomeViewModel(private val homeRepository: IHomeRepository) : ViewModel() {
 }
 
 
-class HomeFactory(private val homeRepository: IHomeRepository) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return HomeViewModel(homeRepository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-}
+//class HomeFactory(private val homeRepository: IHomeRepository) : ViewModelProvider.Factory {
+//    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+//        if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
+//            @Suppress("UNCHECKED_CAST")
+//            return HomeViewModel(homeRepository) as T
+//        }
+//        throw IllegalArgumentException("Unknown ViewModel class")
+//    }
+//}

@@ -4,8 +4,9 @@ import com.example.buyva.data.datasource.remote.RemoteDataSource
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.uistate.ResponseState
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class AddressRepoImpl(
+class AddressRepoImpl @Inject constructor(
     private val remoteDataSource: RemoteDataSource
 ) : IAddressRepo {
     override suspend fun createAddress(address: Address, token: String): Flow<ResponseState> {

@@ -29,17 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.R
-import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
-import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.Category
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.repository.categories.CategoryRepositoryImpl
-import com.example.buyva.features.categories.viewmodel.CategoryFactory
 import com.example.buyva.features.categories.viewmodel.CategoryViewModel
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.home.view.SearchBarWithCartIcon
@@ -76,10 +71,7 @@ fun CategoryScreen(
     val unselectedBackground = Color.Transparent
     val selectedSubcategories = remember { mutableStateMapOf<String, String?>() }
 
-    val viewModelFactory = CategoryFactory(
-        CategoryRepositoryImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api))
-    )
-    val categoryViewModel: CategoryViewModel = viewModel(factory = viewModelFactory)
+    val categoryViewModel: CategoryViewModel = hiltViewModel()
 
     val productsByCategory by categoryViewModel.productsByCategory.collectAsStateWithLifecycle()
 

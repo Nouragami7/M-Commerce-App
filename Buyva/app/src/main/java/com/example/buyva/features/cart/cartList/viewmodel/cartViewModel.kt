@@ -3,8 +3,6 @@ package com.example.buyva.features.cart.cartList.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.buyva.GetCartDetailsQuery
 import com.example.buyva.data.model.Address
@@ -16,11 +14,14 @@ import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.extensions.stripTokenFromShopifyGid
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CartViewModel(
+@HiltViewModel
+class CartViewModel @Inject constructor(
     application: Application,
     private val cartRepo: CartRepo,
     private val addressRepo: IAddressRepo
@@ -125,23 +126,5 @@ class CartViewModel(
                 }
             }
         }
-    }
-
-
-}
-
-
-class CartViewModelFactory(
-    private val application: Application,
-    private val cartRepo: CartRepo,
-    private val addressRepo: IAddressRepo
-) : ViewModelProvider.AndroidViewModelFactory(application) {
-
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(CartViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return CartViewModel(application, cartRepo, addressRepo) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

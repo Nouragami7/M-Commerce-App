@@ -15,8 +15,8 @@ import androidx.navigation.toRoute
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.currency.CurrencyApiService
 import com.example.buyva.data.datasource.remote.currency.CurrencyRetrofitClient
+import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.repository.Authentication.AuthRepository
 import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.repository.currency.CurrencyRepo
 import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
@@ -28,7 +28,6 @@ import com.example.buyva.features.authentication.login.view.LoginScreenHost
 import com.example.buyva.features.authentication.login.view.WelcomeScreen
 import com.example.buyva.features.authentication.login.viewmodel.UserSessionManager
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
-import com.example.buyva.features.authentication.signup.viewmodel.LogoutViewModel
 import com.example.buyva.features.brand.view.BrandProductsScreen
 import com.example.buyva.features.categories.view.CategoryScreen
 import com.example.buyva.features.favourite.view.FavouriteScreen
@@ -62,13 +61,7 @@ fun SetupNavHost(
     val sharedOrderViewModel: SharedOrderViewModel = viewModel()
     val context = LocalContext.current
 
-    val logoutViewModel = remember {
-        LogoutViewModel(
-            AuthRepository(
-                FirebaseAuth.getInstance(), apolloClient
-            )
-        )
-    }
+
 
     NavHost(
         navController = navController, startDestination = startDestination
@@ -85,7 +78,7 @@ fun SetupNavHost(
             )}
 
 
-                        composable<ScreensRoute.LoginScreen> {
+        composable<ScreensRoute.LoginScreen> {
             LoginScreenHost(onSignUpClick = { navController.navigate(ScreensRoute.SignUpScreen) },
                 onSuccess = {
                     navController.navigate(ScreensRoute.HomeScreen) {
@@ -241,7 +234,8 @@ fun SetupNavHost(
                 }
             }
             val repository = remember {
-                HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api))
+                HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client,
+                    ApolloAdmin, StripeClient.api))
             }
                 ProductInfoScreen(
                     productId = productId, repository = repository, navController = navController,
@@ -253,7 +247,6 @@ fun SetupNavHost(
 
         composable<ScreensRoute.ProfileScreen> {
             ProfileScreen(
-                logoutViewModel = logoutViewModel,
                 onFavClick = {
                     navController.navigate(ScreensRoute.FavouritesScreen)
                 },
@@ -345,7 +338,7 @@ fun SetupNavHost(
                 }
             }
 
-            val remoteDataSource = remember { RemoteDataSourceImpl(apolloClient,StripeClient.api) }
+            val remoteDataSource = remember { RemoteDataSourceImpl(apolloClient,ApolloAdmin,StripeClient.api) }
             val searchRepository = remember { SearchRepositoryImpl(remoteDataSource) }
             val searchViewModel = remember { SearchViewModel(searchRepository) }
 
@@ -373,7 +366,7 @@ fun SetupNavHost(
                 }
             }
 
-            val remoteDataSource = remember { RemoteDataSourceImpl(apolloClient,StripeClient.api) }
+            val remoteDataSource = remember { RemoteDataSourceImpl(apolloClient,ApolloAdmin,StripeClient.api) }
             val searchRepository = remember { SearchRepositoryImpl(remoteDataSource) }
             val searchViewModel = remember { SearchViewModel(searchRepository) }
 

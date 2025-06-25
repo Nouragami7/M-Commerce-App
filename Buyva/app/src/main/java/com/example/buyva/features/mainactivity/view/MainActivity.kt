@@ -34,7 +34,9 @@ import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.navigation.navbar.NavigationBar.ShowCurvedNavBar
 import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.functions.ConnectivityObserver
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity()  {
 
 

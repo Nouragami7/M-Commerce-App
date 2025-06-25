@@ -3,23 +3,31 @@ package com.example.buyva.features.authentication.signup.viewmodel
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.buyva.data.model.CustomerData
-import com.example.buyva.data.repository.Authentication.AuthRepository
 import com.example.buyva.data.repository.Authentication.IAuthRepository
 import com.example.buyva.features.authentication.login.viewmodel.UserSessionManager
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
-import com.google.firebase.auth.*
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import kotlinx.coroutines.*
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseUser
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class SignupViewModel(
+@HiltViewModel
+class SignupViewModel @Inject constructor(
     private val repository: IAuthRepository,
     private val applicationContext: Context
 ) : ViewModel() {
@@ -126,7 +134,7 @@ class SignupViewModel(
     private fun startVerificationCheck(user: FirebaseUser) {
         verificationCheckJob?.cancel()
         verificationCheckJob = viewModelScope.launch {
-            Log.d("DebugCheck", "🚀 startVerificationCheck started")
+            Log.d("DebugCheck", "startVerificationCheck started")
 
             while (true) {
                 delay(TimeUnit.SECONDS.toMillis(30))
@@ -144,7 +152,7 @@ class SignupViewModel(
 
                 try {
                     user.reloadSuspend()
-                    Log.d("DebugCheck", "🔄 Reloaded user, isEmailVerified = ${user.isEmailVerified}")
+                    Log.d("DebugCheck", " Reloaded user, isEmailVerified = ${user.isEmailVerified}")
 
                     if (user.isEmailVerified) {
                         _isEmailVerified.value = true
@@ -168,15 +176,15 @@ class SignupViewModel(
         val fullName = user.displayName ?: ""
         val email = user.email ?: ""
 
-        Log.d("DebugCheck", "🛠️ createShopifyAccount started for $email")
-        Log.d("DebugCheck", "📤 createShopifyCustomer called for $email")
+        Log.d("DebugCheck", " createShopifyAccount started for $email")
+        Log.d("DebugCheck", " createShopifyCustomer called for $email")
 
         try {
             val shopifyResult = repository.createShopifyCustomer(fullName, email, currentPassword)
 
             if (shopifyResult.isSuccess) {
                 val customer = shopifyResult.getOrThrow()
-                Log.d("DebugCheck", "✅ Shopify Customer created: ${customer.id}")
+                Log.d("DebugCheck", " Shopify Customer created: ${customer.id}")
 
                 SharedPreferenceImpl.saveCustomer(
                     context = applicationContext,
@@ -189,31 +197,28 @@ class SignupViewModel(
 
                 _customerData.value = customer
 
-                Log.d("DebugCheck", "🔑 Trying to get Shopify access token...")
+                Log.d("DebugCheck", " Trying to get Shopify access token...")
                 val tokenResult = repository.getShopifyAccessToken(email, currentPassword)
 
                 if (tokenResult.isSuccess) {
                     val token = tokenResult.getOrThrow()
-                    Log.d("DebugCheck", "✅ Access Token received: $token")
+                    Log.d("DebugCheck", "Access Token received: $token")
                     SharedPreferenceImpl.saveToSharedPreferenceInGeneral(USER_TOKEN, token)
                 } else {
                     val tokenError = tokenResult.exceptionOrNull()?.message ?: "Unknown token error"
-                    Log.e("DebugCheck", "❌ Failed to get access token: $tokenError")
+                    Log.e("DebugCheck", " Failed to get access token: $tokenError")
                 }
 
                 _user.value = user
                 _error.value = null
             } else {
                 val error = shopifyResult.exceptionOrNull()?.message ?: "Unknown Shopify error"
-                Log.e("DebugCheck", "❌ Failed to create Shopify Customer: $error")
                 _error.value = error
             }
         } catch (e: Exception) {
-            Log.e("DebugCheck", "💥 Exception during Shopify account creation", e)
             _error.value = "Account setup failed: ${e.message}"
         } finally {
             currentPassword = ""
-            Log.d("DebugCheck", "🎯 Finished createShopifyAccount process")
         }
     }
 
@@ -277,14 +282,5 @@ class SignupViewModel(
         fun logout(context: Context) {
             SharedPreferenceImpl.deleteCustomer(context)
         }
-    }
-}
-
-class SignupViewModelFactory(
-    private val repository: AuthRepository,
-    private val applicationContext: Context
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return SignupViewModel(repository, applicationContext) as T
     }
 }

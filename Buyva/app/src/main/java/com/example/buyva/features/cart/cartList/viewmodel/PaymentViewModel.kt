@@ -2,18 +2,20 @@ package com.example.buyva.features.cart.cartList.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.buyva.admin.type.DraftOrderInput
 import com.example.buyva.data.model.OrderItem
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.paymentRepo.PaymentRepo
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import toDraftOrderInput
+import javax.inject.Inject
 
-class PaymentViewModel(
+@HiltViewModel
+class PaymentViewModel @Inject constructor(
     private val repository: PaymentRepo
 ) : ViewModel() {
 
@@ -90,12 +92,4 @@ class PaymentViewModel(
         }
     }
 
-}
-class PaymentViewModelFactory(
-    private val repository: PaymentRepo
-) : ViewModelProvider.Factory {
-
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return PaymentViewModel(repository) as T
-    }
 }

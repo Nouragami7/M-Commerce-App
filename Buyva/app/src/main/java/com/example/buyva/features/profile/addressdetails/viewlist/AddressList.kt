@@ -32,17 +32,16 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.buyva.R
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
+import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
 import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModelFactory
-import com.example.buyva.utils.components.ScreenTitle
 import com.example.buyva.utils.constants.DEFAULT_ADDRESS_ID
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.extensions.stripTokenFromShopifyGid
-import com.example.buyva.utils.jsonStringToAddress
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 
 @Composable
@@ -60,6 +59,7 @@ fun AddressList(
             AddressRepoImpl(
                 RemoteDataSourceImpl(
                     ApolloService.client,
+                    ApolloAdmin,
                     StripeClient.api
                 )
             )

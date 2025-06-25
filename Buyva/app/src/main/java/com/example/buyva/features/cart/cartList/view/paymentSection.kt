@@ -1,6 +1,5 @@
 package com.example.buyva.features.cart.cartList.view
 
-import android.app.Application
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -43,25 +42,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
-import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.datasource.remote.stripe.StripeClient
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.CartItem
 import com.example.buyva.data.model.enums.PaymentMethod
-import com.example.buyva.data.repository.adresses.AddressRepoImpl
-import com.example.buyva.data.repository.cart.CartRepoImpl
-import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
-import com.example.buyva.features.cart.cartList.viewmodel.CartViewModelFactory
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModel
-import com.example.buyva.features.home.viewmodel.HomeFactory
 import com.example.buyva.features.home.viewmodel.HomeViewModel
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.functions.createOrder
-import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 import java.time.LocalDateTime
 
@@ -83,16 +73,10 @@ fun PaymentSection(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     var showDialog by remember { mutableStateOf(false) }
-    val application = LocalContext.current.applicationContext
-    val cartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api), SharedPreferenceImpl)
-    val addressRepo = AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client,StripeClient.api))
-    val viewModel : CartViewModel = viewModel(
-        factory = CartViewModelFactory(application as Application, cartRepo, addressRepo)
-    )
-    val homeRepo = HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client,StripeClient.api))
-    val homeViewModel : HomeViewModel = viewModel(
-        factory = HomeFactory( homeRepo)
-    )
+
+
+    val viewModel : CartViewModel = hiltViewModel()
+    val homeViewModel : HomeViewModel = hiltViewModel()
     val context = LocalContext.current
     val addressDetails = if (address.lastName != "") {
         "${address.firstName} ${address.lastName}\n${address.address1}"
