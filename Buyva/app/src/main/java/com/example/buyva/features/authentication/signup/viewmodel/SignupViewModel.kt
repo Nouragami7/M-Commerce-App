@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.buyva.data.model.CustomerData
 import com.example.buyva.data.repository.AuthRepository
+import com.example.buyva.features.authentication.login.viewmodel.UserSessionManager
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.google.firebase.auth.*
@@ -183,6 +184,7 @@ class SignupViewModel(
                     firstName = customer.firstName,
                     lastName = customer.lastName
                 )
+                UserSessionManager.setGuestMode(false)
 
                 _customerData.value = customer
 
@@ -250,6 +252,7 @@ class SignupViewModel(
                             firstName = customer.firstName,
                             lastName = customer.lastName
                         )
+                        UserSessionManager.setGuestMode(false)
 
                         _customerData.value = customer
                         _user.value = firebaseUser

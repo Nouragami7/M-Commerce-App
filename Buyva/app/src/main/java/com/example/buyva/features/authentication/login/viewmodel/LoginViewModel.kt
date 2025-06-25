@@ -45,6 +45,7 @@ class LoginViewModel(
                     authRepository.logout()
                     return@launch
                 }
+                UserSessionManager.setGuestMode(false)
 
                 _loginState.value = user
                 _errorMessage.value = null
@@ -69,7 +70,8 @@ class LoginViewModel(
             try {
                 val user = authRepository.signInWithGoogle(account)
                 if (user != null) {
-                    // Google accounts are always verified
+                    UserSessionManager.setGuestMode(false)
+
                     _loginState.value = user
                     _errorMessage.value = null
                 } else {
