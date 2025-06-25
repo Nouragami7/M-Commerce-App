@@ -49,7 +49,6 @@ import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.components.PriceFilterSlider
 import com.example.buyva.utils.components.ScreenTitle
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
-import kotlin.math.ceil
 
 //val imageUrl = node.featuredImage?.url ?: ""
 //                val price = (node.variants.edges.firstOrNull()?.node?.price?.amount as? Number)?.toFloat() ?: 0f
@@ -63,6 +62,7 @@ fun CategoryScreen(
 ) {
 
     CurrencyManager.loadFromPreferences()
+
     val currentRate = CurrencyManager.currencyRate.value.toFloat()
     val currentCurrency = CurrencyManager.currencyUnit.value
 
@@ -169,8 +169,8 @@ fun CategoryScreen(
                             val minRaw = rawPrices.minOrNull() ?: 0.0
                             val maxRaw = rawPrices.maxOrNull() ?: 0.0
 
-                            val minConverted =ceil( (minRaw * currentRate).toFloat())
-                            val maxConverted = ceil(maxRaw * currentRate).toFloat()
+                            val minConverted = (minRaw * currentRate).toFloat()
+                            val maxConverted = (maxRaw * currentRate).toFloat()
 
                             LaunchedEffect(minConverted, maxConverted) {
                                 if (minSliderValue == 0f && maxSliderValue == 0f && maxConverted > 0f) {

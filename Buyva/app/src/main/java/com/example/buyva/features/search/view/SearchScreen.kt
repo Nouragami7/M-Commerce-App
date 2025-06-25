@@ -53,6 +53,7 @@ import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.search.viewmodel.SearchViewModel
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.utils.components.CustomAlertDialog
+import com.example.buyva.utils.components.PriceFilterSlider
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 
 @Composable
@@ -62,7 +63,6 @@ fun SearchScreen(
     onProductClick: (String) -> Unit = {},
     onBack: () -> Unit = {},
     brandFilter: String? = null,
-
     onCartClick: () -> Unit = {}
 ) {
     val state by searchViewModel.uiState.collectAsState()
@@ -76,6 +76,7 @@ fun SearchScreen(
     }
 
     CurrencyManager.loadFromPreferences()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -105,12 +106,13 @@ fun SearchScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-//        PriceFilterSlider(
-//            maxPrice = state.maxPrice,
-//            onPriceChange = { searchViewModel.updateMaxPrice(it) },
-//            modifier = Modifier.padding(horizontal = 16.dp),
-//            currency = CurrencyManager.currencyUnit.value
-//        )
+        PriceFilterSlider(
+            minPrice = null,
+            maxPrice = state.maxPrice,
+            onPriceChange = { searchViewModel.updateMaxPrice(it) },
+            modifier = Modifier.padding(horizontal = 16.dp),
+            currency = CurrencyManager.currencyUnit.value
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 

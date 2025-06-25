@@ -23,7 +23,7 @@ import com.example.buyva.ui.theme.Cold
 
 @Composable
 fun PriceFilterSlider(
-    minPrice: Float,
+    minPrice: Float?,
     maxPrice: Float,
     onPriceChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
@@ -37,25 +37,27 @@ fun PriceFilterSlider(
             .fillMaxWidth()
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
-        Slider(
-            value = sliderValue,
-            onValueChange = {
-                sliderValue = it
-                onPriceChange(it)
-            },
-            valueRange = minPrice..maxPrice,
-            modifier = Modifier
-                .fillMaxWidth()
-                .graphicsLayer { scaleY = 0.6f },
-            colors = SliderDefaults.colors(
-                thumbColor = Cold,
-                activeTrackColor = Cold,
-                inactiveTrackColor = Color.LightGray
+        if (minPrice != null) {
+            Slider(
+                value = sliderValue,
+                onValueChange = {
+                    sliderValue = it
+                    onPriceChange(it)
+                },
+                valueRange = minPrice..maxPrice,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer { scaleY = 0.6f },
+                colors = SliderDefaults.colors(
+                    thumbColor = Cold,
+                    activeTrackColor = Cold,
+                    inactiveTrackColor = Color.LightGray
+                )
             )
-        )
+        }
 
         Text(
-            text = "Price: ${sliderValue.toInt()} $currency",
+            text = "Price: ${"%.2f".format(sliderValue)} $currency",
             modifier = Modifier.align(Alignment.End),
             fontSize = 12.sp,
             color = Color.DarkGray,
