@@ -20,6 +20,7 @@ import com.example.buyva.RemoveProductFromCartMutation
 import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
 import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
 import com.example.buyva.SearchProductsQuery
+import com.example.buyva.admin.GetDiscountAmountDetailsQuery
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.UiProduct
 import com.example.buyva.data.model.uistate.ResponseState
@@ -308,6 +309,20 @@ class RemoteDataSourceImpl(
             ))
         }
     }
+   override suspend fun getDiscountDetails(): Flow<GetDiscountAmountDetailsQuery.Data> = flow {
+        val response = ApolloAdmin.admin
+            .query(GetDiscountAmountDetailsQuery())
+            .execute()
+
+        if (response.hasErrors()) {
+            throw Exception(response.errors?.first()?.message ?: "GraphQL error")
+        }
+
+        val data = response.data ?: throw Exception("Response data is null")
+        emit(data)
+    }
+
+
 }
 
 

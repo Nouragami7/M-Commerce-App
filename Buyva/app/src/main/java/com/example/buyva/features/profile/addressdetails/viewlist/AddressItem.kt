@@ -135,7 +135,7 @@ fun AddressItem(
 
                 IconButton(onClick = {
                     if (isDefault) {
-                        showDeleteDialog = true
+                      //  showDeleteDialog = true
 
                         Toast.makeText(context, "Can't delete  default address", Toast.LENGTH_SHORT)
                             .show()

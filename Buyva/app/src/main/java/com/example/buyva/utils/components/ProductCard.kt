@@ -119,7 +119,6 @@ val currencyRate : Double = SharedPreferenceImpl.getLongFromSharedPreferenceInGe
                 currency = product.variants.edges.firstOrNull()?.node?.price?.currencyCode?.name ?: ""
             }
         }
-Log.i("1", "ProductCurrency: $currency")
         CurrencyManager.loadFromPreferences()
 val newPrice = CurrencyManager.convertPrice(price.toDouble())
         Card(

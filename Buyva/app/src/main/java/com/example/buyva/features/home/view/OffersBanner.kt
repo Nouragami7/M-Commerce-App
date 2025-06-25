@@ -1,3 +1,4 @@
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -18,20 +19,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.buyva.R
-import com.example.buyva.data.model.OfferBannerItem
+import com.example.buyva.data.model.DiscountBanner
 import com.example.buyva.ui.theme.Cold
 import kotlin.math.abs
 
 @Composable
-fun OfferBanner() {
-    val bannerItems = listOf(
-        OfferBannerItem(R.drawable.offer_one, "Use Code: BUY20"),
-        OfferBannerItem(R.drawable.offer_one, "Use Code: BUY30"),
-        OfferBannerItem(R.drawable.offer_one, "Use Code: BUY50")
-    )
+fun OfferBanner(banner: List<DiscountBanner>) {
+    val pagerState = rememberPagerState(pageCount = { banner.size })
 
-    val pagerState = rememberPagerState(pageCount = { bannerItems.size })
-
+Log.i("1", "OfferBanner: $banner")
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -44,7 +40,7 @@ fun OfferBanner() {
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) { page ->
-            val banner = bannerItems[page]
+            val bannerText = banner[page]
             val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
 
             Box(
@@ -60,7 +56,7 @@ fun OfferBanner() {
                     .clip(RoundedCornerShape(16.dp))
             ) {
                 Image(
-                    painter = painterResource(id = banner.imageRes),
+                    painter = painterResource(id = R.drawable.offer_one),
                     contentDescription = "Sale Banner",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.matchParentSize()
@@ -76,7 +72,7 @@ fun OfferBanner() {
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
                     Text(
-                        text = banner.couponText,
+                        text = bannerText.code,
                         color = Color.White,
                         fontSize = 16.sp,
                         style = MaterialTheme.typography.bodyMedium
@@ -92,7 +88,7 @@ fun OfferBanner() {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            repeat(bannerItems.size) { index ->
+            repeat(banner.size) { index ->
                 val color =
                     if (pagerState.currentPage == index) Cold else Color.Gray.copy(alpha = 0.4f)
                 Box(

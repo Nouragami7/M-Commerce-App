@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -22,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.model.DiscountBanner
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
@@ -61,8 +63,9 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = true
         homeViewModel.getBrandsAndProduct()
+        homeViewModel.fetchDiscounts()
     }
-
+    val banners by homeViewModel.discountBanners.collectAsState()
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -72,20 +75,22 @@ fun HomeScreen(
     ) {
 
         ScreenTitle("BuyVa")
-
         SearchBarWithCartIcon(onCartClick,onSearchClick = onSearchClick)
-
         Spacer(modifier = Modifier.height(16.dp))
-
-        OfferBanner()
-
+            if (banners.isNotEmpty()) {
+                OfferBanner(banner = banners)
+            } else {
+                OfferBanner(
+                banner = listOf(
+                    DiscountBanner("Use Code: TEST1 for 10% Off", 10, "ACTIVE", "2025-06-25T12:00Z","2025-06-25T12:00Z"),
+                    DiscountBanner("Use Code: TEST2 for 20% Off", 20, "ACTIVE", "2025-06-25T12:00Z","2025-06-25T12:00Z")
+                ) )           }
         Spacer(modifier = Modifier.height(16.dp))
 
         when (val state = brandsAndProducts) {
             is ResponseState.Failure -> {
                 Text(text = state.message.toString())
             }
-
             ResponseState.Loading -> LoadingIndicator()
             is ResponseState.Success<*> -> {
                 val (brands, products) = state.data as Pair<List<BrandsAndProductsQuery.Node3>, List<BrandsAndProductsQuery.Node>>
@@ -94,7 +99,6 @@ fun HomeScreen(
                 BrandSection(
                     brands = filteredBrands, onBrandClick = onBrandClick
                 )
-
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "For You",
@@ -103,22 +107,15 @@ fun HomeScreen(
                     fontFamily = ubuntuMedium,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
-
                 Spacer(modifier = Modifier.height(12.dp))
-
                 ProductSection(
                     products = products,
                     onProductClick = onProductClick,
                     favouriteViewModel = favouriteViewModel
                 )
-
             }
-
-
         }
-
     }
-
 }
 //
 //@Preview(showBackground = true)
