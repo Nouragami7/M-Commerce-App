@@ -37,6 +37,7 @@ import coil.compose.AsyncImage
 import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.brand.viewmodel.BrandFactory
@@ -74,7 +75,7 @@ fun BrandProductsScreen(
     var selectedPriceLimit by remember { mutableFloatStateOf(0f) }
 
     val brandFactory = BrandFactory(
-        HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
+        HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api))
     )
 
     val brandViewModel: BrandViewModel = viewModel(factory = brandFactory)

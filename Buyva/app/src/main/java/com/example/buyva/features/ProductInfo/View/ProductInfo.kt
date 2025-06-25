@@ -68,6 +68,7 @@ import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.R
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.AuthRepository
 import com.example.buyva.data.repository.cart.CartRepo
@@ -100,7 +101,7 @@ fun ProductInfoScreen(
     val application = LocalContext.current.applicationContext as Application
     val authRepo: AuthRepository = AuthRepository(FirebaseAuth.getInstance(), ApolloService.client)
     val cartRepo: CartRepo =
-        CartRepoImpl(RemoteDataSourceImpl(ApolloService.client), SharedPreferenceImpl)
+        CartRepoImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api), SharedPreferenceImpl)
     val factory =
         remember { ProductInfoViewModelFactory(application, repository, authRepo, cartRepo) }
     val viewModel: ProductInfoViewModel = viewModel(factory = factory)

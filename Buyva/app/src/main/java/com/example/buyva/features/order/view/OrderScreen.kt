@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.order.OrderRepositoryImpl
 import com.example.buyva.features.order.view.OrderCard
@@ -49,7 +50,7 @@ fun OrderScreen(onBack: () -> Unit = {}, onOrderClick: (GetOrdersByCustomerEmail
     }
 
     val orderFactory = OrderFactory(
-        OrderRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
+        OrderRepositoryImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api))
     )
 
     val orderViewModel: OrderViewModel = viewModel(factory = orderFactory)

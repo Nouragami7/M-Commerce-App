@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.CartItem
 import com.example.buyva.data.model.enums.PaymentMethod
@@ -83,12 +84,12 @@ fun PaymentSection(
     val snackbarHostState = remember { SnackbarHostState() }
     var showDialog by remember { mutableStateOf(false) }
     val application = LocalContext.current.applicationContext
-    val cartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client), SharedPreferenceImpl)
-    val addressRepo = AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client))
+    val cartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api), SharedPreferenceImpl)
+    val addressRepo = AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client,StripeClient.api))
     val viewModel : CartViewModel = viewModel(
         factory = CartViewModelFactory(application as Application, cartRepo, addressRepo)
     )
-    val homeRepo = HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
+    val homeRepo = HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client,StripeClient.api))
     val homeViewModel : HomeViewModel = viewModel(
         factory = HomeFactory( homeRepo)
     )

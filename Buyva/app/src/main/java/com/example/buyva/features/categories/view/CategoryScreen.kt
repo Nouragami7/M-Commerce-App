@@ -35,6 +35,7 @@ import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.R
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.Category
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.categories.CategoryRepositoryImpl
@@ -76,7 +77,7 @@ fun CategoryScreen(
     val selectedSubcategories = remember { mutableStateMapOf<String, String?>() }
 
     val viewModelFactory = CategoryFactory(
-        CategoryRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
+        CategoryRepositoryImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api))
     )
     val categoryViewModel: CategoryViewModel = viewModel(factory = viewModelFactory)
 

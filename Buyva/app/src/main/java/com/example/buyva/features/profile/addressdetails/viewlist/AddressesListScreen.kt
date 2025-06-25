@@ -14,6 +14,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
@@ -34,7 +35,7 @@ fun DeliveryAddressListScreen(
     val viewModel: AddressViewModel = viewModel(
         factory = AddressViewModelFactory(
             application,
-            AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client))
+            AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api))
         )
     )
     val addressState by viewModel.addresses.collectAsState()

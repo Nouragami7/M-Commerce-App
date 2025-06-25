@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.DiscountBanner
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
@@ -51,7 +52,8 @@ fun HomeScreen(
 
 ) {
     val viewModelFactory = HomeFactory(
-        HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client))
+        HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client,
+            StripeClient.api))
     )
     val homeViewModel: HomeViewModel = viewModel(factory = viewModelFactory)
     val currencyRate : Double = SharedPreferenceImpl.getLongFromSharedPreferenceInGeneral(CURRENCY_RATE)

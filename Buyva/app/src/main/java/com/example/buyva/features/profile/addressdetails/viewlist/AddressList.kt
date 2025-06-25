@@ -33,6 +33,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.buyva.R
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
@@ -58,7 +59,8 @@ fun AddressList(
             application = LocalContext.current.applicationContext as Application,
             AddressRepoImpl(
                 RemoteDataSourceImpl(
-                    ApolloService.client
+                    ApolloService.client,
+                    StripeClient.api
                 )
             )
         )
