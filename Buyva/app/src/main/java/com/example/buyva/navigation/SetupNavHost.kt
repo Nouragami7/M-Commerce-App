@@ -16,7 +16,6 @@ import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.datasource.remote.stripe.StripeClient
-import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
 import com.example.buyva.features.ProductInfo.View.ProductInfoScreen
 import com.example.buyva.features.authentication.login.view.GuestRestrictionScreen
@@ -41,7 +40,6 @@ import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
 import com.example.buyva.features.search.view.SearchScreen
 import com.example.buyva.features.search.viewmodel.SearchViewModel
 import com.example.yourapp.ui.screens.OrderScreen
-import com.google.firebase.auth.FirebaseAuth
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -89,23 +87,22 @@ fun SetupNavHost(
                 })
         }
         composable<ScreensRoute.HomeScreen> {
-            val favouriteViewModel : FavouriteScreenViewModel = hiltViewModel()
-                HomeScreen(onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
-                    onBrandClick = { brandId, brandTitle, brandImage ->
-                        navController.navigate(
-                            ScreensRoute.BrandProductsScreen(
-                                brandId, brandTitle, brandImage
-                            )
-                        )
-                    },
-                    onProductClick = { productId ->
-                        navController.navigate("productInfo/$productId")
-                    },
-                    onSearchClick = { navController.navigate(ScreensRoute.SearchScreen) },
-                    favouriteViewModel = favouriteViewModel
+            val favouriteViewModel = if (!UserSessionManager.isGuest()) hiltViewModel<FavouriteScreenViewModel>() else null
 
-                )
+            HomeScreen(
+                onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
+                onBrandClick = { brandId, brandTitle, brandImage ->
+                    navController.navigate(ScreensRoute.BrandProductsScreen(brandId, brandTitle, brandImage))
+                },
+                onProductClick = { productId ->
+                    navController.navigate("productInfo/$productId")
+                },
+                onSearchClick = { navController.navigate(ScreensRoute.SearchScreen) },
+                favouriteViewModel = favouriteViewModel
+            )
         }
+
+
 
 
         composable<ScreensRoute.CartScreen> {
@@ -135,25 +132,18 @@ fun SetupNavHost(
 
 
         composable<ScreensRoute.CategoriesScreen> {
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            val favouriteViewModel = remember(currentUser?.uid) {
-                currentUser?.let {
-                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
-                }
-            }
+            val favouriteViewModel = if (!UserSessionManager.isGuest()) hiltViewModel<FavouriteScreenViewModel>() else null
 
-                CategoryScreen(
-                    onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
-                    onProductClick = { productId ->
-                        navController.navigate("productInfo/$productId")
-                    },
-                    onSearchClick = { navController.navigate(ScreensRoute.SearchScreen) },
-
-                    favouriteViewModel = favouriteViewModel
-                )
-
-
+            CategoryScreen(
+                onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
+                onProductClick = { productId ->
+                    navController.navigate("productInfo/$productId")
+                },
+                onSearchClick = { navController.navigate(ScreensRoute.SearchScreen) },
+                favouriteViewModel = favouriteViewModel
+            )
         }
+
 
         composable<ScreensRoute.FavouritesScreen> {
             if (UserSessionManager.isGuest()) {
@@ -167,7 +157,7 @@ fun SetupNavHost(
                     }
                 )
             } else {
-                val favouriteViewModel : FavouriteScreenViewModel = hiltViewModel()
+                val favouriteViewModel = hiltViewModel<FavouriteScreenViewModel>()
 
                 FavouriteScreen(
                     viewModel = favouriteViewModel,
@@ -176,35 +166,39 @@ fun SetupNavHost(
             }
         }
 
+
         composable<ScreensRoute.BrandProductsScreen> { entry ->
             val id = entry.arguments?.getString("brandID") ?: ""
             val name = entry.arguments?.getString("brandName") ?: "Adidas"
             val image = entry.arguments?.getString("brandImage") ?: ""
 
-            val favouriteViewModel: FavouriteScreenViewModel = hiltViewModel()
+            val favouriteViewModel = if (!UserSessionManager.isGuest()) hiltViewModel<FavouriteScreenViewModel>() else null
 
-                BrandProductsScreen(
-                    brandId = id,
-                    brandName = name,
-                    imageUrl = image,
-                    onBack = { navController.popBackStack() },
-                    onProductClick = { productId ->
-                        navController.navigate("productInfo/$productId")
-                    },
-                    onSearchClick = {
-                        val encodedBrand =
-                            URLEncoder.encode(name, StandardCharsets.UTF_8.toString())
-                        navController.navigate("search?brand=$encodedBrand")
-                    },
-
-                    favouriteViewModel = favouriteViewModel
-                )
+            BrandProductsScreen(
+                brandId = id,
+                brandName = name,
+                imageUrl = image,
+                onBack = { navController.popBackStack() },
+                onProductClick = { productId ->
+                    navController.navigate("productInfo/$productId")
+                },
+                onSearchClick = {
+                    val encodedBrand = URLEncoder.encode(name, StandardCharsets.UTF_8.toString())
+                    navController.navigate("search?brand=$encodedBrand")
+                },
+                favouriteViewModel = favouriteViewModel
+            )
         }
+
 
         composable("productInfo/{productId}") { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
             val variantId = backStackEntry.arguments?.getString("variantId") ?: ""
-            val favouriteViewModel : FavouriteScreenViewModel = hiltViewModel()
+            val favouriteViewModel = if (!UserSessionManager.isGuest()) {
+                hiltViewModel<FavouriteScreenViewModel>()
+            } else {
+                null
+            }
             val repository = remember {
                 HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client,
                     ApolloAdmin, StripeClient.api))
@@ -303,41 +297,43 @@ fun SetupNavHost(
         composable<ScreensRoute.PaymentScreen> { /* Placeholder */ }
 
         composable<ScreensRoute.SearchScreen> {
-            val favouriteViewModel : FavouriteScreenViewModel = hiltViewModel()
-            val searchViewModel : SearchViewModel = hiltViewModel()
+            val favouriteViewModel = if (!UserSessionManager.isGuest()) hiltViewModel<FavouriteScreenViewModel>() else null
+            val searchViewModel = hiltViewModel<SearchViewModel>()
 
-            SearchScreen(searchViewModel = searchViewModel,
+            SearchScreen(
+                searchViewModel = searchViewModel,
                 favouriteViewModel = favouriteViewModel,
                 onProductClick = { productId ->
-                    val encodedId =
-                        URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
+                    val encodedId = URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
                     navController.navigate("productInfo/$encodedId")
                 },
                 onBack = {
                     navController.popBackStack()
-                })
+                }
+            )
         }
+
 
         composable("search?brand={brand}") { backStackEntry ->
             val brand = backStackEntry.arguments?.getString("brand") ?: ""
 
-            val favouriteViewModel : FavouriteScreenViewModel = hiltViewModel()
+            val favouriteViewModel = if (!UserSessionManager.isGuest()) hiltViewModel<FavouriteScreenViewModel>() else null
+            val searchViewModel = hiltViewModel<SearchViewModel>()
 
-            val searchViewModel : SearchViewModel = hiltViewModel()
-
-            SearchScreen(brandFilter = brand,
+            SearchScreen(
+                brandFilter = brand,
                 searchViewModel = searchViewModel,
                 favouriteViewModel = favouriteViewModel,
                 onProductClick = { productId ->
-                    val encodedId =
-                        URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
+                    val encodedId = URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
                     navController.navigate("productInfo/$encodedId")
                 },
                 onBack = {
-                    //  searchViewModel.clearSearch()
                     navController.popBackStack()
-                })
+                }
+            )
         }
+
 
 
 

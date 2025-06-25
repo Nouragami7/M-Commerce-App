@@ -57,13 +57,12 @@ import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.search.viewmodel.SearchViewModel
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.utils.components.CustomAlertDialog
-import com.example.buyva.utils.components.PriceFilterSlider
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 
 @Composable
 fun SearchScreen(
     searchViewModel: SearchViewModel,
-    favouriteViewModel: FavouriteScreenViewModel,
+    favouriteViewModel: FavouriteScreenViewModel?,
     onProductClick: (String) -> Unit = {},
     onBack: () -> Unit = {},
     brandFilter: String? = null,
@@ -224,7 +223,7 @@ fun SearchBarWithCartIcon(
 fun UiProductSection(
     products: List<UiProduct>,
     onProductClick: (String) -> Unit,
-    favouriteViewModel: FavouriteScreenViewModel
+    favouriteViewModel: FavouriteScreenViewModel?
 ) {
     Column(
         modifier = Modifier
@@ -267,7 +266,6 @@ fun PriceFilterSlider(
 ) {
     var sliderValue by remember { mutableFloatStateOf(currentValue) }
 
-    // ✅ تحديث قيمة sliderValue لما currentValue تتغير من بره
     LaunchedEffect(currentValue) {
         sliderValue = currentValue
     }
@@ -312,9 +310,10 @@ fun UiProductCard(
     product: UiProduct,
     modifier: Modifier = Modifier,
     onProductClick: (String) -> Unit,
-    favouriteViewModel: FavouriteScreenViewModel
+    favouriteViewModel: FavouriteScreenViewModel?
 ) {
-    val favouriteProducts by favouriteViewModel.favouriteProducts.collectAsState()
+    val favouriteProducts by favouriteViewModel?.favouriteProducts?.collectAsState()
+        ?: remember { mutableStateOf(emptyList()) }
     var showAlert by remember { mutableStateOf(false) }
 
     val isFavourite = favouriteProducts.any { it.id == product.id }
@@ -377,7 +376,7 @@ fun UiProductCard(
                     if (isFavourite) {
                         showAlert = true
                     } else {
-                        favouriteViewModel.toggleFavourite(product.id)
+                        favouriteViewModel?.toggleFavourite(product.id)
                     }
                 }) {
                     Icon(
@@ -392,7 +391,7 @@ fun UiProductCard(
                         title = "Confirm Removal",
                         message = "Are you sure you want to remove this product from favorites?",
                         onConfirm = {
-                            favouriteViewModel.toggleFavourite(product.id)
+                            favouriteViewModel?.toggleFavourite(product.id)
                             showAlert = false
                         },
                         onDismiss = { showAlert = false },
