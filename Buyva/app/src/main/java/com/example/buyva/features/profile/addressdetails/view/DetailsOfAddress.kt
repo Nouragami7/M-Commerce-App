@@ -77,16 +77,14 @@ fun AddressDetails(
     LaunchedEffect(saveAddressState) {
         if (saveAddressState is ResponseState.Success<*>) {
             Toast.makeText(context, "Address saved successfully!", Toast.LENGTH_SHORT).show()
-          //  viewModel.resetSaveAddressState()
+            viewModel.resetSaveAddressState()
             onSaveClick()
         } else if (saveAddressState is ResponseState.Failure) {
             val message = (saveAddressState as ResponseState.Failure).message.message ?: "Error saving address"
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-          //  viewModel.resetSaveAddressState()
+            viewModel.resetSaveAddressState()
         }
     }
-
-
 
     val firstName = remember { mutableStateOf("") }
     val lastName = remember { mutableStateOf("") }
@@ -156,7 +154,7 @@ fun AddressDetails(
                             country = addressModel.country
                         )
                         viewModel.saveAddress(newAddress)
-                        onSaveClick()
+                       // onSaveClick()
                     }) {
                         Text("Save", color = Sea, fontWeight = FontWeight.Bold)
                     }
@@ -340,7 +338,7 @@ fun AddressDetails(
                     )
 
                     viewModel.saveAddress(newAddress)
-                    onSaveClick()
+                   //                                          onSaveClick()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -354,7 +352,6 @@ fun AddressDetails(
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold
                 )
-
             }
         }
 

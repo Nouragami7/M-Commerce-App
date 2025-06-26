@@ -96,7 +96,6 @@ fun CartScreen(
 
     val viewModel: CartViewModel = hiltViewModel()
     val paymentViewModel: PaymentViewModel = hiltViewModel()
-
     val defaultAddress by viewModel.defaultAddress.collectAsState()
 
     val orderState by paymentViewModel.order.collectAsState()
@@ -111,7 +110,6 @@ fun CartScreen(
         viewModel.loadDefaultAddress()
         PaymentConfiguration.init(context, BuildConfig.STRIPE_PUBLISHABLE_KEY)
         CurrencyManager.loadFromPreferences()
-
     }
 
 

@@ -27,6 +27,7 @@ class CartViewModel @Inject constructor(
     private val addressRepo: IAddressRepo
 ) : AndroidViewModel(application) {
 
+
     private val _cartProducts = MutableStateFlow<ResponseState>(ResponseState.Loading)
     val cartProducts: StateFlow<ResponseState> = _cartProducts
     private val userEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
@@ -36,7 +37,6 @@ class CartViewModel @Inject constructor(
     val defaultAddress: StateFlow<Address?> = _defaultAddress
 
     private val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
-    private val defaultAddressId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token")
 
 
 //    fun getCartDetails() {
@@ -123,6 +123,8 @@ class CartViewModel @Inject constructor(
 
 
     fun loadDefaultAddress() {
+         val defaultAddressId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token")
+
         if (token.isNullOrBlank()) return
 
         viewModelScope.launch {
