@@ -51,6 +51,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.example.buyva.R
 import com.example.buyva.data.model.UiProduct
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
@@ -58,6 +60,8 @@ import com.example.buyva.features.search.viewmodel.SearchViewModel
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
+import com.airbnb.lottie.compose.*
+
 
 @Composable
 fun SearchScreen(
@@ -143,15 +147,35 @@ fun SearchScreen(
                 }
             }
 
-            state.filteredProducts.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No products found",
-                        color = Color.Gray
-                    )
+
+
+                    state.filteredProducts.isEmpty() -> {
+                if (state.searchText.isNotEmpty()) {
+                    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.empty_favorite))
+                    val progress by animateLottieCompositionAsState(composition)
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LottieAnimation(
+                            composition = composition,
+                            progress = { progress },
+                            modifier = Modifier.size(200.dp)
+                        )
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No products found",
+                            color = Color.Gray
+                        )
+                    }
                 }
             }
 
