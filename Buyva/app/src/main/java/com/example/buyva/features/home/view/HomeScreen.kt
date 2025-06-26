@@ -37,7 +37,6 @@ fun HomeScreen(
     onCartClick: () -> Unit = {},
     onBrandClick: (String, String, String) -> Unit = { _, _, _ -> },
     onSearchClick: () -> Unit = {},
-    //  onTextChanged: (String) -> Unit,
     onProductClick: (String) -> Unit = {},
     favouriteViewModel: FavouriteScreenViewModel?
 
