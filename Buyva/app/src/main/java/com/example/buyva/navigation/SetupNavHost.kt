@@ -1,6 +1,7 @@
 package com.example.buyva.navigation
 
 import CartScreen
+import android.app.Application
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
@@ -19,6 +20,7 @@ import com.example.buyva.data.datasource.remote.currency.CurrencyRetrofitClient
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.repository.AuthRepository
+import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.data.repository.currency.CurrencyRepo
 import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
@@ -39,6 +41,8 @@ import com.example.buyva.features.orderdetails.view.OrderDetailsScreen
 import com.example.buyva.features.orderdetails.viewmodel.SharedOrderViewModel
 import com.example.buyva.features.profile.addressdetails.view.AddressDetails
 import com.example.buyva.features.profile.addressdetails.viewlist.DeliveryAddressListScreen
+import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
+import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModelFactory
 import com.example.buyva.features.profile.currency.viewcurrency.CurrencyScreen
 import com.example.buyva.features.profile.currency.viewmodel.CurrencyViewModel
 import com.example.buyva.features.profile.currency.viewmodel.CurrencyViewModelFactory
@@ -70,6 +74,12 @@ fun SetupNavHost(
             )
         )
     }
+    val addressViewModel: AddressViewModel = viewModel(
+        factory = AddressViewModelFactory(
+            LocalContext.current.applicationContext as Application,
+            AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api))
+        )
+    )
 
     NavHost(
         navController = navController, startDestination = startDestination
@@ -149,7 +159,9 @@ fun SetupNavHost(
                     onNavigateToProductInfo = { productId ->
                         val encodedId = Uri.encode(productId)
                         navController.navigate("productInfo/$encodedId")
-                    }
+                    },
+                    addressViewModel = addressViewModel // 👈 Pass shared ViewModel
+
                 )
             }
         }
@@ -287,7 +299,8 @@ fun SetupNavHost(
         }
 
         composable<ScreensRoute.DeliveryAddressListScreen> {
-            DeliveryAddressListScreen(onBackClick = { navController.popBackStack() },
+            DeliveryAddressListScreen(
+                onBackClick = { navController.navigate(ScreensRoute.HomeScreen) },
                 onAddressDetailsClick = { address, prefillData ->
                     navController.navigate(
                         ScreensRoute.AddressDetails(
@@ -299,7 +312,9 @@ fun SetupNavHost(
                 },
                 onAddressClick = {
                     navController.navigate(ScreensRoute.MapScreen)
-                })
+                },
+                viewModel = addressViewModel
+            )
         }
 
         composable<ScreensRoute.MapScreen> {

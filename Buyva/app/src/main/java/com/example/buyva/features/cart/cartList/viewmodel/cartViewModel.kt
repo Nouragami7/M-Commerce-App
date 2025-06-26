@@ -36,11 +36,8 @@ class CartViewModel(
     private val userEmail = FirebaseAuth.getInstance().currentUser?.email ?: ""
     val cartId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("CART_ID_${userEmail.lowercase()}")
     private var cartLinesId = MutableStateFlow<List<String>>(emptyList())
-    private val _defaultAddress = MutableStateFlow<Address?>(null)
-    val defaultAddress: StateFlow<Address?> = _defaultAddress
 
     private val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
-    private val defaultAddressId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token")
 
 
     fun getCartDetails() {
@@ -77,7 +74,7 @@ class CartViewModel(
             val cartId = this@CartViewModel.cartId ?: return@launch
             cartRepo.removeProductFromCart(cartId, productLineId).collect { response ->
                 if (response is ResponseState.Success<*>) {
-                //    showCart()
+                   showCart()
                     Log.d("1", "Item removed successfully")
                 } else if (response is ResponseState.Failure) {
                     Log.e("1", "Remove failed: ${response.message}")
@@ -111,22 +108,7 @@ class CartViewModel(
         }
     }
 
-    fun loadDefaultAddress() {
-        if (token.isNullOrBlank()) return
 
-        viewModelScope.launch {
-            addressRepo.getAddresses(token).collect { response ->
-                if (response is ResponseState.Success<*>) {
-                    val addressList = response.data as? List<Address> ?: emptyList()
-                    val default = addressList.find { it.id?.stripTokenFromShopifyGid() == defaultAddressId }
-                    _defaultAddress.value = default
-                    Log.d("1", "Default address loaded successfully in cart screen ${defaultAddress.value?.address1}")
-                } else if (response is ResponseState.Failure) {
-                    Log.e("1", "Failed to load addresses: ${response.message}")
-                }
-            }
-        }
-    }
 }
 
 

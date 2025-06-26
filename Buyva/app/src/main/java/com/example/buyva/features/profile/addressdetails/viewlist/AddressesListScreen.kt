@@ -30,47 +30,39 @@ fun DeliveryAddressListScreen(
     onBackClick: () -> Unit = {},
     onAddressClick: () -> Unit = {},
     onAddressDetailsClick: (String?, String?) -> Unit = { _, _ -> },
+    viewModel: AddressViewModel
 ) {
-    val application = LocalContext.current.applicationContext as Application
-    val viewModel: AddressViewModel = viewModel(
-        factory = AddressViewModelFactory(
-            application,
-            AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api))
-        )
-    )
     val addressState by viewModel.addresses.collectAsState()
-
-    val addressList: List<Address> = when (addressState) {
-        is ResponseState.Success<*> -> {
-            (addressState as ResponseState.Success<List<Address>>).data
-        }
-        else -> emptyList()
-    }
-    val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
-
 
     LaunchedEffect(Unit) {
         viewModel.loadAddresses()
     }
 
     Box(modifier = Modifier.fillMaxSize().padding(bottom = 60.dp)) {
-
-        AddressList(
-            addressList = addressList,
-            onAddressClick = onAddressClick,
-            onAddressDetailsClick = onAddressDetailsClick
-        )
-
         when (addressState) {
-            is ResponseState.Loading -> LoadingIndicator()
+            is ResponseState.Loading -> {
+                LoadingIndicator()
+                Log.i("1", "Loading addresses")
+            }
+
             is ResponseState.Failure -> {
+                Log.e("1", "Failed to load addresses")
                 Text(
                     "Failed to load addresses",
                     color = Color.Red,
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
-            else -> Unit
+
+            else -> {
+                Log.i("1", "Address list succeeded")
+                AddressList(
+                    viewModel = viewModel,
+                    onAddressClick = onAddressClick,
+                    onAddressDetailsClick = onAddressDetailsClick,
+                    onBackClick = onBackClick
+                )
+            }
         }
     }
 }

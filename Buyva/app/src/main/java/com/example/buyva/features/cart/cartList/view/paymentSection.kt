@@ -58,6 +58,8 @@ import com.example.buyva.features.cart.cartList.viewmodel.CartViewModelFactory
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModel
 import com.example.buyva.features.home.viewmodel.HomeFactory
 import com.example.buyva.features.home.viewmodel.HomeViewModel
+import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
+import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModelFactory
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.functions.createOrder
@@ -93,11 +95,15 @@ fun PaymentSection(
     val homeViewModel : HomeViewModel = viewModel(
         factory = HomeFactory( homeRepo)
     )
+    val addressViewModel : AddressViewModel = viewModel(
+        factory = AddressViewModelFactory(application, addressRepo)
+    )
+
     LaunchedEffect(Unit) {
-        viewModel.loadDefaultAddress()
+        addressViewModel.loadDefaultAddress()
 
     }
-    val defAddress by viewModel.defaultAddress.collectAsState()
+    val defAddress by addressViewModel.defaultAddress.collectAsState()
 
     val context = LocalContext.current
     val addressDetails = if (!defAddress?.lastName.isNullOrEmpty()) {

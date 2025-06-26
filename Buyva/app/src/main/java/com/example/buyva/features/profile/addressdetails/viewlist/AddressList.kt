@@ -11,11 +11,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,9 +42,11 @@ import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.Address
+import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
 import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModelFactory
+import com.example.buyva.ui.theme.Cold
 import com.example.buyva.utils.components.ScreenTitle
 import com.example.buyva.utils.constants.DEFAULT_ADDRESS_ID
 import com.example.buyva.utils.constants.USER_TOKEN
@@ -45,33 +54,41 @@ import com.example.buyva.utils.extensions.stripTokenFromShopifyGid
 import com.example.buyva.utils.jsonStringToAddress
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddressList(
-    addressList: List<Address>,
+    viewModel: AddressViewModel,
     onAddressClick: () -> Unit,
-    onAddressDetailsClick: (String?, String?) -> Unit
-){
+    onAddressDetailsClick: (String?, String?) -> Unit,
+    onBackClick: () -> Unit
+) {
     val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
     var defaultAddressId by remember { mutableStateOf("") }
+    val addressState by viewModel.addresses.collectAsState()
 
-    val viewModel: AddressViewModel = viewModel(
-        factory = AddressViewModelFactory(
-            application = LocalContext.current.applicationContext as Application,
-            AddressRepoImpl(
-                RemoteDataSourceImpl(
-                    ApolloService.client,
-                    StripeClient.api
-                )
-            )
-        )
-    )
-    
+    val addressList = when (addressState) {
+        is ResponseState.Success<*> -> (addressState as ResponseState.Success<List<Address>>).data
+        else -> emptyList()
+    }
+
     LaunchedEffect(Unit) {
-        defaultAddressId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token") ?: ""
-       // viewModel.loadAddresses()
+        defaultAddressId =
+            SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token") ?: ""
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("Addresses", style = MaterialTheme.typography.titleLarge, color = Cold)
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Cold)
+                    }
+                }
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { onAddressClick() },
@@ -83,8 +100,6 @@ fun AddressList(
             }
         }
     ) { paddingValues ->
-
-
         if (addressList.isEmpty()) {
             Box(
                 modifier = Modifier
@@ -93,15 +108,11 @@ fun AddressList(
                     .padding(bottom = 16.dp),
                 contentAlignment = Alignment.Center
             ) {
-                val composition by rememberLottieComposition(
-                    LottieCompositionSpec.RawRes(R.raw.emptyaddress)
-                )
+                val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.emptyaddress))
                 LottieAnimation(
                     composition = composition,
                     iterations = LottieConstants.IterateForever,
-                    modifier = Modifier
-                        .size(250.dp)
-                        .padding(bottom = 16.dp)
+                    modifier = Modifier.size(250.dp)
                 )
             }
         } else {
@@ -113,11 +124,10 @@ fun AddressList(
             ) {
                 items(addressList) { address ->
                     val isDefault = address.id?.stripTokenFromShopifyGid() == defaultAddressId
-Log.d("1", "AddressList called ${address.country}  and ${address.city}")
+
                     AddressItem(
                         address = address,
-                        onAddressDetailsClick = { address1, addressModel ->
-                            onAddressDetailsClick(address1, addressModel)},
+                        onAddressDetailsClick = { id, model -> onAddressDetailsClick(id, model) },
                         isDefault = isDefault,
                         onSetDefault = {
                             val cleanedId = address.id?.stripTokenFromShopifyGid() ?: return@AddressItem
@@ -126,8 +136,6 @@ Log.d("1", "AddressList called ${address.country}  and ${address.city}")
                         },
                         onDeleteClick = {
                             address.id?.let { viewModel.deleteAddress(it) }
-                            addressList.toMutableList().remove(address)
-
                         }
                     )
                 }
@@ -135,4 +143,3 @@ Log.d("1", "AddressList called ${address.country}  and ${address.city}")
         }
     }
 }
-

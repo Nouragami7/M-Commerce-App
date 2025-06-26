@@ -77,6 +77,7 @@ fun MapScreen(
         }
 
         Column(modifier = Modifier.fillMaxWidth().align(Alignment.TopCenter)) {
+
             SearchBar(
                 query = searchQuery,
                 onQueryChange = {

@@ -26,19 +26,33 @@ class AddressViewModel(application: Application,private val repo: IAddressRepo) 
     private var _addresses = MutableStateFlow<ResponseState>(ResponseState.Loading)
     var addresses: StateFlow<ResponseState> = _addresses
     val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
+    private val _defaultAddress = MutableStateFlow<Address?>(null)
+    val defaultAddress: StateFlow<Address?> = _defaultAddress
 
 
     private val _defaultAddressId = MutableStateFlow<String?>(null)
-    val defaultAddressId: StateFlow<String?> = _defaultAddressId.asStateFlow()
     init {
         val id = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token")
         _defaultAddressId.value = id
+        loadAddresses()
     }
 
     fun setDefaultAddress(id: String) {
         SharedPreferenceImpl.saveToSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token", id)
         _defaultAddressId.value = id
+
+        viewModelScope.launch {
+            val currentAddresses = (_addresses.value as? ResponseState.Success<*>)?.data as? List<Address>
+            val default = currentAddresses?.find { it.id?.stripTokenFromShopifyGid() == id }
+
+            if (default != null) {
+                _defaultAddress.emit(default)
+            } else {
+                loadDefaultAddress()
+            }
+        }
     }
+
 
     fun loadAddresses() {
         viewModelScope.launch {
@@ -76,8 +90,23 @@ class AddressViewModel(application: Application,private val repo: IAddressRepo) 
             }
         }
     }
+    fun loadDefaultAddress() {
+        if (token.isNullOrBlank()) return
 
-
+        viewModelScope.launch {
+            repo.getAddresses(token).collect { response ->
+                if (response is ResponseState.Success<*>) {
+                    val addressList = response.data as? List<Address> ?: emptyList()
+                    val defaultId = _defaultAddressId.value
+                    val default = addressList.find { it.id?.stripTokenFromShopifyGid() == defaultId }
+                    _defaultAddress.value = default
+                    Log.d("1", "Default address loaded: ${default?.address1}")
+                } else if (response is ResponseState.Failure) {
+                    Log.e("1", "Failed to load addresses: ${response.message}")
+                }
+            }
+        }
+    }
 
     fun saveAddress(address: Address) {
         viewModelScope.launch {

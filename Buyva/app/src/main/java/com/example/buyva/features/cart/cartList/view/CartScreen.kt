@@ -72,11 +72,14 @@ import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
 import com.example.buyva.features.cart.cartList.viewmodel.CartViewModelFactory
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModel
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModelFactory
+import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
+import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModelFactory
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Teal
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.components.EmptyScreen
+import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.functions.createOrder
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
@@ -94,7 +97,8 @@ fun CartScreen(
     onCheckoutClick: () -> Unit,
     onNavigateToOrders: () -> Unit,
     onNavigateToAddresses: () -> Unit,
-    onNavigateToProductInfo: (String) -> Unit
+    onNavigateToProductInfo: (String) -> Unit,
+    addressViewModel: AddressViewModel
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -112,11 +116,11 @@ fun CartScreen(
     )
     val paymentViewModel: PaymentViewModel = viewModel(
         factory = PaymentViewModelFactory(
-            PaymentRepoImpl(com.example.buyva.data.datasource.remote.RemoteDataSourceImpl(ApolloService.client,StripeClient.api))
+            PaymentRepoImpl(RemoteDataSourceImpl(ApolloService.client,StripeClient.api))
         )
     )
+    val defaultAddress by addressViewModel.defaultAddress.collectAsState()
 
-    val defaultAddress by viewModel.defaultAddress.collectAsState()
 
     val orderState by paymentViewModel.order.collectAsState()
     val cartState by viewModel.cartProducts.collectAsState()
@@ -124,33 +128,10 @@ fun CartScreen(
         mutableStateListOf<CartItem>()
     }
 
-
-    LaunchedEffect(cartState) {
-        when (cartState) {
-            is ResponseState.Success<*> -> {
-                val data = (cartState as ResponseState.Success<*>).data
-                if (data is List<*>) {
-                    cartItems.clear()
-                    cartItems.addAll(data.filterIsInstance<CartItem>())
-                } else {
-                    Log.e("CartDebug", "Unexpected data type: ${data?.javaClass}")
-                }
-            }
-            is ResponseState.Failure -> {
-                Log.e("CartDebug", "Failed to load cart: ${(cartState as ResponseState.Failure).message}")
-            }
-            is ResponseState.Loading -> {
-                cartItems.clear()
-                Log.d("CartDebug", "Cart is loading...")
-            }
-        }
-    }
-
-
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
         viewModel.showCart()
-        viewModel.loadDefaultAddress()
+        addressViewModel.loadDefaultAddress()
          PaymentConfiguration.init(context, BuildConfig.STRIPE_PUBLISHABLE_KEY)
         CurrencyManager.loadFromPreferences()
     }
@@ -161,13 +142,6 @@ fun CartScreen(
             cartItems.sumOf { it.price * it.quantity }
         }
     }
-
-
-
-
-
-
-
 
 
     LaunchedEffect(orderState) {
@@ -219,8 +193,6 @@ fun CartScreen(
             }
         }
     )
-
-
     Scaffold (
         topBar = {
             TopAppBar(
@@ -257,23 +229,27 @@ fun CartScreen(
             when (cartState) {
                 is ResponseState.Loading -> {
                     cartItems.clear()
-                    CircularProgressIndicator(color = Cold)
+                    Log.d("CartDebug", "Cart is loading...")
+                    Box(Modifier.fillMaxSize(), Alignment.Center) {
+                        LoadingIndicator()
+                    }
                 }
 
                 is ResponseState.Failure -> {
-                    val message = (cartState as ResponseState.Failure).message.message ?: "An error occurred"
-                    Text(
-                        text = message,
-                        color = Color.Red,
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(16.dp),
-                        textAlign = TextAlign.Center
-                    )
                     cartItems.clear()
+                    Log.e("CartDebug", "Cart error: ${(cartState as ResponseState.Failure).message}")
+                    EmptyScreen("Something went wrong", 28.sp, R.raw.emptycart)
                 }
 
                 is ResponseState.Success<*> -> {
-                    if (!cartItems.isEmpty()) {
+                    val data = (cartState as ResponseState.Success<*>).data
+                    val items = (data as? List<*>)?.filterIsInstance<CartItem>().orEmpty()
+                    cartItems.clear()
+                    cartItems.addAll(items)
+
+                    if (cartItems.isNotEmpty()) {
+                        Log.i("CartDebug", "CartScreen not empty")
+
                         LazyColumn(modifier = Modifier.weight(1f)) {
                             items(cartItems, key = { it.id }) { item ->
                                 val dismissState =
@@ -343,13 +319,13 @@ fun CartScreen(
                         }
 
                         Spacer(modifier = Modifier.height(56.dp))
-                    }else{
-
+                    } else {
+                        Log.i("CartDebug", "CartScreen empty")
                         EmptyScreen("No items in the cart", 28.sp, R.raw.emptycart)
-
                     }
                 }
             }
+
         }
 
     }
@@ -401,6 +377,7 @@ fun CartScreen(
                 Log.i("1", "CartScreen onConfirm: $itemToDelete")
                 cartItems.remove(itemToDelete)
                 viewModel.removeProductFromCart(itemToDelete!!.lineId)
+               // viewModel.showCart()
                 showDeleteDialog = false
                 itemToDelete = null
             },
