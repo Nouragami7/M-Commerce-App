@@ -70,6 +70,7 @@ class CartViewModel @Inject constructor(
                         cartRepo.getCartProductList(cartId )
                             .collect { response ->
                                 _cartProducts.value = response
+                                Log.i("1", "showCart: ${ResponseState.Success(response)}")
                             }
                     }
                 } catch (e: Exception) {

@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.buyva.GetCartDetailsQuery
 import com.example.buyva.data.datasource.remote.RemoteDataSource
 import com.example.buyva.data.model.CartItem
+import com.example.buyva.data.model.SelectedOption
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.sharedpreference.SharedPreference
@@ -59,7 +60,10 @@ class CartRepoImpl @Inject constructor (
                                 imageUrl = (product.featuredImage?.url ?: "").toString(),
                                 price = price,
                                 quantity = edge.node.quantity,
-                                quantityAvailable = edge.node.merchandise.onProductVariant.quantityAvailable ?: 0
+                                quantityAvailable = edge.node.merchandise.onProductVariant.quantityAvailable ?: 0,
+                                selectedOptions = edge.node.merchandise.onProductVariant.selectedOptions.map {
+                                    SelectedOption(name = it.name, value = it.value)
+                                }
                             )
                         }
                         emit(ResponseState.Success(products))

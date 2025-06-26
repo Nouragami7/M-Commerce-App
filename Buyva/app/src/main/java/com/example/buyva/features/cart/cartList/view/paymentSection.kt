@@ -197,6 +197,7 @@ LaunchedEffect(Unit) {
                     color = Cold,
                     modifier = Modifier.align(Alignment.Start)
                 )
+
             }
 
             Spacer(modifier = Modifier.width(8.dp))

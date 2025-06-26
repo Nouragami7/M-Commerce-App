@@ -122,10 +122,14 @@ fun SetupNavHost(
                     onCheckoutClick = { navController.navigate(ScreensRoute.CheckoutScreen) },
                     onNavigateToOrders = { navController.navigate(ScreensRoute.OrderScreen) },
                     onNavigateToAddresses = { navController.navigate(ScreensRoute.DeliveryAddressListScreen) },
-                    onNavigateToProductInfo = { productId ->
+                    onNavigateToProductInfo = { productId , size, value ->
                         val encodedId = Uri.encode(productId)
-                        navController.navigate("productInfo/$encodedId")
-                    }
+                        val encodedSize = Uri.encode(size) as String
+                        val encodedValue = Uri.encode(value) as String
+                        navController.navigate("productInfo/$encodedId?size=$encodedSize&color=$encodedValue")
+
+                    },
+
                 )
             }
         }
@@ -191,9 +195,11 @@ fun SetupNavHost(
         }
 
 
-        composable("productInfo/{productId}") { backStackEntry ->
+        composable("productInfo/{productId}?size={size}&color={color}") { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
             val variantId = backStackEntry.arguments?.getString("variantId") ?: ""
+            val size = backStackEntry.arguments?.getString("size")?.takeIf { it.isNotEmpty() }
+            val color = backStackEntry.arguments?.getString("color")?.takeIf { it.isNotEmpty() }
             val favouriteViewModel = if (!UserSessionManager.isGuest()) {
                 hiltViewModel<FavouriteScreenViewModel>()
             } else {
@@ -206,7 +212,7 @@ fun SetupNavHost(
                 ProductInfoScreen(
                     productId = productId, repository = repository, navController = navController,
                     //  variantId = variantId ,
-                    favouriteViewModel = favouriteViewModel
+                    favouriteViewModel = favouriteViewModel,size = size,color = color
                 )
 
         }

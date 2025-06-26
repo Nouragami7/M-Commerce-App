@@ -22,8 +22,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.data.model.uistate.ResponseState
+import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.home.viewmodel.HomeViewModel
+import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
@@ -42,7 +44,10 @@ fun HomeScreen(
 
 ) {
 
-    val homeViewModel: HomeViewModel = hiltViewModel()
+    val homeViewModel: HomeViewModel = hiltViewModel(
+    )
+//    val addressViewModel: CartViewModel = hiltViewModel()
+//    addressViewModel.clearCart()
 
     SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
     Log.i("1", "HomeScreen: ${SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)}")

@@ -50,10 +50,11 @@ import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
 import com.example.buyva.ui.theme.Teal
 import coil.compose.AsyncImage
+import com.example.buyva.data.model.SelectedOption
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 
 @Composable
-fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToProductInfo: ( String) -> Unit) {
+fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToProductInfo: ( String,String,String) -> Unit) {
     var availableQuantity by remember { mutableStateOf(item.quantityAvailable) }
 
     Card(
@@ -66,8 +67,8 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
         colors = CardDefaults.cardColors(containerColor = Gray),
         onClick = {
             Log.i("1", "CartItemRow id: ${item.id}")
-            Log.i("1", "CartItemRow title: ${item.variantId}")
-            onNavigateToProductInfo(item.id)
+            Log.i("1", "CartItemRow title: ${item.selectedOptions[0].value}")
+            onNavigateToProductInfo(item.id, item.selectedOptions[0].value,item.selectedOptions[1].value)
 
         }
     ) {
@@ -101,7 +102,7 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "${CurrencyManager.currencyUnit.value} %.2f".format(CurrencyManager.currencyRate.value*(item.price.toDouble())),
+                    text = "${CurrencyManager.currencyUnit.value} %.2f , ${item.selectedOptions?.get(0)?.name} ${item.selectedOptions?.get(0)?.value} ".format(CurrencyManager.currencyRate.value*(item.price.toDouble())),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.DarkGray
                 )

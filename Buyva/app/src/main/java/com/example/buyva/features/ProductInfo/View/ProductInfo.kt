@@ -65,6 +65,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.R
+import com.example.buyva.data.model.SelectedOption
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.home.IHomeRepository
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModel
@@ -83,14 +84,16 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun ProductInfoScreen(
     navController: NavController, productId: String,
-    //  variantId: String,
-    repository: IHomeRepository, favouriteViewModel: FavouriteScreenViewModel?
-) {
+    repository: IHomeRepository, favouriteViewModel: FavouriteScreenViewModel?,
+    size: String? = null,
+    color: String? = null) {
+    Log.i("1", "ProductInfoScreen selectedOptions: ${size ?: "0"}")
     Log.i("1", "ProductInfoScreen productId: $productId")
     // Log.i("1", "ProductInfoScreen variantId: $variantId")
     val viewModel: ProductInfoViewModel = hiltViewModel()
     val state by viewModel.product.collectAsState()
     val addingState by viewModel.addingToCart.collectAsState()
+
 
     LaunchedEffect(addingState) {
         if (addingState is ResponseState.Success<*>) {

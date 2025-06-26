@@ -57,6 +57,7 @@ import com.example.buyva.BuildConfig
 import com.example.buyva.R
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.CartItem
+import com.example.buyva.data.model.SelectedOption
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.features.cart.cartList.view.CartItemRow
 import com.example.buyva.features.cart.cartList.view.PaymentSection
@@ -84,7 +85,7 @@ fun CartScreen(
     onCheckoutClick: () -> Unit,
     onNavigateToOrders: () -> Unit,
     onNavigateToAddresses: () -> Unit,
-    onNavigateToProductInfo: (String) -> Unit
+    onNavigateToProductInfo: (String, String, String) -> Unit
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -234,7 +235,7 @@ fun CartScreen(
                         Log.i("1", "CartScreen not empty")
 
                         LazyColumn(modifier = Modifier.weight(1f)) {
-                            items(cartItems, key = { it.id }) { item ->
+                            items(cartItems, key = { it.lineId }) { item ->
                                 val dismissState =
                                     rememberDismissState(confirmStateChange = { dismissValue ->
                                         if (dismissValue == DismissValue.DismissedToStart || dismissValue == DismissValue.DismissedToEnd) {
