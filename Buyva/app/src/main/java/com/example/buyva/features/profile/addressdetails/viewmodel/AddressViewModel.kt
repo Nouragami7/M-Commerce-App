@@ -25,6 +25,9 @@ import javax.inject.Inject
 class AddressViewModel@Inject constructor(application: Application, private val repo: IAddressRepo) : AndroidViewModel(
     application
 ) {
+    private val _saveAddressState = MutableStateFlow<ResponseState>(ResponseState.Loading)
+    val saveAddressState: StateFlow<ResponseState> = _saveAddressState
+
 
     private var _addresses = MutableStateFlow<ResponseState>(ResponseState.Loading)
     var addresses: StateFlow<ResponseState> = _addresses
@@ -69,56 +72,29 @@ class AddressViewModel@Inject constructor(application: Application, private val 
     }
 
 
-    fun addAddress( address: Address) {
 
-        Log.d("1", "Adding address: $address")
-        Log.d("1", "token : $token")
-
+    fun saveAddress(address: Address) {
         viewModelScope.launch {
             if (token != null) {
-                repo.createAddress( address,token).collect {
+                _saveAddressState.value = ResponseState.Loading
+
+                val flow = if (address.id != null) {
+                    repo.updateAddress(address, token)
+                } else {
+                    repo.createAddress(address, token)
+                }
+
+                flow.collect {
+                    _saveAddressState.value = it
                     if (it is ResponseState.Success<*>) {
-                        Log.d("1", "Address added successfully")
                         loadAddresses()
                     }
                 }
             }
         }
     }
-    fun saveAddress(address: Address) {
-        viewModelScope.launch {
-            if (token != null) {
-                if (address.id != null) {
-                    repo.updateAddress(address, token).collect {
-                        when (it) {
-                            is ResponseState.Loading -> {
-
-                            }
-                            is ResponseState.Success<*> -> {
-                                Log.d("1", "Updated address successfully")
-                                loadAddresses()
-                            }
-                            is ResponseState.Failure -> {
-                                Log.e("1", "Update failed: ${it.message}")
-                            }
-                        }
-                    }
-                } else {
-                    repo.createAddress(address, token).collect {
-                        when (it) {
-                            is ResponseState.Loading -> { /* show loading */ }
-                            is ResponseState.Success<*> -> {
-                                Log.d("1", "Created new address")
-                                loadAddresses()
-                            }
-                            is ResponseState.Failure-> {
-                                Log.e("1", "Create failed: ${it.message}")
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    fun resetSaveAddressState() {
+        _saveAddressState.value = ResponseState.Loading
     }
 
 

@@ -1,6 +1,7 @@
 package com.example.buyva.features.profile.addressdetails.view
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,12 +33,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -45,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buyva.data.model.Address
+import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Sea
@@ -66,6 +71,22 @@ fun AddressDetails(
     }
     Log.d("1", "AddressDetails called coutry  : ${country} from details and city  : ${city}")
     val viewModel: AddressViewModel = hiltViewModel()
+    val saveAddressState by viewModel.saveAddressState.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(saveAddressState) {
+        if (saveAddressState is ResponseState.Success<*>) {
+            Toast.makeText(context, "Address saved successfully!", Toast.LENGTH_SHORT).show()
+          //  viewModel.resetSaveAddressState()
+            onSaveClick()
+        } else if (saveAddressState is ResponseState.Failure) {
+            val message = (saveAddressState as ResponseState.Failure).message.message ?: "Error saving address"
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+          //  viewModel.resetSaveAddressState()
+        }
+    }
+
+
 
     val firstName = remember { mutableStateOf("") }
     val lastName = remember { mutableStateOf("") }
