@@ -16,11 +16,11 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.UserProfileChangeRequest
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class AuthRepository(
-    private val auth: FirebaseAuth,
-    private val apolloClient: ApolloClient
-):IAuthRepository  {
+class AuthRepository @Inject constructor(
+    private val auth: FirebaseAuth, private val apolloClient: ApolloClient
+) : IAuthRepository {
 
     override suspend fun isEmailVerified(): Boolean {
         return auth.currentUser?.isEmailVerified ?: false
@@ -32,22 +32,21 @@ class AuthRepository(
     }
 
     override suspend fun signUpWithEmail(
-        email: String,
-        password: String,
-        fullName: String
+        email: String, password: String, fullName: String
     ): Result<FirebaseUser> {
         return try {
             val result = auth.createUserWithEmailAndPassword(email, password).await()
             val user = result.user ?: return Result.failure(Exception("Firebase user is null"))
 
-            val profileUpdates = UserProfileChangeRequest.Builder()
-                .setDisplayName(fullName)
-                .build()
+            val profileUpdates = UserProfileChangeRequest.Builder().setDisplayName(fullName).build()
             user.updateProfile(profileUpdates).await()
 
             val createResult = createShopifyCustomer(fullName, email, password)
             if (createResult.isFailure) {
-                Log.e("1", "Failed to create Shopify customer: ${createResult.exceptionOrNull()?.message}")
+                Log.e(
+                    "1",
+                    "Failed to create Shopify customer: ${createResult.exceptionOrNull()?.message}"
+                )
                 return Result.failure(Exception("Shopify customer creation failed"))
             }
 
@@ -68,11 +67,10 @@ class AuthRepository(
 
     override suspend fun sendVerificationEmail(user: FirebaseUser): Result<Unit> {
         return try {
-            val actionCodeSettings = ActionCodeSettings.newBuilder()
-                .setUrl("https://yourapp.page.link/verify-email")
-                .setHandleCodeInApp(true)
-                .setAndroidPackageName("com.example.buyva", true, "23")
-                .build()
+            val actionCodeSettings =
+                ActionCodeSettings.newBuilder().setUrl("https://yourapp.page.link/verify-email")
+                    .setHandleCodeInApp(true).setAndroidPackageName("com.example.buyva", true, "23")
+                    .build()
 
             user.sendEmailVerification(actionCodeSettings).await()
             Result.success(Unit)
@@ -100,24 +98,26 @@ class AuthRepository(
     override suspend fun getShopifyAccessToken(email: String, password: String): Result<String> {
         Log.d("1", "Fetching Shopify token for $email")
         return try {
-            val response = apolloClient
-                .mutation(CreateCustomerAccessTokenMutation(email, password))
-                .execute()
+            val response =
+                apolloClient.mutation(CreateCustomerAccessTokenMutation(email, password)).execute()
 
             Log.d("1", "Response: ${response.data}")
 
             val token = response.data?.customerAccessTokenCreate?.customerAccessToken?.accessToken
-            val error = response.data?.customerAccessTokenCreate?.customerUserErrors?.firstOrNull()?.message
+            val error =
+                response.data?.customerAccessTokenCreate?.customerUserErrors?.firstOrNull()?.message
 
             when {
                 token != null -> {
                     Log.d("1", "Token retrieved successfully: $token")
                     Result.success(token)
                 }
+
                 error != null -> {
                     Log.e("1", "Shopify error: $error")
                     Result.failure(Exception(error))
                 }
+
                 else -> Result.failure(Exception("Unknown error during token creation"))
             }
         } catch (e: Exception) {
@@ -138,7 +138,11 @@ class AuthRepository(
         }
     }
 
-    override suspend fun createShopifyCustomer(fullName: String, email: String, password: String): Result<CustomerData> {
+    override suspend fun createShopifyCustomer(
+        fullName: String,
+        email: String,
+        password: String
+    ): Result<CustomerData> {
         val names = fullName.trim().split(" ")
         val firstName = names.firstOrNull() ?: ""
         val lastName = names.drop(1).joinToString(" ")
@@ -201,6 +205,7 @@ class AuthRepository(
                     )
                 )
             }
+
             error != null -> Result.failure(Exception(error))
             else -> Result.failure(Exception("Unknown Shopify error"))
         }

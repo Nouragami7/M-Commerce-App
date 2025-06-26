@@ -1,24 +1,22 @@
 package com.example.buyva.features.profile.currency.viewmodel
 
 import android.util.Log
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.buyva.data.model.Currency
 import com.example.buyva.data.model.CurrencyResponse
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.currency.CurrencyRepo
-import com.example.buyva.data.repository.currency.ICurrencyRepo
 import com.example.buyva.utils.constants.CURRENCY_RATE
 import com.example.buyva.utils.constants.CURRENCY_UNIT
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CurrencyViewModel(private val repository: CurrencyRepo) : ViewModel() {
+@HiltViewModel
+class CurrencyViewModel @Inject constructor(private val repository: CurrencyRepo) : ViewModel() {
 
     private val _currencyResponse = MutableStateFlow("EGP")
     val currencyResponse = _currencyResponse.asStateFlow()
@@ -41,6 +39,7 @@ class CurrencyViewModel(private val repository: CurrencyRepo) : ViewModel() {
         val currencyUnit = repository.readCurrencyUnit(CURRENCY_UNIT)
         _currencyResponse.value = currencyUnit
     }
+
     suspend fun getCurrencyRate(): Double {
         return repository.readCurrencyRate(CURRENCY_RATE)
     }
@@ -51,11 +50,13 @@ class CurrencyViewModel(private val repository: CurrencyRepo) : ViewModel() {
             _currencyResponse.value = unit
         }
     }
-     fun setCurrencyRate(value: Double) {
+
+    fun setCurrencyRate(value: Double) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.writeCurrencyRate(CURRENCY_RATE, value)
             _currencyResponseRate.value = value
-        }    }
+        }
+    }
 
     fun fetchCurrencyRates(base: String = "USD") {
         viewModelScope.launch {
@@ -80,22 +81,6 @@ class CurrencyViewModel(private val repository: CurrencyRepo) : ViewModel() {
         }
 
 
-}
-
-
-}
-class CurrencyViewModelFactory(private val repository: CurrencyRepo) :
-    ViewModelProvider.Factory {
-
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return if (modelClass.isAssignableFrom(CurrencyViewModel::class.java)) {
-            CurrencyViewModel(repository) as T
-
-        }else{
-
-            throw IllegalArgumentException("View model class not found")
-        }
-
-
     }
+
 }

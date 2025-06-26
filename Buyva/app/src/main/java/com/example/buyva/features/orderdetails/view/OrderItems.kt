@@ -26,8 +26,6 @@ import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 fun OrderItems(
     itemsList: List<GetOrdersByCustomerEmailQuery.Edge1>,
     imageUrls: List<String>) {
-
-
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()

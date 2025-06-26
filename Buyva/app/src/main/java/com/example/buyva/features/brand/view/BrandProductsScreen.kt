@@ -31,16 +31,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.buyva.ProductsByCollectionQuery
-import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
-import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.repository.home.HomeRepositoryImpl
-import com.example.buyva.features.brand.viewmodel.BrandFactory
 import com.example.buyva.features.brand.viewmodel.BrandViewModel
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.home.view.SearchBarWithCartIcon
@@ -74,11 +69,9 @@ fun BrandProductsScreen(
     var maxSliderValue by remember { mutableFloatStateOf(0f) }
     var selectedPriceLimit by remember { mutableFloatStateOf(0f) }
 
-    val brandFactory = BrandFactory(
-        HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api))
-    )
 
-    val brandViewModel: BrandViewModel = viewModel(factory = brandFactory)
+
+    val brandViewModel: BrandViewModel = hiltViewModel()
 
     val productsOfBrand by brandViewModel.productsOfBrand.collectAsStateWithLifecycle()
 

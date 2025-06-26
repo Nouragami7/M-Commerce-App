@@ -17,13 +17,13 @@ import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.RemoveProductFromCartMutation
-import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
-import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
 import com.example.buyva.SearchProductsQuery
 import com.example.buyva.admin.CompleteDraftOrderMutation
 import com.example.buyva.admin.CreateDraftOrderMutation
 import com.example.buyva.admin.GetDiscountAmountDetailsQuery
+import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
 import com.example.buyva.admin.type.DraftOrderInput
+import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
 import com.example.buyva.data.datasource.remote.stripe.StripeAPI
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.UiProduct
@@ -34,9 +34,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import retrofit2.Response
+import javax.inject.Inject
 
-class RemoteDataSourceImpl(
+class RemoteDataSourceImpl @Inject constructor(
     private val apolloClient: ApolloClient,
+    private val apolloAdmin: ApolloAdmin,
     private val stripeAPI: StripeAPI
 ) : RemoteDataSource {
 
@@ -214,8 +216,7 @@ class RemoteDataSourceImpl(
     }
 
     override suspend fun deleteCustomerAddress(
-        addressId: String,
-        token: String
+        addressId: String, token: String
     ): Flow<ResponseState> = flow {
         emit(ResponseState.Loading)
         try {
@@ -240,7 +241,7 @@ class RemoteDataSourceImpl(
 
     override suspend fun getOrders(email: String): Flow<GetOrdersByCustomerEmailQuery.Data?> =
         flow {
-            val response = ApolloAdmin.admin.query(GetOrdersByCustomerEmailQuery(email)).execute()
+            val response = apolloAdmin.admin.query(GetOrdersByCustomerEmailQuery(email)).execute()
             emit(response.data)
         }.catch {
             emit(null)
@@ -255,14 +256,15 @@ class RemoteDataSourceImpl(
         Log.d("SearchRaw", "Raw response: ${response.data}")
 
         val products = response.data?.products?.edges?.mapNotNull { edge ->
-            val node = edge.node ?: return@mapNotNull null
+            val node = edge.node
 
-            val imageUrl = node.images?.edges?.firstOrNull()?.node?.src as? String ?: ""
-            val price = node.variants?.edges?.firstOrNull()?.node?.priceV2?.amount
-                ?.let { it.toString().toFloatOrNull() } ?: 0f
+            val imageUrl = node.images.edges.firstOrNull()?.node?.src as? String ?: ""
+            val price = node.variants.edges.firstOrNull()?.node?.priceV2?.amount?.let {
+                it.toString().toFloatOrNull()
+            } ?: 0f
 
 
-            val vendor = node.vendor ?: ""
+            val vendor = node.vendor
 
             UiProduct(
                 id = node.id,
@@ -279,47 +281,51 @@ class RemoteDataSourceImpl(
         emit(emptyList())
     }
 
-    override suspend fun updateAddress(address: Address, token: String): Flow<ResponseState> = flow {
-        emit(ResponseState.Loading)
+    override suspend fun updateAddress(address: Address, token: String): Flow<ResponseState> =
+        flow {
+            emit(ResponseState.Loading)
 
-        try {
-            val response = apolloClient.mutation(
-                CustomerAddressUpdateMutation(
-                    customerAccessToken = token,
-                    id = address.id!!,
-                    address = MailingAddressInput(
-                        firstName = Optional.Present(address.firstName),
-                        lastName = Optional.Present(address.lastName),
-                        phone = Optional.Present(address.phone),
-                        address1 = Optional.Present(address.address1),
-                        address2 = Optional.Present(address.address2),
-                        city = Optional.Present(address.city),
-                        country = Optional.Present(address.country),
+            try {
+                val response = apolloClient.mutation(
+                    CustomerAddressUpdateMutation(
+                        customerAccessToken = token,
+                        id = address.id!!,
+                        address = MailingAddressInput(
+                            firstName = Optional.Present(address.firstName),
+                            lastName = Optional.Present(address.lastName),
+                            phone = Optional.Present(address.phone),
+                            address1 = Optional.Present(address.address1),
+                            address2 = Optional.Present(address.address2),
+                            city = Optional.Present(address.city),
+                            country = Optional.Present(address.country),
+                        )
+                    )
+                ).execute()
+
+                val updated = response.data?.customerAddressUpdate?.customerAddress
+
+                if (updated != null) {
+                    emit(ResponseState.Success(address.copy(id = updated.id)))
+                } else {
+                    val errors = response.data?.customerAddressUpdate?.customerUserErrors
+                    val errorMessage =
+                        errors?.joinToString { "${it.field?.joinToString()} - ${it.message}" }
+                            ?: "Unknown Shopify error"
+                    Log.e("1", errorMessage)
+                    emit(ResponseState.Failure(Throwable(errorMessage)))
+                }
+
+            } catch (e: Exception) {
+                emit(
+                    ResponseState.Failure(
+                        Throwable(e.message ?: "Unknown error")
                     )
                 )
-            ).execute()
-
-            val updated = response.data?.customerAddressUpdate?.customerAddress
-
-            if (updated != null) {
-                emit(ResponseState.Success(address.copy(id = updated.id)))
-            } else {
-                val errors = response.data?.customerAddressUpdate?.customerUserErrors
-                val errorMessage = errors?.joinToString { "${it.field?.joinToString()} - ${it.message}" } ?: "Unknown Shopify error"
-                Log.e("1", errorMessage)
-                emit(ResponseState.Failure(Throwable(errorMessage)))
             }
-
-        } catch (e: Exception) {
-            emit(ResponseState.Failure(
-                Throwable(e.message ?: "Unknown error")
-            ))
         }
-    }
-   override suspend fun getDiscountDetails(): Flow<GetDiscountAmountDetailsQuery.Data> = flow {
-        val response = ApolloAdmin.admin
-            .query(GetDiscountAmountDetailsQuery())
-            .execute()
+
+    override suspend fun getDiscountDetails(): Flow<GetDiscountAmountDetailsQuery.Data> = flow {
+        val response = apolloAdmin.admin.query(GetDiscountAmountDetailsQuery()).execute()
 
         if (response.hasErrors()) {
             throw Exception(response.errors?.first()?.message ?: "GraphQL error")
@@ -328,54 +334,57 @@ class RemoteDataSourceImpl(
         val data = response.data ?: throw Exception("Response data is null")
         emit(data)
     }
+
     override suspend fun createPaymentIntent(
-        amount: Int,
-        currency: String,
-        paymentMethod: String
+        amount: Int, currency: String, paymentMethod: String
     ): Response<com.google.gson.JsonObject> {
-        return stripeAPI.createPaymentIntent(amount, CurrencyManager.currencyUnit.value.lowercase(), paymentMethod)
+        return stripeAPI.createPaymentIntent(
+            amount, CurrencyManager.currencyUnit.value.lowercase(), paymentMethod
+        )
     }
 
-    override suspend fun createDraftOrder(draftOrderInput: DraftOrderInput): Flow<ResponseState> = flow {
+    override suspend fun createDraftOrder(draftOrderInput: DraftOrderInput): Flow<ResponseState> =
+        flow {
 
-        try {
-            val response = ApolloAdmin.admin.mutation(CreateDraftOrderMutation(draftOrderInput)).execute()
-            val draftOrder = response.data?.draftOrderCreate?.draftOrder
-            if (draftOrder != null) {
-                emit(ResponseState.Success("Draft Order Created: ${draftOrder.id}"))
-            } else {
-                val errorMsg = response.data?.draftOrderCreate?.userErrors
-                    ?.joinToString(", ") { it.message }
+            try {
+                val response =
+                    apolloAdmin.admin.mutation(CreateDraftOrderMutation(draftOrderInput)).execute()
+                val draftOrder = response.data?.draftOrderCreate?.draftOrder
+                if (draftOrder != null) {
+                    emit(ResponseState.Success("Draft Order Created: ${draftOrder.id}"))
+                } else {
+                    val errorMsg =
+                        response.data?.draftOrderCreate?.userErrors?.joinToString(", ") { it.message }
 
-                emit(ResponseState.Failure(Throwable(errorMsg)))
+                    emit(ResponseState.Failure(Throwable(errorMsg)))
+                }
+            } catch (e: Exception) {
+                emit(ResponseState.Failure(Throwable(e.message)))
             }
-        } catch (e: Exception) {
-            emit(ResponseState.Failure(Throwable(e.message)))
         }
-    }
 
-    override suspend fun completeDraftOrder(draftOrderId: String): Flow<CompleteDraftOrderMutation.Data> = flow {
-        try {
-            val response = ApolloAdmin.admin
-                .mutation(CompleteDraftOrderMutation(draftOrderId))
-                .execute()
+    override suspend fun completeDraftOrder(draftOrderId: String): Flow<CompleteDraftOrderMutation.Data> =
+        flow {
+            try {
+                val response =
+                    ApolloAdmin.admin.mutation(CompleteDraftOrderMutation(draftOrderId)).execute()
 
-            val completedOrder = response.data?.draftOrderComplete?.draftOrder
-            val userErrors = response.data?.draftOrderComplete?.userErrors
+                val completedOrder = response.data?.draftOrderComplete?.draftOrder
+                val userErrors = response.data?.draftOrderComplete?.userErrors
 
-            if (completedOrder != null && userErrors.isNullOrEmpty()) {
-                Log.d("OrderRD", "Draft Order Completed: ${completedOrder.id}")
-                emit(response.data!!)
-            } else {
-                val errorMsg = userErrors?.joinToString(", ") { it.message } ?: "Unknown error"
-                Log.e("OrderRD", "Failed to complete draft order: $errorMsg")
-                throw Exception(errorMsg)
+                if (completedOrder != null && userErrors.isNullOrEmpty()) {
+                    Log.d("OrderRD", "Draft Order Completed: ${completedOrder.id}")
+                    emit(response.data!!)
+                } else {
+                    val errorMsg = userErrors?.joinToString(", ") { it.message } ?: "Unknown error"
+                    Log.e("OrderRD", "Failed to complete draft order: $errorMsg")
+                    throw Exception(errorMsg)
+                }
+            } catch (e: Exception) {
+                Log.e("OrderRD", "Exception while completing draft order: ${e.message}", e)
+                throw e
             }
-        } catch (e: Exception) {
-            Log.e("OrderRD", "Exception while completing draft order: ${e.message}", e)
-            throw e
         }
-    }
 
 
 }

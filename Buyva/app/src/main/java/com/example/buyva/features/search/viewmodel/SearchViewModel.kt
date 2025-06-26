@@ -3,13 +3,22 @@ package com.example.buyva.features.search.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.buyva.data.model.SearchUiState
-import com.example.buyva.data.model.UiProduct
 import com.example.buyva.data.repository.search.ISearchRepository
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SearchViewModel(private val repository: ISearchRepository) : ViewModel() {
+@HiltViewModel
+class SearchViewModel@Inject constructor(private val repository: ISearchRepository) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SearchUiState())
     val uiState: StateFlow<SearchUiState> = _uiState.asStateFlow()

@@ -5,8 +5,10 @@ import com.example.buyva.data.datasource.remote.RemoteDataSource
 import com.example.buyva.data.model.UiProduct
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class SearchRepositoryImpl(
+class SearchRepositoryImpl
+    @Inject constructor(
     private val remoteDataSource: RemoteDataSource
 ) : ISearchRepository {
 

@@ -5,14 +5,13 @@ import com.example.buyva.GetCartDetailsQuery
 import com.example.buyva.data.datasource.remote.RemoteDataSource
 import com.example.buyva.data.model.CartItem
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.utils.constants.CART_ID
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.sharedpreference.SharedPreference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlin.text.toDoubleOrNull
+import javax.inject.Inject
 
-class CartRepoImpl (
+class CartRepoImpl @Inject constructor (
     private val remoteDataSource: RemoteDataSource,
     private val sharedPreferences: SharedPreference
 ): CartRepo {

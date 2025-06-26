@@ -1,4 +1,3 @@
-import android.app.Application
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
@@ -51,31 +50,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buyva.BuildConfig
 import com.example.buyva.R
-import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
-import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.CartItem
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.repository.adresses.AddressRepoImpl
-import com.example.buyva.data.repository.cart.CartRepoImpl
-import com.example.buyva.data.repository.paymentRepo.PaymentRepoImpl
 import com.example.buyva.features.cart.cartList.view.CartItemRow
 import com.example.buyva.features.cart.cartList.view.PaymentSection
 import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
-import com.example.buyva.features.cart.cartList.viewmodel.CartViewModelFactory
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModel
-import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModelFactory
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Teal
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.functions.createOrder
-import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 import com.stripe.android.PaymentConfiguration
 import com.stripe.android.paymentsheet.PaymentSheet
@@ -101,17 +91,8 @@ fun CartScreen(
     var itemToDelete by remember { mutableStateOf<CartItem?>(null) }
 
 
-    val application = context.applicationContext as Application
-    val cartRepo = CartRepoImpl(RemoteDataSourceImpl(ApolloService.client,StripeClient.api), SharedPreferenceImpl)
-    val addressRepo = AddressRepoImpl(RemoteDataSourceImpl(ApolloService.client,StripeClient.api))
-    val viewModel: CartViewModel = viewModel(
-        factory = CartViewModelFactory(application, cartRepo, addressRepo)
-    )
-    val paymentViewModel: PaymentViewModel = viewModel(
-        factory = PaymentViewModelFactory(
-            PaymentRepoImpl(com.example.buyva.data.datasource.remote.RemoteDataSourceImpl(ApolloService.client,StripeClient.api))
-        )
-    )
+    val viewModel: CartViewModel = hiltViewModel()
+    val paymentViewModel: PaymentViewModel = hiltViewModel()
 
     val defaultAddress by viewModel.defaultAddress.collectAsState()
 
@@ -166,13 +147,6 @@ fun CartScreen(
     }
 
 
-
-
-
-
-
-
-
     LaunchedEffect(orderState) {
         when (orderState) {
             is ResponseState.Success<*> -> {
@@ -219,9 +193,7 @@ fun CartScreen(
             is PaymentSheetResult.Failed -> {
                 onNavigateToOrders()
                 Toast.makeText(
-                    context,
-                    "Payment Failed: ${result.error.message}",
-                    Toast.LENGTH_SHORT
+                    context, "Payment Failed: ${result.error.message}", Toast.LENGTH_SHORT
                 ).show()
             }
         }
@@ -379,7 +351,8 @@ fun CartScreen(
                     Toast.makeText(context, "Order Placed", Toast.LENGTH_SHORT).show()
                 },
                 onPayWithCardClick = {
-                    paymentViewModel.initiatePaymentFlow(amount = (totalPrice * 100).toInt(),
+                    paymentViewModel.initiatePaymentFlow(
+                        amount = (totalPrice * 100).toInt(),
                         onClientSecretReady = { secret ->
                             paymentSheet.presentWithPaymentIntent(
                                 paymentIntentClientSecret = secret,

@@ -13,13 +13,16 @@ import com.example.buyva.utils.constants.DEFAULT_ADDRESS_ID
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.extensions.stripTokenFromShopifyGid
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AddressViewModel(application: Application,private val repo: IAddressRepo) : AndroidViewModel(
+@HiltViewModel
+class AddressViewModel@Inject constructor(application: Application, private val repo: IAddressRepo) : AndroidViewModel(
     application
 ) {
 
@@ -27,18 +30,6 @@ class AddressViewModel(application: Application,private val repo: IAddressRepo) 
     var addresses: StateFlow<ResponseState> = _addresses
     val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
 
-
-    private val _defaultAddressId = MutableStateFlow<String?>(null)
-    val defaultAddressId: StateFlow<String?> = _defaultAddressId.asStateFlow()
-    init {
-        val id = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token")
-        _defaultAddressId.value = id
-    }
-
-    fun setDefaultAddress(id: String) {
-        SharedPreferenceImpl.saveToSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token", id)
-        _defaultAddressId.value = id
-    }
 
     fun loadAddresses() {
         viewModelScope.launch {
@@ -78,7 +69,22 @@ class AddressViewModel(application: Application,private val repo: IAddressRepo) 
     }
 
 
+    fun addAddress( address: Address) {
 
+        Log.d("1", "Adding address: $address")
+        Log.d("1", "token : $token")
+
+        viewModelScope.launch {
+            if (token != null) {
+                repo.createAddress( address,token).collect {
+                    if (it is ResponseState.Success<*>) {
+                        Log.d("1", "Address added successfully")
+                        loadAddresses()
+                    }
+                }
+            }
+        }
+    }
     fun saveAddress(address: Address) {
         viewModelScope.launch {
             if (token != null) {
@@ -126,17 +132,5 @@ class AddressViewModel(application: Application,private val repo: IAddressRepo) 
                 }
             }
         }
-    }
-}
-class AddressViewModelFactory(
-    private val application: Application,
-    private val addressRepo: IAddressRepo
-) : ViewModelProvider.AndroidViewModelFactory(application) {
-
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AddressViewModel::class.java)) {
-            return AddressViewModel(application, addressRepo) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

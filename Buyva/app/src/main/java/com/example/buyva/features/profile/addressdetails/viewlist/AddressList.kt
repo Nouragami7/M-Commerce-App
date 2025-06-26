@@ -1,6 +1,5 @@
 package com.example.buyva.features.profile.addressdetails.viewlist
 
-import android.app.Application
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,26 +22,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.buyva.R
-import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
-import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.Address
-import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
-import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModelFactory
-import com.example.buyva.utils.components.ScreenTitle
 import com.example.buyva.utils.constants.DEFAULT_ADDRESS_ID
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.extensions.stripTokenFromShopifyGid
-import com.example.buyva.utils.jsonStringToAddress
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 
 @Composable
@@ -54,17 +45,7 @@ fun AddressList(
     val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
     var defaultAddressId by remember { mutableStateOf("") }
 
-    val viewModel: AddressViewModel = viewModel(
-        factory = AddressViewModelFactory(
-            application = LocalContext.current.applicationContext as Application,
-            AddressRepoImpl(
-                RemoteDataSourceImpl(
-                    ApolloService.client,
-                    StripeClient.api
-                )
-            )
-        )
-    )
+    val viewModel: AddressViewModel = hiltViewModel()
     
     LaunchedEffect(Unit) {
         defaultAddressId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token") ?: ""
@@ -121,8 +102,8 @@ Log.d("1", "AddressList called ${address.country}  and ${address.city}")
                         isDefault = isDefault,
                         onSetDefault = {
                             val cleanedId = address.id?.stripTokenFromShopifyGid() ?: return@AddressItem
-                            viewModel.setDefaultAddress(cleanedId)
-                            defaultAddressId = cleanedId
+                         //   viewModel.
+                         //   defaultAddressId = cleanedId
                         },
                         onDeleteClick = {
                             address.id?.let { viewModel.deleteAddress(it) }

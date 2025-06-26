@@ -1,12 +1,14 @@
 package com.example.buyva.features.brand.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.home.IHomeRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import javax.inject.Inject
 
-class BrandViewModel(private val homeRepository:IHomeRepository ) : ViewModel(){
+@HiltViewModel
+class BrandViewModel @Inject constructor (private val homeRepository:IHomeRepository ) : ViewModel(){
     private val _productsOfBrand = MutableStateFlow<ResponseState>(ResponseState.Loading)
     val productsOfBrand: MutableStateFlow<ResponseState> = _productsOfBrand
 
@@ -27,14 +29,4 @@ class BrandViewModel(private val homeRepository:IHomeRepository ) : ViewModel(){
             }
         }
     }
-}
-class BrandFactory(private val homeRepository: IHomeRepository) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(BrandViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return BrandViewModel(homeRepository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-
 }

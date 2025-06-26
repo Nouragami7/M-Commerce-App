@@ -6,29 +6,24 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
-import com.example.buyva.data.datasource.remote.currency.CurrencyApiService
-import com.example.buyva.data.datasource.remote.currency.CurrencyRetrofitClient
+import com.example.buyva.data.datasource.remote.graphql.ApolloAdmin
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.repository.Authentication.AuthRepository
 import com.example.buyva.data.datasource.remote.stripe.StripeClient
-import com.example.buyva.data.repository.currency.CurrencyRepo
 import com.example.buyva.data.repository.favourite.FavouriteRepositoryImpl
 import com.example.buyva.data.repository.home.HomeRepositoryImpl
-import com.example.buyva.data.repository.search.SearchRepositoryImpl
 import com.example.buyva.features.ProductInfo.View.ProductInfoScreen
 import com.example.buyva.features.authentication.login.view.GuestRestrictionScreen
 import com.example.buyva.features.authentication.login.view.LoginScreenHost
 import com.example.buyva.features.authentication.login.view.WelcomeScreen
 import com.example.buyva.features.authentication.login.viewmodel.UserSessionManager
 import com.example.buyva.features.authentication.signup.view.SignupScreenHost
-import com.example.buyva.features.authentication.signup.viewmodel.LogoutViewModel
 import com.example.buyva.features.brand.view.BrandProductsScreen
 import com.example.buyva.features.categories.view.CategoryScreen
 import com.example.buyva.features.favourite.view.FavouriteScreen
@@ -40,7 +35,6 @@ import com.example.buyva.features.profile.addressdetails.view.AddressDetails
 import com.example.buyva.features.profile.addressdetails.viewlist.DeliveryAddressListScreen
 import com.example.buyva.features.profile.currency.viewcurrency.CurrencyScreen
 import com.example.buyva.features.profile.currency.viewmodel.CurrencyViewModel
-import com.example.buyva.features.profile.currency.viewmodel.CurrencyViewModelFactory
 import com.example.buyva.features.profile.map.view.MapScreen
 import com.example.buyva.features.profile.map.viewmodel.MapViewModel
 import com.example.buyva.features.profile.profileoptions.view.ProfileScreen
@@ -48,7 +42,6 @@ import com.example.buyva.features.search.view.SearchScreen
 import com.example.buyva.features.search.viewmodel.SearchViewModel
 import com.example.yourapp.ui.screens.OrderScreen
 import com.google.firebase.auth.FirebaseAuth
-import com.omarinc.shopify.network.currency.CurrencyRemoteDataSourceImpl
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
@@ -60,15 +53,8 @@ fun SetupNavHost(
 ) {
     val apolloClient = remember { ApolloService.client }
     val sharedOrderViewModel: SharedOrderViewModel = viewModel()
-    val context = LocalContext.current
 
-    val logoutViewModel = remember {
-        LogoutViewModel(
-            AuthRepository(
-                FirebaseAuth.getInstance(), apolloClient
-            )
-        )
-    }
+
 
     NavHost(
         navController = navController, startDestination = startDestination
@@ -85,7 +71,7 @@ fun SetupNavHost(
             )}
 
 
-                        composable<ScreensRoute.LoginScreen> {
+        composable<ScreensRoute.LoginScreen> {
             LoginScreenHost(onSignUpClick = { navController.navigate(ScreensRoute.SignUpScreen) },
                 onSuccess = {
                     navController.navigate(ScreensRoute.HomeScreen) {
@@ -103,13 +89,7 @@ fun SetupNavHost(
                 })
         }
         composable<ScreensRoute.HomeScreen> {
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            val favouriteViewModel = remember(currentUser?.uid) {
-                currentUser?.let {
-                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
-                }
-            }
-
+            val favouriteViewModel : FavouriteScreenViewModel = hiltViewModel()
                 HomeScreen(onCartClick = { navController.navigate(ScreensRoute.CartScreen) },
                     onBrandClick = { brandId, brandTitle, brandImage ->
                         navController.navigate(
@@ -187,12 +167,7 @@ fun SetupNavHost(
                     }
                 )
             } else {
-                val currentUser = FirebaseAuth.getInstance().currentUser
-                val favouriteViewModel = remember(currentUser?.uid) {
-                    currentUser?.let {
-                        FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
-                    }
-                }
+                val favouriteViewModel : FavouriteScreenViewModel = hiltViewModel()
 
                 FavouriteScreen(
                     viewModel = favouriteViewModel,
@@ -206,12 +181,7 @@ fun SetupNavHost(
             val name = entry.arguments?.getString("brandName") ?: "Adidas"
             val image = entry.arguments?.getString("brandImage") ?: ""
 
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            val favouriteViewModel = remember(currentUser?.uid) {
-                currentUser?.let {
-                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
-                }
-            }
+            val favouriteViewModel: FavouriteScreenViewModel = hiltViewModel()
 
                 BrandProductsScreen(
                     brandId = id,
@@ -234,14 +204,10 @@ fun SetupNavHost(
         composable("productInfo/{productId}") { backStackEntry ->
             val productId = backStackEntry.arguments?.getString("productId") ?: return@composable
             val variantId = backStackEntry.arguments?.getString("variantId") ?: ""
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            val favouriteViewModel = remember(currentUser?.uid) {
-                currentUser?.let {
-                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
-                }
-            }
+            val favouriteViewModel : FavouriteScreenViewModel = hiltViewModel()
             val repository = remember {
-                HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client, StripeClient.api))
+                HomeRepositoryImpl(RemoteDataSourceImpl(ApolloService.client,
+                    ApolloAdmin, StripeClient.api))
             }
                 ProductInfoScreen(
                     productId = productId, repository = repository, navController = navController,
@@ -253,7 +219,6 @@ fun SetupNavHost(
 
         composable<ScreensRoute.ProfileScreen> {
             ProfileScreen(
-                logoutViewModel = logoutViewModel,
                 onFavClick = {
                     navController.navigate(ScreensRoute.FavouritesScreen)
                 },
@@ -338,73 +303,46 @@ fun SetupNavHost(
         composable<ScreensRoute.PaymentScreen> { /* Placeholder */ }
 
         composable<ScreensRoute.SearchScreen> {
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            val favouriteViewModel = remember(currentUser?.uid) {
-                currentUser?.let {
-                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
-                }
-            }
+            val favouriteViewModel : FavouriteScreenViewModel = hiltViewModel()
+            val searchViewModel : SearchViewModel = hiltViewModel()
 
-            val remoteDataSource = remember { RemoteDataSourceImpl(apolloClient,StripeClient.api) }
-            val searchRepository = remember { SearchRepositoryImpl(remoteDataSource) }
-            val searchViewModel = remember { SearchViewModel(searchRepository) }
-
-            if (favouriteViewModel != null) {
-                SearchScreen(searchViewModel = searchViewModel,
-                    favouriteViewModel = favouriteViewModel,
-                    onProductClick = { productId ->
-                        val encodedId =
-                            URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
-                        navController.navigate("productInfo/$encodedId")
-                    },
-                    onBack = {
-                        navController.popBackStack()
-                    })
-            }
+            SearchScreen(searchViewModel = searchViewModel,
+                favouriteViewModel = favouriteViewModel,
+                onProductClick = { productId ->
+                    val encodedId =
+                        URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
+                    navController.navigate("productInfo/$encodedId")
+                },
+                onBack = {
+                    navController.popBackStack()
+                })
         }
 
         composable("search?brand={brand}") { backStackEntry ->
             val brand = backStackEntry.arguments?.getString("brand") ?: ""
 
-            val currentUser = FirebaseAuth.getInstance().currentUser
-            val favouriteViewModel = remember(currentUser?.uid) {
-                currentUser?.let {
-                    FavouriteScreenViewModel(FavouriteRepositoryImpl(apolloClient))
-                }
-            }
+            val favouriteViewModel : FavouriteScreenViewModel = hiltViewModel()
 
-            val remoteDataSource = remember { RemoteDataSourceImpl(apolloClient,StripeClient.api) }
-            val searchRepository = remember { SearchRepositoryImpl(remoteDataSource) }
-            val searchViewModel = remember { SearchViewModel(searchRepository) }
+            val searchViewModel : SearchViewModel = hiltViewModel()
 
-            if (favouriteViewModel != null) {
-                SearchScreen(brandFilter = brand,
-                    searchViewModel = searchViewModel,
-                    favouriteViewModel = favouriteViewModel,
-                    onProductClick = { productId ->
-                        val encodedId =
-                            URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
-                        navController.navigate("productInfo/$encodedId")
-                    },
-                    onBack = {
-                        //  searchViewModel.clearSearch()
-                        navController.popBackStack()
-                    })
-            }
+            SearchScreen(brandFilter = brand,
+                searchViewModel = searchViewModel,
+                favouriteViewModel = favouriteViewModel,
+                onProductClick = { productId ->
+                    val encodedId =
+                        URLEncoder.encode(productId, StandardCharsets.UTF_8.toString())
+                    navController.navigate("productInfo/$encodedId")
+                },
+                onBack = {
+                    //  searchViewModel.clearSearch()
+                    navController.popBackStack()
+                })
         }
 
 
 
         composable<ScreensRoute.CurrencyScreen> {
-            val viewModel: CurrencyViewModel = viewModel(
-                factory = CurrencyViewModelFactory(
-                    CurrencyRepo(
-                        CurrencyRemoteDataSourceImpl(CurrencyRetrofitClient.getInstance().create(CurrencyApiService::class.java)
-                        )
-
-                    )
-                )
-            )
+            val viewModel: CurrencyViewModel = hiltViewModel()
 
             CurrencyScreen(
                 viewModel = viewModel,

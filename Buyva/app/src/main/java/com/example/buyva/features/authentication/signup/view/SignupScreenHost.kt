@@ -4,39 +4,28 @@ import android.app.Activity
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buyva.R
-import com.example.buyva.data.datasource.remote.graphql.ApolloService
-import com.example.buyva.data.repository.Authentication.AuthRepository
 import com.example.buyva.features.authentication.signup.viewmodel.SignupViewModel
-import com.example.buyva.features.authentication.signup.viewmodel.SignupViewModelFactory
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.firebase.auth.FirebaseAuth
 import com.youssef.SignupScreen
+
 @Composable
 fun SignupScreenHost(
     onSignInClick: () -> Unit,
-    onSuccess: () -> Unit
+    onSuccess: () -> Unit,
+    viewModel: SignupViewModel = hiltViewModel()
+
 ) {
     val context = LocalContext.current
     val activity = context as Activity
 
-    val factory = remember {
-        val applicationContext = context.applicationContext
-        SignupViewModelFactory(
-            repository = AuthRepository(
-                FirebaseAuth.getInstance(),
-                ApolloService.client
-            ),
-            applicationContext = applicationContext
-        )
-    }
 
-    val viewModel: SignupViewModel = viewModel(factory = factory)
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)

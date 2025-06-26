@@ -6,8 +6,9 @@ import com.example.buyva.data.datasource.remote.RemoteDataSource
 import com.example.buyva.data.model.uistate.ResponseState
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
+import javax.inject.Inject
 
-class PaymentRepoImpl(private val remoteDataSource: RemoteDataSource)  : PaymentRepo{
+class PaymentRepoImpl@Inject constructor(private val remoteDataSource: RemoteDataSource)  : PaymentRepo{
     override suspend fun createPaymentIntent(
         amount: Int,
         currency: String,
