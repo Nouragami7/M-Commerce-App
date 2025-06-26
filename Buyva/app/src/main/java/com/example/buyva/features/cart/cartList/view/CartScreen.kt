@@ -211,7 +211,7 @@ fun CartScreen(
             when (cartState) {
                 is ResponseState.Loading -> {
                     cartItems.clear()
-                    Log.d("CartDebug", "Cart is loading...")
+                    Log.d("1", "Cart is loading...")
                     Box(Modifier.fillMaxSize(), Alignment.Center) {
                         LoadingIndicator()
                     }
@@ -219,8 +219,11 @@ fun CartScreen(
 
                 is ResponseState.Failure -> {
                     cartItems.clear()
-                    Log.e("CartDebug", "Cart error: ${(cartState as ResponseState.Failure).message}")
-                    EmptyScreen("Something went wrong", 28.sp, R.raw.emptycart)
+                    val message = (cartState as ResponseState.Failure).message.message
+                    Log.e("1", "Cart error: $message")
+                    if (message != null) {
+                        EmptyScreen(message, 28.sp, R.raw.emptycart)
+                    }
                 }
 
                 is ResponseState.Success<*> -> {
@@ -230,7 +233,7 @@ fun CartScreen(
                     cartItems.addAll(items)
 
                     if (cartItems.isNotEmpty()) {
-                        Log.i("CartDebug", "CartScreen not empty")
+                        Log.i("1", "CartScreen not empty")
 
                         LazyColumn(modifier = Modifier.weight(1f)) {
                             items(cartItems, key = { it.id }) { item ->
@@ -305,7 +308,7 @@ fun CartScreen(
 
                         Spacer(modifier = Modifier.height(56.dp))
                     } else {
-                        Log.i("CartDebug", "CartScreen empty")
+                        Log.i("1", "CartScreen empty")
                         EmptyScreen("No items in the cart", 28.sp, R.raw.emptycart)
                     }
                 }

@@ -39,34 +39,44 @@ class CartViewModel @Inject constructor(
     private val defaultAddressId = SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token")
 
 
-    fun getCartDetails() {
-        viewModelScope.launch {
-            cartRepo.getCartProducts(cartId ?: "No cart Id Found!").collect { response ->
-                _cartProducts.value = response
-                Log.i("1", "getCartDetails: $response")
-                if (response is ResponseState.Success<*>) {
-                     cartLinesId = ((response.data as GetCartDetailsQuery.Data).cart?.lines?.edges
-                         ?.map { edge ->
-                             edge.node.id
-                         } ?: emptyList()) as MutableStateFlow<List<String>>
-                        }
-                }
-            }
-        }
+//    fun getCartDetails() {
+//        viewModelScope.launch {
+//Log.i("1", "cart id in view model: $cartId")
+//            if (cartId != null) {
+//                cartRepo.getCartProducts(cartId).collect { response ->
+//                    _cartProducts.value = response
+//                    Log.i("1", "getCartDetails: $response")
+//                    if (response is ResponseState.Success<*>) {
+//                        cartLinesId = ((response.data as GetCartDetailsQuery.Data).cart?.lines?.edges
+//                            ?.map { edge ->
+//                                edge.node.id
+//                            } ?: emptyList()) as MutableStateFlow<List<String>>
+//                    }
+//                }
+//            }
+//            }
+//        }
 
 
         fun showCart() {
+            if (cartId.isNullOrBlank()) {  //first time
+                _cartProducts.value = ResponseState.Failure(Throwable("Add first item on the cart"))
+                return
+            }
             viewModelScope.launch {
                 _cartProducts.value = ResponseState.Loading
                 try {
-                    cartRepo.getCartProductList(cartId ?: "")
-                        .collect { response ->
-                            _cartProducts.value = response
-                        }
+                    if (cartId != null) {
+                        cartRepo.getCartProductList(cartId )
+                            .collect { response ->
+                                _cartProducts.value = response
+                            }
+                    }
                 } catch (e: Exception) {
                     _cartProducts.value = ResponseState.Failure(Throwable(e.message ?: "Unknown"))
                 }
             }
+
         }
 
 
