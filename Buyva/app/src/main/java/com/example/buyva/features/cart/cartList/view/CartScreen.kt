@@ -101,8 +101,13 @@ fun CartScreen(
 
     val orderState by paymentViewModel.order.collectAsState()
     val cartState by viewModel.cartProducts.collectAsState()
-    var cartItems = remember {
+    val cartItems = remember {
         mutableStateListOf<CartItem>()
+    }
+    var quantityVersion by remember { mutableStateOf(0) }
+
+    val totalPrice = remember(quantityVersion) {
+        cartItems.sumOf { it.price * it.quantity }
     }
 
     LaunchedEffect(Unit) {
@@ -114,11 +119,12 @@ fun CartScreen(
     }
 
 
-    val totalPrice by remember(cartItems) {
-        derivedStateOf {
-            cartItems.sumOf { it.price * it.quantity }
-        }
-    }
+//
+//    val totalPrice by remember(cartItems) {
+//        derivedStateOf {
+//            cartItems.sumOf { it.price * it.quantity }
+//        }
+//    }
 
 
     LaunchedEffect(orderState) {
@@ -232,10 +238,19 @@ fun CartScreen(
                     cartItems.addAll(items)
 
                     if (cartItems.isNotEmpty()) {
+                        if (quantityVersion == 0) {
+                            quantityVersion++
+                        }
                         Log.i("1", "CartScreen not empty")
 
                         LazyColumn(modifier = Modifier.weight(1f)) {
                             items(cartItems, key = { it.lineId }) { item ->
+//                                val index = cartItems.indexOfFirst { it.id == item.id }
+//                                if (index != -1) {
+//                                    cartItems[index] = cartItems[index].copy(quantity = item.quantity)
+//                                    quantityVersion++
+//                                }
+//                                quantityVersion++
                                 val dismissState =
                                     rememberDismissState(confirmStateChange = { dismissValue ->
                                         if (dismissValue == DismissValue.DismissedToStart || dismissValue == DismissValue.DismissedToEnd) {
@@ -264,20 +279,18 @@ fun CartScreen(
                                     },
                                     dismissContent = {
                                         CartItemRow(
-                                            item = item,
-                                            onQuantityChange = { newQty ->
-                                                val index = cartItems.indexOfFirst { it.id == item.id }
-                                                if (index != -1) {
-                                                    val updatedList = cartItems.toMutableList()
-                                                    updatedList[index] = updatedList[index].copy(quantity = newQty)
-                                                    cartItems.clear()
-                                                    cartItems.addAll(updatedList)
+                                                item = item,
+                                                onQuantityChange = { newQty ->
+                                                    val index = cartItems.indexOfFirst { it.id == item.id }
+                                                    if (index != -1) {
+                                                        cartItems[index] = cartItems[index].copy(quantity = newQty)
+                                                        quantityVersion++
+                                                    }
                                                 }
-                                            },
-                                            onNavigateToProductInfo = onNavigateToProductInfo
-                                        )
-                                    }
-                                )
+                                            , onNavigateToProductInfo = onNavigateToProductInfo
+                                        )})
+
+
                             }
                         }
 
@@ -379,3 +392,7 @@ fun CartScreen(
     }
 }
 
+fun calcualtions(
+){
+
+}

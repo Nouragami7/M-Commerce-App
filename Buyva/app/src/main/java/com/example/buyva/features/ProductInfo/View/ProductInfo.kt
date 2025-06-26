@@ -87,7 +87,6 @@ fun ProductInfoScreen(
     repository: IHomeRepository, favouriteViewModel: FavouriteScreenViewModel?,
     size: String? = null,
     color: String? = null) {
-    Log.i("1", "ProductInfoScreen selectedOptions: ${size ?: "0"}")
     Log.i("1", "ProductInfoScreen productId: $productId")
     // Log.i("1", "ProductInfoScreen variantId: $variantId")
     val viewModel: ProductInfoViewModel = hiltViewModel()

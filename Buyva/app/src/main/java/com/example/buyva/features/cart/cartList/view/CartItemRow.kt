@@ -56,6 +56,7 @@ import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 @Composable
 fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToProductInfo: ( String,String,String) -> Unit) {
     var availableQuantity by remember { mutableStateOf(item.quantityAvailable) }
+    var quantity by remember { mutableStateOf(item.quantity) }
 
     Card(
         modifier = Modifier
@@ -115,25 +116,26 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
                 verticalArrangement = Arrangement.Center
             ) {
                 IconButton(onClick = {
-                    if (item.quantity > 1) {
-                        onQuantityChange(item.quantity - 1)
+                    if (quantity > 1) {
+                        quantity--
+                        onQuantityChange(quantity)
                     }
                 }) {
                     Icon(Icons.Filled.Remove, contentDescription = "Decrease", tint = Cold)
                 }
 
                 Text(
-                    item.quantity.toString(),
+                    quantity.toString(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Black
                 )
 
                 IconButton(onClick = {
-                    if (item.quantity < item.quantityAvailable) {
-                        onQuantityChange(item.quantity + 1)
+                    if (quantity < availableQuantity) {
+                        quantity++
+                        onQuantityChange(quantity)
                     }
-                },
-                ) {
+                }) {
                     Icon(Icons.Filled.Add, contentDescription = "Increase", tint = Cold)
                 }
 
