@@ -245,7 +245,7 @@ fun SetupNavHost(
         }
 
         composable<ScreensRoute.DeliveryAddressListScreen> {
-            DeliveryAddressListScreen(onBackClick = { navController.popBackStack() },
+            DeliveryAddressListScreen(onBackClick = { navController.navigate(ScreensRoute.HomeScreen) },
                 onAddressDetailsClick = { address, prefillData ->
                     navController.navigate(
                         ScreensRoute.AddressDetails(

@@ -134,3 +134,15 @@ class AddressViewModel@Inject constructor(application: Application, private val 
         }
     }
 }
+class AddressViewModelFactory(
+    private val application: Application,
+    private val addressRepo: IAddressRepo
+) : ViewModelProvider.AndroidViewModelFactory(application) {
+
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(AddressViewModel::class.java)) {
+            return AddressViewModel(application, addressRepo) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}

@@ -19,6 +19,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Button
@@ -43,6 +44,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -65,6 +67,7 @@ import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Teal
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.components.EmptyScreen
+import com.example.buyva.utils.components.LoadingIndicator
 import com.example.buyva.utils.functions.createOrder
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 import com.stripe.android.PaymentConfiguration
@@ -98,37 +101,9 @@ fun CartScreen(
 
     val orderState by paymentViewModel.order.collectAsState()
     val cartState by viewModel.cartProducts.collectAsState()
-    val cartItems = remember {
+    var cartItems = remember {
         mutableStateListOf<CartItem>()
     }
-
-
-    LaunchedEffect(cartState) {
-        when (cartState) {
-            is ResponseState.Success<*> -> {
-                val data = (cartState as ResponseState.Success<*>).data
-                if (data is List<*>) {
-                    cartItems.clear()
-                    cartItems.addAll(data.filterIsInstance<CartItem>())
-                } else {
-                    Log.e("CartDebug", "Unexpected data type: ${data?.javaClass}")
-                }
-            }
-
-            is ResponseState.Failure -> {
-                Log.e(
-                    "CartDebug",
-                    "Failed to load cart: ${(cartState as ResponseState.Failure).message}"
-                )
-            }
-
-            is ResponseState.Loading -> {
-                cartItems.clear()
-                Log.d("CartDebug", "Cart is loading...")
-            }
-        }
-    }
-
 
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
@@ -200,27 +175,32 @@ fun CartScreen(
     })
 
 
-    Scaffold(topBar = {
-        TopAppBar(title = {
-            Text(
-                text = "Cart",
-                style = MaterialTheme.typography.titleLarge,
-                color = Cold,
-                fontWeight = MaterialTheme.typography.titleLarge.fontWeight
+    Scaffold (
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Cart",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Cold,
+                        fontWeight = MaterialTheme.typography.titleLarge.fontWeight
+                    )
+                },
+                navigationIcon = {
+
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back",
+                            tint = Cold
+                        )
+
+
+                    }
+                }
             )
-        }, navigationIcon = {
-
-            IconButton(onClick = onBackClick) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Cold
-                )
-
-
-            }
-        })
-    }) { paddingValues ->
+        }
+    ){ paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -231,24 +211,27 @@ fun CartScreen(
             when (cartState) {
                 is ResponseState.Loading -> {
                     cartItems.clear()
-                    CircularProgressIndicator(color = Cold)
+                    Log.d("CartDebug", "Cart is loading...")
+                    Box(Modifier.fillMaxSize(), Alignment.Center) {
+                        LoadingIndicator()
+                    }
                 }
 
                 is ResponseState.Failure -> {
-                    val message =
-                        (cartState as ResponseState.Failure).message.message ?: "An error occurred"
-                    Text(
-                        text = message,
-                        color = Color.Red,
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(16.dp),
-                        textAlign = TextAlign.Center
-                    )
                     cartItems.clear()
+                    Log.e("CartDebug", "Cart error: ${(cartState as ResponseState.Failure).message}")
+                    EmptyScreen("Something went wrong", 28.sp, R.raw.emptycart)
                 }
 
                 is ResponseState.Success<*> -> {
-                    if (!cartItems.isEmpty()) {
+                    val data = (cartState as ResponseState.Success<*>).data
+                    val items = (data as? List<*>)?.filterIsInstance<CartItem>().orEmpty()
+                    cartItems.clear()
+                    cartItems.addAll(items)
+
+                    if (cartItems.isNotEmpty()) {
+                        Log.i("CartDebug", "CartScreen not empty")
+
                         LazyColumn(modifier = Modifier.weight(1f)) {
                             items(cartItems, key = { it.id }) { item ->
                                 val dismissState =
@@ -260,7 +243,8 @@ fun CartScreen(
                                         } else false
                                     })
 
-                                SwipeToDismiss(state = dismissState,
+                                SwipeToDismiss(
+                                    state = dismissState,
                                     directions = setOf(DismissDirection.EndToStart),
                                     background = {
                                         Box(
@@ -278,23 +262,25 @@ fun CartScreen(
                                     },
                                     dismissContent = {
                                         CartItemRow(
-                                            item = item, onQuantityChange = { newQty ->
-                                                val index =
-                                                    cartItems.indexOfFirst { it.id == item.id }
+                                            item = item,
+                                            onQuantityChange = { newQty ->
+                                                val index = cartItems.indexOfFirst { it.id == item.id }
                                                 if (index != -1) {
-                                                    cartItems[index] =
-                                                        cartItems[index].copy(quantity = newQty)
+                                                    val updatedList = cartItems.toMutableList()
+                                                    updatedList[index] = updatedList[index].copy(quantity = newQty)
+                                                    cartItems.clear()
+                                                    cartItems.addAll(updatedList)
                                                 }
-                                            }, onNavigateToProductInfo = onNavigateToProductInfo
+                                            },
+                                            onNavigateToProductInfo = onNavigateToProductInfo
                                         )
-                                    })
+                                    }
+                                )
                             }
                         }
 
                         Text(
-                            text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(
-                                CurrencyManager.currencyRate.value * totalPrice
-                            ),
+                            text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(CurrencyManager.currencyRate.value*totalPrice),
                             modifier = Modifier
                                 .align(Alignment.End)
                                 .padding(horizontal = 16.dp, vertical = 4.dp),
@@ -319,12 +305,12 @@ fun CartScreen(
 
                         Spacer(modifier = Modifier.height(56.dp))
                     } else {
-
+                        Log.i("CartDebug", "CartScreen empty")
                         EmptyScreen("No items in the cart", 28.sp, R.raw.emptycart)
-
                     }
                 }
             }
+
         }
 
     }
@@ -336,33 +322,29 @@ fun CartScreen(
             containerColor = Color.White,
             tonalElevation = 10.dp
         ) {
-            PaymentSection(price = totalPrice,
-                address = defaultAddress ?: Address(
-                    firstName = "choose default address",
-                    lastName = "",
-                    address1 = "",
-                    city = "",
-                    country = "",
-                    address2 = "",
-                    phone = ""
-                ),
-                onConfirm = { _, _, _ ->
-                    showSheet = false
-                    Toast.makeText(context, "Order Placed", Toast.LENGTH_SHORT).show()
-                },
-                onPayWithCardClick = {
-                    paymentViewModel.initiatePaymentFlow(
-                        amount = (totalPrice * 100).toInt(),
-                        onClientSecretReady = { secret ->
-                            paymentSheet.presentWithPaymentIntent(
-                                paymentIntentClientSecret = secret,
-                                configuration = PaymentSheet.Configuration(
-                                    merchantDisplayName = "Buyva"
-                                )
+            PaymentSection(price = totalPrice, address = defaultAddress ?: Address(
+                firstName = "choose default address",
+                lastName = "",
+                address1 = "",
+                city = "",
+                country = "",
+                address2 = "",
+                phone = ""
+            ), onConfirm = { _, _, _ ->
+                showSheet = false
+                Toast.makeText(context, "Order Placed", Toast.LENGTH_SHORT).show()
+            }, onPayWithCardClick = {
+                paymentViewModel.initiatePaymentFlow(
+                    amount = (totalPrice * 100).toInt(),
+                    onClientSecretReady = { secret ->
+                        paymentSheet.presentWithPaymentIntent(
+                            paymentIntentClientSecret = secret,
+                            configuration = PaymentSheet.Configuration(
+                                merchantDisplayName = "Buyva"
                             )
-                        })
-                },
-                onAddressClick = { onNavigateToAddresses() },
+                        )
+                    })
+            },  onAddressClick = { onNavigateToAddresses() },
                 paymentViewModel = paymentViewModel,
                 cartItems = cartItems,
                 defaultAddress = defaultAddress
@@ -380,6 +362,7 @@ fun CartScreen(
                 Log.i("1", "CartScreen onConfirm: $itemToDelete")
                 cartItems.remove(itemToDelete)
                 viewModel.removeProductFromCart(itemToDelete!!.lineId)
+                // viewModel.showCart()
                 showDeleteDialog = false
                 itemToDelete = null
             },

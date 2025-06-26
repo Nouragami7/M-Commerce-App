@@ -76,7 +76,7 @@ class CartViewModel @Inject constructor(
             val cartId = this@CartViewModel.cartId ?: return@launch
             cartRepo.removeProductFromCart(cartId, productLineId).collect { response ->
                 if (response is ResponseState.Success<*>) {
-                //    showCart()
+                   showCart()
                     Log.d("1", "Item removed successfully")
                 } else if (response is ResponseState.Failure) {
                     Log.e("1", "Remove failed: ${response.message}")

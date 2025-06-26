@@ -291,7 +291,7 @@ fun AddressDetails(
                 focusedLabelColor = Cold,
             ),
             enabled = isEditable.value,
-            label = { Text("Floor No.", fontSize = labelFontSize) },
+            label = { Text(floorNumber.value, fontSize = labelFontSize) },
             leadingIcon = { Icon(Icons.Default.Stairs, contentDescription = null) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,

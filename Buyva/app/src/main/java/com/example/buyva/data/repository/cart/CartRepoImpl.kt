@@ -58,7 +58,8 @@ class CartRepoImpl @Inject constructor (
                                 title = product.title,
                                 imageUrl = (product.featuredImage?.url ?: "").toString(),
                                 price = price,
-                                quantity = edge.node.quantity
+                                quantity = edge.node.quantity,
+                                quantityAvailable = edge.node.merchandise.onProductVariant.quantityAvailable ?: 0
                             )
                         }
                         emit(ResponseState.Success(products))

@@ -2,6 +2,7 @@ package com.example.buyva.features.cart.cartList.view
 
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -53,7 +54,7 @@ import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 
 @Composable
 fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToProductInfo: ( String) -> Unit) {
-    var quantity by remember { mutableStateOf(item.quantity) }
+    var availableQuantity by remember { mutableStateOf(item.quantityAvailable) }
 
     Card(
         modifier = Modifier
@@ -113,26 +114,28 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
                 verticalArrangement = Arrangement.Center
             ) {
                 IconButton(onClick = {
-                    if (quantity > 1) {
-                        quantity--
-                        onQuantityChange(quantity)
+                    if (item.quantity > 1) {
+                        onQuantityChange(item.quantity - 1)
                     }
                 }) {
                     Icon(Icons.Filled.Remove, contentDescription = "Decrease", tint = Cold)
                 }
 
                 Text(
-                    quantity.toString(),
+                    item.quantity.toString(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Black
                 )
 
                 IconButton(onClick = {
-                    quantity++
-                    onQuantityChange(quantity)
-                }) {
+                    if (item.quantity < item.quantityAvailable) {
+                        onQuantityChange(item.quantity + 1)
+                    }
+                },
+                ) {
                     Icon(Icons.Filled.Add, contentDescription = "Increase", tint = Cold)
                 }
+
             }
         }
     }

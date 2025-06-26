@@ -45,13 +45,11 @@ fun DeliveryAddressListScreen(
         viewModel.loadAddresses()
     }
 
-    Box(modifier = Modifier.fillMaxSize().padding(bottom = 60.dp)) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .padding(bottom = 60.dp)) {
 
-        AddressList(
-            addressList = addressList,
-            onAddressClick = onAddressClick,
-            onAddressDetailsClick = onAddressDetailsClick
-        )
+
 
         when (addressState) {
             is ResponseState.Loading -> LoadingIndicator()
@@ -62,7 +60,13 @@ fun DeliveryAddressListScreen(
                     modifier = Modifier.align(Alignment.Center)
                 )
             }
-            else -> Unit
+            else -> {
+                AddressList(
+                    onAddressClick = onAddressClick,
+                    onAddressDetailsClick = onAddressDetailsClick,
+                    onBackClick = onBackClick
+                )
+            }
         }
     }
 }

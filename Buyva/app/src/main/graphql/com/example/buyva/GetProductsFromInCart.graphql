@@ -9,6 +9,7 @@ query GetCartDetails($cartId: ID!) {
                     quantity
                     merchandise {
                         ... on ProductVariant {
+                            quantityAvailable
                             id
                             title
                             price {
