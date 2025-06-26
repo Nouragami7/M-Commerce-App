@@ -25,6 +25,8 @@ class SearchViewModel@Inject constructor(private val repository: ISearchReposito
     private val _selectedPriceLimit = MutableStateFlow(0f)
     val selectedPriceLimit: StateFlow<Float> = _selectedPriceLimit.asStateFlow()
     private var searchJob: Job? = null
+    private val _isSliderTouched = MutableStateFlow(false)
+    val isSliderTouched: StateFlow<Boolean> = _isSliderTouched.asStateFlow()
 
     init {
         loadAllProducts()
@@ -75,9 +77,11 @@ class SearchViewModel@Inject constructor(private val repository: ISearchReposito
     }
 
     fun updateSelectedPriceLimit(price: Float) {
+        _isSliderTouched.value = true
         _uiState.update { it.copy(selectedPriceLimit = price) }
         applyCombinedFilters()
     }
+
 
 
     fun setSelectedBrand(brand: String?) {
@@ -88,6 +92,7 @@ class SearchViewModel@Inject constructor(private val repository: ISearchReposito
     fun performSearch(query: String) {
         searchJob?.cancel()
         _uiState.update { it.copy(isLoading = true, error = null) }
+        _isSliderTouched.value = false // reset هنا
 
         searchJob = viewModelScope.launch {
             try {
@@ -108,7 +113,6 @@ class SearchViewModel@Inject constructor(private val repository: ISearchReposito
 
                 applyCombinedFilters()
             } catch (e: CancellationException) {
-                // Ignored
             } catch (e: Exception) {
                 _uiState.update {
                     it.copy(
@@ -125,25 +129,23 @@ class SearchViewModel@Inject constructor(private val repository: ISearchReposito
         val state = _uiState.value
         val rate = CurrencyManager.currencyRate.value.toFloat()
 
-        // فلترة بالبراند
         val filteredByBrand = state.selectedBrand?.let { brand ->
             state.searchResults.filter { it.vendor.equals(brand, ignoreCase = true) }
         } ?: state.searchResults
 
-        // استخراج الأسعار الحقيقية (قبل الفلترة النهائية)
         val prices = filteredByBrand.map { it.price * rate }
         val newMinPrice = prices.minOrNull() ?: 0f
         val newMaxPrice = prices.maxOrNull() ?: 0f
 
-        // لو selectedPriceLimit أعلى من الجديد، نزبطه
-        val selectedLimit = if (state.selectedPriceLimit > newMaxPrice) newMaxPrice else state.selectedPriceLimit
+        val selectedLimit = when {
+            _isSliderTouched.value -> state.selectedPriceLimit // المستخدم حرّكه يدويًا
+            else -> newMaxPrice // نعيّن الـ max تلقائيًا
+        }
 
-        // فلترة نهائية بالسعر
         val finalFiltered = filteredByBrand.filter {
             (it.price * rate) <= selectedLimit
         }
 
-        // تحديث الحالة بالكامل
         _uiState.update {
             it.copy(
                 filteredProducts = finalFiltered,

@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Colors
-
-import androidx.compose.material.MaterialTheme.colors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -46,7 +43,6 @@ import com.example.buyva.GetProductsByCategoryQuery
 import com.example.buyva.ProductsByCollectionQuery
 import com.example.buyva.features.authentication.login.viewmodel.UserSessionManager
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
-import com.example.buyva.navigation.ScreensRoute
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Sea
 import com.example.buyva.utils.constants.CURRENCY_RATE
@@ -149,7 +145,7 @@ fun ProductCard(
         ) {
             AsyncImage(
                 model = imageUrl,
-                contentDescription = "Product Image",
+                contentDescription = "Image of product",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(6.dp)
