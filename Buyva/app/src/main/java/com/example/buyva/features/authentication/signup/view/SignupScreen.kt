@@ -95,8 +95,8 @@ fun SignupScreen(
                 .padding(top = 50.dp, start = 24.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            Text("Welcome", color = Color.White, fontSize = 40.sp, fontWeight = FontWeight.Bold)
-            Text("Create your Account", color = Color.White, fontSize = 35.sp)
+            Text("Welcome", color = Color.White, fontSize = 40.sp, fontWeight = FontWeight.Bold, fontFamily = UbuntuFontFamily)
+            Text("Create your Account", color = Color.White, fontSize = 35.sp,fontFamily = UbuntuFontFamily)
         }
 
         Card(
@@ -136,8 +136,8 @@ fun SignupScreen(
                         focusedBorderColor = Color(0xFF006A71),
                         unfocusedBorderColor = Color.Gray,
                         cursorColor = Color(0xFF006A71),
-                        focusedLabelColor = Color.Gray,
-                        unfocusedLabelColor = Color.Gray
+                        focusedLabelColor = Color(0xFF006A71),
+                        unfocusedLabelColor =Color.Gray,
 
                     )
                 )
@@ -158,9 +158,8 @@ fun SignupScreen(
                         focusedBorderColor = Color(0xFF006A71),
                         unfocusedBorderColor = Color.Gray,
                         cursorColor = Color(0xFF006A71),
-                        focusedLabelColor = Color.Gray,
-                        unfocusedLabelColor = Color.Gray
-
+                        focusedLabelColor = Color(0xFF006A71),
+                        unfocusedLabelColor =Color.Gray,
                     )
                 )
 
@@ -190,8 +189,8 @@ fun SignupScreen(
                         focusedBorderColor = Color(0xFF006A71),
                         unfocusedBorderColor = Color.Gray,
                         cursorColor = Color(0xFF006A71),
-                        focusedLabelColor = Color.Gray,
-                        unfocusedLabelColor = Color.Gray
+                        focusedLabelColor = Color(0xFF006A71),
+                        unfocusedLabelColor =Color.Gray,
 
                     )
                 )
@@ -222,8 +221,8 @@ fun SignupScreen(
                         focusedBorderColor = Color(0xFF006A71),
                         unfocusedBorderColor = Color.Gray,
                         cursorColor = Color(0xFF006A71),
-                        focusedLabelColor = Color.Gray,
-                        unfocusedLabelColor = Color.Gray
+                        focusedLabelColor = Color(0xFF006A71),
+                        unfocusedLabelColor =Color.Gray,
 
                     )
                 )

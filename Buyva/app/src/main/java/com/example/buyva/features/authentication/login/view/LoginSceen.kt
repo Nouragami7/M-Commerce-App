@@ -148,8 +148,8 @@ fun LoginScreen(
                         focusedBorderColor = Color(0xFF006A71),
                         unfocusedBorderColor = Color.Gray,
                         cursorColor = Color(0xFF006A71),
-                        focusedLabelColor = Color.Gray,
-                        unfocusedLabelColor = Color.Gray
+                        focusedLabelColor = Color(0xFF006A71),
+                        unfocusedLabelColor =Color.Gray,
 
                     ),
                     shape = RoundedCornerShape(12.dp)
@@ -300,8 +300,8 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
             focusedBorderColor = Color(0xFF006A71),
             unfocusedBorderColor = Color.Gray,
             cursorColor = Color(0xFF006A71),
-            focusedLabelColor = Color.Gray,
-            unfocusedLabelColor = Color.Gray
+            focusedLabelColor = Color(0xFF006A71),
+            unfocusedLabelColor =Color.Gray,
 
         ),
         singleLine = true,
