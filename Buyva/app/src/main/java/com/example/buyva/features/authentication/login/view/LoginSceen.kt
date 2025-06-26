@@ -151,7 +151,11 @@ fun LoginScreen(
                         color = Color(0xFF006A71),
                         fontSize = 15.sp,
                         textAlign = TextAlign.End,
-                        modifier = Modifier.padding(end = 4.dp)
+                        modifier = Modifier
+                            .padding(end = 4.dp)
+                            .clickable {
+                                viewModel.forgotPassword(email.trim())
+                            }
                     )
                 }
 
