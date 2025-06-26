@@ -1,0 +1,16 @@
+mutation AddProductToCart($cartid : ID!,$quantity : Int!,$varientid : ID!) {
+    cartLinesAdd(
+        cartId: $cartid,
+        lines: [
+            {
+                quantity: $quantity,
+                merchandiseId:$varientid
+            },
+        ]
+    ) {
+        userErrors {
+            field
+            message
+        }
+    }
+}

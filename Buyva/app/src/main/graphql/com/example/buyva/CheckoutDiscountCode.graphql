@@ -1,0 +1,24 @@
+#mutation {
+#  checkoutDiscountCodeApplyV2(
+#    discountCode: "10OFF2025",
+#    checkoutId: "gid://shopify/Checkout/XYZ"
+#  ) {
+#    checkout {
+#      id
+#      discountApplications(first: 5) {
+#        edges {
+#          node {
+#            ... on DiscountCodeApplication {
+#              code
+#              applicable
+#            }
+#          }
+#        }
+#      }
+#    }
+#    userErrors {
+#      field
+#      message
+#    }
+#  }
+#}

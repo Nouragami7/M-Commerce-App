@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Buyva</string>
+    <string name="default_web_client_id">498555602527-ntnfbggn7fm3db43c7294qv0m7s449dm.apps.googleusercontent.com</string>
+
 </resources>

@@ -1,0 +1,22 @@
+query GetFavouriteProductsByIds($ids: [ID!]!) {
+    nodes(ids: $ids) {
+        ... on Product {
+            id
+            title
+            productType
+            featuredImage {
+                url
+            }
+            variants(first: 1) {
+                edges {
+                    node {
+                        price {
+                            amount
+                            currencyCode
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

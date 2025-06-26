@@ -1,0 +1,30 @@
+query GetDiscountAmountDetails {
+    discountNodes(first: 100) {
+        edges {
+            node {
+                id
+                discount {
+                    __typename
+                    ... on DiscountCodeBasic {
+                        title
+                        status
+                        startsAt
+                        endsAt
+                        usageLimit
+                        appliesOncePerCustomer
+                        combinesWith {
+                            productDiscounts
+                        }
+                        customerGets {
+                            value {
+                                ... on DiscountPercentage {
+                                    percentage
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

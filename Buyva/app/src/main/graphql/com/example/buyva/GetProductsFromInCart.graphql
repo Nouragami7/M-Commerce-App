@@ -1,0 +1,76 @@
+query GetCartDetails($cartId: ID!) {
+    cart(id: $cartId) {
+        id
+        checkoutUrl
+        lines(first: 50) {
+            edges {
+                node {
+                    id
+                    quantity
+                    merchandise {
+                        ... on ProductVariant {
+                            quantityAvailable
+                            id
+                            title
+                            price {
+                                amount
+                            }
+                            product {
+                                id
+                                title
+                                featuredImage {
+                                    url
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        buyerIdentity {
+            countryCode
+            email
+            phone
+            walletPreferences
+            customer {
+                acceptsMarketing
+                createdAt
+                displayName
+                email
+                firstName
+                id
+                lastName
+                numberOfOrders
+                phone
+                tags
+                updatedAt
+                addresses(first: 10) {
+                    edges {
+                        cursor
+                    }
+                    nodes {
+                        address1
+                        address2
+                        city
+                        company
+                        country
+                        countryCode
+                        countryCodeV2
+                        firstName
+                        formatted
+                        formattedArea
+                        id
+                        lastName
+                        latitude
+                        longitude
+                        name
+                        phone
+                        province
+                        provinceCode
+                        zip
+                    }
+                }
+            }
+        }
+    }
+}
