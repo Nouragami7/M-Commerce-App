@@ -40,6 +40,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -63,7 +65,9 @@ fun SignupScreen(
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
     }
-
+    val UbuntuFontFamily = FontFamily(
+        Font(R.font.ubuntu_medium,FontWeight.Medium)
+    )
     val user by viewModel.user.collectAsState()
     val error by viewModel.error.collectAsState()
 
@@ -91,8 +95,8 @@ fun SignupScreen(
                 .padding(top = 50.dp, start = 24.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            Text("Welcome", color = Color.White, fontSize = 40.sp, fontWeight = FontWeight.Bold)
-            Text("Create your Account", color = Color.White, fontSize = 35.sp)
+            Text("Welcome", color = Color.White, fontSize = 40.sp, fontWeight = FontWeight.Bold, fontFamily = UbuntuFontFamily)
+            Text("Create your Account", color = Color.White, fontSize = 35.sp,fontFamily = UbuntuFontFamily)
         }
 
         Card(
@@ -123,16 +127,18 @@ fun SignupScreen(
                     onValueChange = { fullName = it },
                     label = { Text("Full Name", fontSize = 18.sp) },
                     textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color(0xFF006A71),
-                        unfocusedTextColor = Color(0xFF006A71),
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
                         focusedBorderColor = Color(0xFF006A71),
                         unfocusedBorderColor = Color.Gray,
                         cursorColor = Color(0xFF006A71),
                         focusedLabelColor = Color(0xFF006A71),
-                        unfocusedLabelColor = Color(0xFF006A71)
+                        unfocusedLabelColor =Color.Gray,
+
                     )
                 )
 
@@ -143,16 +149,17 @@ fun SignupScreen(
                     onValueChange = { email = it },
                     label = { Text("Email", fontSize = 18.sp) },
                     textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color(0xFF006A71),
-                        unfocusedTextColor = Color(0xFF006A71),
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
                         focusedBorderColor = Color(0xFF006A71),
                         unfocusedBorderColor = Color.Gray,
                         cursorColor = Color(0xFF006A71),
                         focusedLabelColor = Color(0xFF006A71),
-                        unfocusedLabelColor = Color(0xFF006A71)
+                        unfocusedLabelColor =Color.Gray,
                     )
                 )
 
@@ -166,6 +173,7 @@ fun SignupScreen(
                         .fillMaxWidth()
                         .height(60.dp),
                     textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+
                     visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
                         val icon = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
@@ -176,13 +184,14 @@ fun SignupScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color(0xFF006A71),
-                        unfocusedTextColor = Color(0xFF006A71),
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
                         focusedBorderColor = Color(0xFF006A71),
                         unfocusedBorderColor = Color.Gray,
                         cursorColor = Color(0xFF006A71),
                         focusedLabelColor = Color(0xFF006A71),
-                        unfocusedLabelColor = Color(0xFF006A71)
+                        unfocusedLabelColor =Color.Gray,
+
                     )
                 )
 
@@ -195,6 +204,7 @@ fun SignupScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(60.dp),
+
                     textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
                     visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                     trailingIcon = {
@@ -206,13 +216,14 @@ fun SignupScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color(0xFF006A71),
-                        unfocusedTextColor = Color(0xFF006A71),
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
                         focusedBorderColor = Color(0xFF006A71),
                         unfocusedBorderColor = Color.Gray,
                         cursorColor = Color(0xFF006A71),
                         focusedLabelColor = Color(0xFF006A71),
-                        unfocusedLabelColor = Color(0xFF006A71)
+                        unfocusedLabelColor =Color.Gray,
+
                     )
                 )
 
@@ -323,13 +334,13 @@ fun PasswordTextField(
         )
     )
 }
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewSignUpScreen() {
-    SignupScreen(
-        viewModel = TODO(),
-        onSignInClick = TODO(),
-        onSuccess = TODO()
-    )
-}
+//
+//@Preview(showBackground = true)
+//@Composable
+//fun PreviewSignUpScreen() {
+//    SignupScreen(
+//        viewModel = TODO(),
+//        onSignInClick = TODO(),
+//        onSuccess = TODO()
+//    )
+//}

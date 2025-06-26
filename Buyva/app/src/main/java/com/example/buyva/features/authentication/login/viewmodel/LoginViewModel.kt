@@ -85,4 +85,20 @@ class LoginViewModel @Inject constructor(
             }
         }
     }
+    fun forgotPassword(email: String) {
+        if (email.isBlank()) {
+            _errorMessage.value = "Please enter your email"
+            return
+        }
+
+        viewModelScope.launch {
+            val result = authRepository.sendPasswordResetEmail(email)
+            result.onSuccess {
+                _errorMessage.value = "Password reset email sent. Please check your inbox."
+            }.onFailure {
+                _errorMessage.value = "Failed to send reset email: ${it.message}"
+            }
+        }
+    }
+
 }

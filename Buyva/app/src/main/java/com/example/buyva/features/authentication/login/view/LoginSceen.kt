@@ -1,5 +1,6 @@
 package com.example.buyva.features.authentication.login.ui
 
+import android.graphics.fonts.FontStyle
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,6 +45,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -66,7 +69,9 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
     }
-
+    val UbuntuFontFamily = FontFamily(
+        Font(R.font.ubuntu_medium,FontWeight.Medium)
+    )
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
@@ -95,8 +100,23 @@ fun LoginScreen(
                 .padding(top = 50.dp, start = 24.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            Text("Hello", color = Color.White, fontSize = 40.sp, fontWeight = FontWeight.Bold)
-            Text("Sign in!", color = Color.White, fontSize = 35.sp)
+            Text(
+                text = "Hello",
+                color = Color.White,
+                fontSize = 40.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = UbuntuFontFamily
+            )
+
+
+            Text(
+                text = "Sign in!",
+                color = Color.White,
+                fontSize = 35.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = UbuntuFontFamily
+            )
+
         }
 
         Card(
@@ -120,16 +140,18 @@ fun LoginScreen(
                     onValueChange = { email = it },
                     label = { Text("Enter your email", fontSize = 18.sp) },
                     textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color(0xFF006A71),
-                        unfocusedTextColor = Color(0xFF006A71),
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
                         focusedBorderColor = Color(0xFF006A71),
                         unfocusedBorderColor = Color.Gray,
                         cursorColor = Color(0xFF006A71),
                         focusedLabelColor = Color(0xFF006A71),
-                        unfocusedLabelColor = Color(0xFF006A71)
-                        ),
+                        unfocusedLabelColor =Color.Gray,
+
+                    ),
                     shape = RoundedCornerShape(12.dp)
                 )
 
@@ -149,7 +171,11 @@ fun LoginScreen(
                         color = Color(0xFF006A71),
                         fontSize = 15.sp,
                         textAlign = TextAlign.End,
-                        modifier = Modifier.padding(end = 4.dp)
+                        modifier = Modifier
+                            .padding(end = 4.dp)
+                            .clickable {
+                                viewModel.forgotPassword(email.trim())
+                            }
                     )
                 }
 
@@ -256,6 +282,7 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
         value = password,
         onValueChange = onPasswordChange,
         label = { Text("Password", fontSize = 18.sp) },
+       // singleLine = true,
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp),
@@ -268,13 +295,14 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
             }
         },
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = Color(0xFF006A71),
-            unfocusedTextColor = Color(0xFF006A71),
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
             focusedBorderColor = Color(0xFF006A71),
             unfocusedBorderColor = Color.Gray,
             cursorColor = Color(0xFF006A71),
             focusedLabelColor = Color(0xFF006A71),
-            unfocusedLabelColor = Color(0xFF006A71)
+            unfocusedLabelColor =Color.Gray,
+
         ),
         singleLine = true,
         shape = RoundedCornerShape(12.dp)
