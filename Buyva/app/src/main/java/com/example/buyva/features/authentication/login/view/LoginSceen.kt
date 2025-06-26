@@ -1,5 +1,6 @@
 package com.example.buyva.features.authentication.login.ui
 
+import android.graphics.fonts.FontStyle
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,6 +45,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -66,7 +69,9 @@ fun LoginScreen(
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
     }
-
+    val UbuntuFontFamily = FontFamily(
+        Font(R.font.ubuntu_medium,FontWeight.Medium)
+    )
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
@@ -95,8 +100,23 @@ fun LoginScreen(
                 .padding(top = 50.dp, start = 24.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            Text("Hello", color = Color.White, fontSize = 40.sp, fontWeight = FontWeight.Bold)
-            Text("Sign in!", color = Color.White, fontSize = 35.sp)
+            Text(
+                text = "Hello",
+                color = Color.White,
+                fontSize = 40.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = UbuntuFontFamily
+            )
+
+
+            Text(
+                text = "Sign in!",
+                color = Color.White,
+                fontSize = 35.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = UbuntuFontFamily
+            )
+
         }
 
         Card(
