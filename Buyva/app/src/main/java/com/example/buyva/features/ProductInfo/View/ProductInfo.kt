@@ -275,12 +275,7 @@ fun ProductInfoContent(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(vendor, color = Color.Gray, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(8.dp))
-//                     Text(
-//                         "$price $currency",
-//                         color = Cold,
-//                         fontWeight = FontWeight.Bold,
-//                         fontSize = 16.sp
-//                     )
+
                     Text("$newPrice", color = Cold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -402,8 +397,7 @@ fun ProductInfoContent(
                         variantId = productVariantId
                     )
                     Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show()
-                    navController.currentBackStackEntry?.savedStateHandle?.set("REFRESH_CART", true)
-                    navController.navigate(ScreensRoute.CartScreen)
+                  //  navController.currentBackStackEntry?.savedStateHandle?.set("REFRESH_CART", true)
                 }, modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),

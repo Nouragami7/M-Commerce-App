@@ -60,7 +60,7 @@ class CartViewModel @Inject constructor(
 
         fun showCart() {
             if (cartId.isNullOrBlank()) {  //first time
-                _cartProducts.value = ResponseState.Failure(Throwable("Add first item on the cart"))
+                _cartProducts.value = ResponseState.Failure(Throwable("Add first item to the cart!"))
                 return
             }
             viewModelScope.launch {
