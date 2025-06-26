@@ -70,7 +70,7 @@ import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
 import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.repository.AuthRepository
+import com.example.buyva.data.repository.Authentication.AuthRepository
 import com.example.buyva.data.repository.cart.CartRepo
 import com.example.buyva.data.repository.cart.CartRepoImpl
 import com.example.buyva.data.repository.home.IHomeRepository
@@ -86,8 +86,6 @@ import com.example.buyva.ui.theme.Sea
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.launch
-import com.example.buyva.utils.mappers.toFavouriteProduct
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 
 @Composable

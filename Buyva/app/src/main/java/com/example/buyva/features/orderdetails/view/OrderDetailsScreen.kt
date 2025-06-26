@@ -41,6 +41,7 @@ import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.ubuntuMedium
+import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 
 @Composable
 fun OrderDetailsScreen(
@@ -48,6 +49,14 @@ fun OrderDetailsScreen(
 ) {
 
     val order by sharedOrderViewModel.selectedOrder.collectAsState()
+
+    val subtotal = order?.subtotalPriceSet?.shopMoney?.amount.toString()
+        .toDouble() * CurrencyManager.currencyRate.value
+    val totalTax = order?.totalTaxSet?.shopMoney?.amount.toString()
+        .toDouble() * CurrencyManager.currencyRate.value
+    val totalPrice = order?.totalPriceSet?.shopMoney?.amount.toString()
+        .toDouble() * CurrencyManager.currencyRate.value
+    val currencyCode = CurrencyManager.currencyUnit.value
 
     val numberOfItems = order?.lineItems?.edges?.size
     val imageUrls = sharedOrderViewModel.extractImageUrlsFromNote(order?.note)
@@ -231,9 +240,7 @@ fun OrderDetailsScreen(
                 ) {
                     Text("Subtotal:", fontSize = 20.sp, fontFamily = ubuntuMedium)
                     Text(
-                        "${order?.subtotalPriceSet?.shopMoney?.amount} ${order?.subtotalPriceSet?.shopMoney?.currencyCode} ",
-                        fontSize = 18.sp,
-                        fontFamily = ubuntuMedium
+                        text = "%.2f %s".format(subtotal, currencyCode), fontSize = 18.sp, fontFamily = ubuntuMedium
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -243,9 +250,7 @@ fun OrderDetailsScreen(
                 ) {
                     Text("Total Tax:", fontSize = 20.sp, fontFamily = ubuntuMedium)
                     Text(
-                        "${order?.totalTaxSet?.shopMoney?.amount} ${order?.totalTaxSet?.shopMoney?.currencyCode}",
-                        fontSize = 18.sp,
-                        fontFamily = ubuntuMedium
+                        text = "%.2f %s".format(totalTax, currencyCode), fontSize = 18.sp, fontFamily = ubuntuMedium
                     )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
@@ -262,7 +267,7 @@ fun OrderDetailsScreen(
                         fontFamily = ubuntuMedium
                     )
                     Text(
-                        "${order?.totalPriceSet?.shopMoney?.amount} ${order?.totalPriceSet?.shopMoney?.currencyCode}",
+                        text = "%.2f %s".format(totalPrice, currencyCode),
                         color = Cold,
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,

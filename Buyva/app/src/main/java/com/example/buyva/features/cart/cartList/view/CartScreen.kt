@@ -1,4 +1,3 @@
-
 import android.app.Application
 import android.os.Build
 import android.util.Log
@@ -20,11 +19,12 @@ import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,13 +39,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -54,15 +52,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.rememberNavController
 import com.example.buyva.BuildConfig
 import com.example.buyva.R
 import com.example.buyva.data.datasource.remote.RemoteDataSourceImpl
 import com.example.buyva.data.datasource.remote.graphql.ApolloService
+import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.CartItem
 import com.example.buyva.data.model.uistate.ResponseState
-import com.example.buyva.data.datasource.remote.stripe.StripeClient
 import com.example.buyva.data.repository.adresses.AddressRepoImpl
 import com.example.buyva.data.repository.cart.CartRepoImpl
 import com.example.buyva.data.repository.paymentRepo.PaymentRepoImpl
@@ -136,9 +133,14 @@ fun CartScreen(
                     Log.e("CartDebug", "Unexpected data type: ${data?.javaClass}")
                 }
             }
+
             is ResponseState.Failure -> {
-                Log.e("CartDebug", "Failed to load cart: ${(cartState as ResponseState.Failure).message}")
+                Log.e(
+                    "CartDebug",
+                    "Failed to load cart: ${(cartState as ResponseState.Failure).message}"
+                )
             }
+
             is ResponseState.Loading -> {
                 cartItems.clear()
                 Log.d("CartDebug", "Cart is loading...")
@@ -151,8 +153,9 @@ fun CartScreen(
         NavigationBar.mutableNavBarState.value = false
         viewModel.showCart()
         viewModel.loadDefaultAddress()
-         PaymentConfiguration.init(context, BuildConfig.STRIPE_PUBLISHABLE_KEY)
+        PaymentConfiguration.init(context, BuildConfig.STRIPE_PUBLISHABLE_KEY)
         CurrencyManager.loadFromPreferences()
+
     }
 
 
@@ -200,53 +203,52 @@ fun CartScreen(
     }
 
 
-   val paymentSheet = rememberPaymentSheet(
-        paymentResultCallback = { result ->
-            when (result) {
-                is PaymentSheetResult.Completed -> {
+    val paymentSheet = rememberPaymentSheet(paymentResultCallback = { result ->
+        when (result) {
+            is PaymentSheetResult.Completed -> {
                 createOrder(cartItems, defaultAddress, paymentViewModel, context)
-                    Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
-                    onNavigateToOrders()
-                }
-                is PaymentSheetResult.Canceled -> {
-                    onNavigateToOrders()
-                    Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
-                }
-                is PaymentSheetResult.Failed -> {
-                    onNavigateToOrders()
-                    Toast.makeText(context, "Payment Failed: ${result.error.message}", Toast.LENGTH_SHORT).show()
-                }
+                Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
+                onNavigateToOrders()
+            }
+
+            is PaymentSheetResult.Canceled -> {
+                onNavigateToOrders()
+                Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
+            }
+
+            is PaymentSheetResult.Failed -> {
+                onNavigateToOrders()
+                Toast.makeText(
+                    context,
+                    "Payment Failed: ${result.error.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
-    )
+    })
 
 
-    Scaffold (
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Cart",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Cold,
-                        fontWeight = MaterialTheme.typography.titleLarge.fontWeight
-                    )
-                },
-                navigationIcon = {
-
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Cold
-                        )
-
-
-                    }
-                }
+    Scaffold(topBar = {
+        TopAppBar(title = {
+            Text(
+                text = "Cart",
+                style = MaterialTheme.typography.titleLarge,
+                color = Cold,
+                fontWeight = MaterialTheme.typography.titleLarge.fontWeight
             )
-        }
-    ){ paddingValues ->
+        }, navigationIcon = {
+
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Cold
+                )
+
+
+            }
+        })
+    }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -261,7 +263,8 @@ fun CartScreen(
                 }
 
                 is ResponseState.Failure -> {
-                    val message = (cartState as ResponseState.Failure).message.message ?: "An error occurred"
+                    val message =
+                        (cartState as ResponseState.Failure).message.message ?: "An error occurred"
                     Text(
                         text = message,
                         color = Color.Red,
@@ -285,8 +288,7 @@ fun CartScreen(
                                         } else false
                                     })
 
-                                SwipeToDismiss(
-                                    state = dismissState,
+                                SwipeToDismiss(state = dismissState,
                                     directions = setOf(DismissDirection.EndToStart),
                                     background = {
                                         Box(
@@ -304,22 +306,23 @@ fun CartScreen(
                                     },
                                     dismissContent = {
                                         CartItemRow(
-                                            item = item,
-                                            onQuantityChange = { newQty ->
-                                                val index = cartItems.indexOfFirst { it.id == item.id }
+                                            item = item, onQuantityChange = { newQty ->
+                                                val index =
+                                                    cartItems.indexOfFirst { it.id == item.id }
                                                 if (index != -1) {
-                                                    cartItems[index] = cartItems[index].copy(quantity = newQty)
+                                                    cartItems[index] =
+                                                        cartItems[index].copy(quantity = newQty)
                                                 }
-                                            },
-                                            onNavigateToProductInfo = onNavigateToProductInfo
+                                            }, onNavigateToProductInfo = onNavigateToProductInfo
                                         )
-                                    }
-                                )
+                                    })
                             }
                         }
 
                         Text(
-                            text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(CurrencyManager.currencyRate.value*totalPrice),
+                            text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(
+                                CurrencyManager.currencyRate.value * totalPrice
+                            ),
                             modifier = Modifier
                                 .align(Alignment.End)
                                 .padding(horizontal = 16.dp, vertical = 4.dp),
@@ -343,7 +346,7 @@ fun CartScreen(
                         }
 
                         Spacer(modifier = Modifier.height(56.dp))
-                    }else{
+                    } else {
 
                         EmptyScreen("No items in the cart", 28.sp, R.raw.emptycart)
 
@@ -361,29 +364,32 @@ fun CartScreen(
             containerColor = Color.White,
             tonalElevation = 10.dp
         ) {
-            PaymentSection(price = totalPrice, address = defaultAddress ?: Address(
-                firstName = "choose default address",
-                lastName = "",
-                address1 = "",
-                city = "",
-                country = "",
-                address2 = "",
-                phone = ""
-            ), onConfirm = { _, _, _ ->
-                showSheet = false
-                Toast.makeText(context, "Order Placed", Toast.LENGTH_SHORT).show()
-            }, onPayWithCardClick = {
-                paymentViewModel.initiatePaymentFlow(
-                    amount = (totalPrice * 100).toInt(),
-                    onClientSecretReady = { secret ->
-                        paymentSheet.presentWithPaymentIntent(
-                            paymentIntentClientSecret = secret,
-                            configuration = PaymentSheet.Configuration(
-                                merchantDisplayName = "Buyva"
+            PaymentSection(price = totalPrice,
+                address = defaultAddress ?: Address(
+                    firstName = "choose default address",
+                    lastName = "",
+                    address1 = "",
+                    city = "",
+                    country = "",
+                    address2 = "",
+                    phone = ""
+                ),
+                onConfirm = { _, _, _ ->
+                    showSheet = false
+                    Toast.makeText(context, "Order Placed", Toast.LENGTH_SHORT).show()
+                },
+                onPayWithCardClick = {
+                    paymentViewModel.initiatePaymentFlow(amount = (totalPrice * 100).toInt(),
+                        onClientSecretReady = { secret ->
+                            paymentSheet.presentWithPaymentIntent(
+                                paymentIntentClientSecret = secret,
+                                configuration = PaymentSheet.Configuration(
+                                    merchantDisplayName = "Buyva"
+                                )
                             )
-                        )
-                    })
-            },  onAddressClick = { onNavigateToAddresses() },
+                        })
+                },
+                onAddressClick = { onNavigateToAddresses() },
                 paymentViewModel = paymentViewModel,
                 cartItems = cartItems,
                 defaultAddress = defaultAddress

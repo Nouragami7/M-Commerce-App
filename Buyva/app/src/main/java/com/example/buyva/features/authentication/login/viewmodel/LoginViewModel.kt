@@ -3,7 +3,8 @@ package com.example.buyva.features.authentication.login.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.buyva.data.repository.AuthRepository
+import com.example.buyva.data.repository.Authentication.AuthRepository
+import com.example.buyva.data.repository.Authentication.IAuthRepository
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
@@ -15,7 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    private val authRepository: AuthRepository
+    private val authRepository: IAuthRepository
 ) : ViewModel() {
 
     private val _loginState = MutableStateFlow<FirebaseUser?>(null)
