@@ -120,16 +120,18 @@ fun LoginScreen(
                     onValueChange = { email = it },
                     label = { Text("Enter your email", fontSize = 18.sp) },
                     textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color(0xFF006A71),
-                        unfocusedTextColor = Color(0xFF006A71),
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
                         focusedBorderColor = Color(0xFF006A71),
                         unfocusedBorderColor = Color.Gray,
                         cursorColor = Color(0xFF006A71),
-                        focusedLabelColor = Color(0xFF006A71),
-                        unfocusedLabelColor = Color(0xFF006A71)
-                        ),
+                        focusedLabelColor = Color.Gray,
+                        unfocusedLabelColor = Color.Gray
+
+                    ),
                     shape = RoundedCornerShape(12.dp)
                 )
 
@@ -256,6 +258,7 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
         value = password,
         onValueChange = onPasswordChange,
         label = { Text("Password", fontSize = 18.sp) },
+       // singleLine = true,
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp),
@@ -268,13 +271,14 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
             }
         },
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = Color(0xFF006A71),
-            unfocusedTextColor = Color(0xFF006A71),
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
             focusedBorderColor = Color(0xFF006A71),
             unfocusedBorderColor = Color.Gray,
             cursorColor = Color(0xFF006A71),
-            focusedLabelColor = Color(0xFF006A71),
-            unfocusedLabelColor = Color(0xFF006A71)
+            focusedLabelColor = Color.Gray,
+            unfocusedLabelColor = Color.Gray
+
         ),
         singleLine = true,
         shape = RoundedCornerShape(12.dp)
