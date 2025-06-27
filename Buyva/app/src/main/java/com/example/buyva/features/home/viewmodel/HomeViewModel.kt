@@ -22,19 +22,22 @@ class HomeViewModel @Inject constructor(private val homeRepository: IHomeReposit
     private val _discountBanners = MutableStateFlow<List<DiscountBanner>>(emptyList())
     val discountBanners: StateFlow<List<DiscountBanner>> = _discountBanners
 
-    suspend fun getBrandsAndProduct() {
-        homeRepository.getBrandsAndProduct().collect {
-            try {
-                _brandsAndProducts.value = ResponseState.Loading
-                if (it != null) {
-                    val brands = it.brands.nodes
-                    val products = it.products.edges.map { edge -> edge.node }
-                    _brandsAndProducts.value = ResponseState.Success(Pair(brands, products))
-                } else {
-                    _brandsAndProducts.value = ResponseState.Failure(Exception("Failed to fetch data"))
+    fun getBrandsAndProduct() {
+        viewModelScope.launch {
+            homeRepository.getBrandsAndProduct().collect {
+                try {
+                    _brandsAndProducts.value = ResponseState.Loading
+                    if (it != null) {
+                        val brands = it.brands.nodes
+                        val products = it.products.edges.map { edge -> edge.node }
+                        _brandsAndProducts.value = ResponseState.Success(Pair(brands, products))
+                    } else {
+                        _brandsAndProducts.value =
+                            ResponseState.Failure(Exception("Failed to fetch data"))
+                    }
+                } catch (e: Exception) {
+                    _brandsAndProducts.value = ResponseState.Failure(e)
                 }
-            } catch (e: Exception) {
-                _brandsAndProducts.value = ResponseState.Failure(e)
             }
         }
     }
@@ -42,16 +45,15 @@ class HomeViewModel @Inject constructor(private val homeRepository: IHomeReposit
     fun fetchDiscounts() {
         viewModelScope.launch {
             try {
-                homeRepository.getDiscountDetails()
-                    .catch { e ->
+                homeRepository.getDiscountDetails().catch { e ->
                         Log.e("1", "Error: ${e.message}")
-                    }
-                    .collect { data ->
-                        val discounts = data.discountNodes.edges
-                            .mapNotNull { it.node.discount.onDiscountCodeBasic }
+                    }.collect { data ->
+                        val discounts =
+                            data.discountNodes.edges.mapNotNull { it.node.discount.onDiscountCodeBasic }
 
                         val models = discounts.map {
-                            val percentage = it.customerGets.value?.onDiscountPercentage?.percentage ?: 0.0
+                            val percentage =
+                                it.customerGets.value.onDiscountPercentage?.percentage ?: 0.0
                             DiscountBanner(
                                 code = "Use Code: ${it.title} for ${(percentage * 100).toInt()}% Off",
                                 percentage = (percentage * 100).toInt(),

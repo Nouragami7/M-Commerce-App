@@ -20,8 +20,15 @@ import np.com.susanthapa.curved_bottom_navigation.CurvedBottomNavigationView
 
 
 object NavigationBar {
-    val route = MutableLiveData<Int>(0)
+
+    val route = MutableLiveData(0)
+
     val mutableNavBarState = MutableStateFlow(true)
+
+    fun resetToDefaultTab() {
+        route.value = 0
+    }
+
     @Composable
     fun ShowCurvedNavBar(navController: NavHostController) {
         AndroidView(
@@ -39,13 +46,14 @@ object NavigationBar {
                     }
 
                     layoutDirection = View.LAYOUT_DIRECTION_LTR
-                    setMenuItems(cbnMenuItems.toTypedArray(), 0)
+                    val selectedIndex = route.value ?: 0
+                    setMenuItems(cbnMenuItems.toTypedArray(), selectedIndex)
                     setOnMenuItemClickListener { cbnMenuItem, i ->
                         route.value = i
                         navController.popBackStack()
                         navController.navigate(NavigationBarItem.menuItems[i].route)
                     }
-                    route.value?.let { setMenuItems(cbnMenuItems.toTypedArray(), it) }
+
 
                 }
             },

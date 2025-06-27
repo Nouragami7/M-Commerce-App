@@ -104,9 +104,7 @@ class MainActivity : ComponentActivity()  {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.White.copy(alpha = 0.95f))
-                        .zIndex(1f)
-                        .pointerInput(Unit) {},
+                        .background(Color.White.copy(alpha = 0.95f)),
                     contentAlignment = Alignment.Center
                 )  {
                     EmptyScreen(

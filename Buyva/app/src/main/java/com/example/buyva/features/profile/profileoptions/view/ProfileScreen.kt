@@ -1,6 +1,5 @@
 package com.example.buyva.features.profile.profileoptions.view
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -46,15 +45,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buyva.features.authentication.login.viewmodel.UserSessionManager
 import com.example.buyva.features.authentication.signup.viewmodel.LogoutViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
+import com.example.buyva.navigation.navbar.NavigationBar.resetToDefaultTab
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
 import com.example.buyva.ui.theme.Teal
 import com.example.buyva.utils.components.ScreenTitle
-import com.example.buyva.utils.constants.CURRENCY_RATE
-import com.example.buyva.utils.constants.CURRENCY_UNIT
-import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.google.firebase.auth.FirebaseAuth
+
 @Composable
 fun ProfileScreen(
     onFavClick: () -> Unit = {},
@@ -122,9 +120,11 @@ fun ProfileScreen(
             onClick = {
                 if (isGuest) {
                     onLoggedOut()
+                    resetToDefaultTab()
                 } else {
                     logoutViewModel.logout()
                     onLoggedOut()
+                    resetToDefaultTab()
                 }
             },
             colors = ButtonDefaults.outlinedButtonColors(contentColor = Sea),
