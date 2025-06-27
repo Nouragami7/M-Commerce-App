@@ -26,9 +26,6 @@ class SearchRepositoryTest {
         searchRepository = SearchRepositoryImpl(remoteDataSource)
     }
 
-    // -----------------------
-    // Test getAllProducts()
-    // -----------------------
     @Test
     fun getAllProducts_whenRemoteReturnsData_returnsMappedUiProducts() = runTest {
         val expectedUiProduct = UiProduct(
