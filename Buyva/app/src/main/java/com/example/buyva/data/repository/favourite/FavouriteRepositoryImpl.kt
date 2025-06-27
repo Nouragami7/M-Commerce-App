@@ -46,6 +46,7 @@ class FavouriteRepositoryImpl @Inject constructor(
         if (ids.isEmpty()) emptyList()
         else {
             val response = apolloClient.query(GetFavouriteProductsByIdsQuery(ids)).execute()
+
             response.data?.nodes?.mapNotNull { it?.onProduct } ?: emptyList()
         }
     }

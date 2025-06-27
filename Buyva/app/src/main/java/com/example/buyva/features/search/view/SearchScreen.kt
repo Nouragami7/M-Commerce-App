@@ -16,7 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
@@ -51,16 +51,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.airbnb.lottie.compose.LottieCompositionSpec
-import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.example.buyva.R
 import com.example.buyva.data.model.UiProduct
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.search.viewmodel.SearchViewModel
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.utils.components.CustomAlertDialog
+import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
-import com.airbnb.lottie.compose.*
 
 
 @Composable
@@ -91,11 +89,10 @@ fun SearchScreen(
             .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -104,7 +101,7 @@ fun SearchScreen(
                 searchText = state.searchText,
                 onSearchTextChange = { searchViewModel.updateSearchText(it) },
                 onSearchClick = {
-                  //  searchViewModel.performSearch(state.searchText)
+                    //  searchViewModel.performSearch(state.searchText)
                 },
                 onCartClick = onCartClick,
                 modifier = Modifier.weight(1f)
@@ -128,8 +125,7 @@ fun SearchScreen(
         when {
             state.isLoading -> {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(color = Color.Black)
                 }
@@ -137,43 +133,24 @@ fun SearchScreen(
 
             state.error != null -> {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = state.error ?: "Search error",
-                        color = Color.Red
+                        text = state.error ?: "Search error", color = Color.Red
                     )
                 }
             }
 
 
-
-                    state.filteredProducts.isEmpty() -> {
+            state.filteredProducts.isEmpty() -> {
                 if (state.searchText.isNotEmpty()) {
-                    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.empty_favorite))
-                    val progress by animateLottieCompositionAsState(composition)
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 32.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        LottieAnimation(
-                            composition = composition,
-                            progress = { progress },
-                            modifier = Modifier.size(200.dp)
-                        )
-                    }
+                    EmptyScreen("No products found", 22.sp, R.raw.empty_order)
                 } else {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "No products found",
-                            color = Color.Gray
+                            text = "No products found", color = Color.Gray
                         )
                     }
                 }
@@ -199,8 +176,7 @@ fun SearchBarWithCartIcon(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+        modifier = modifier.padding(horizontal = 12.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(
@@ -214,8 +190,7 @@ fun SearchBarWithCartIcon(
             leadingIcon = {
                 IconButton(onClick = onSearchClick) {
                     Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search"
+                        imageVector = Icons.Default.Search, contentDescription = "Search"
                     )
                 }
             },
@@ -279,7 +254,9 @@ fun UiProductSection(
             }
         }
     }
-}@Composable
+}
+
+@Composable
 fun PriceFilterSlider(
     minPrice: Float?,
     maxPrice: Float,
@@ -311,9 +288,7 @@ fun PriceFilterSlider(
                     .fillMaxWidth()
                     .graphicsLayer { scaleY = 0.6f },
                 colors = SliderDefaults.colors(
-                    thumbColor = Cold,
-                    activeTrackColor = Cold,
-                    inactiveTrackColor = Color.LightGray
+                    thumbColor = Cold, activeTrackColor = Cold, inactiveTrackColor = Color.LightGray
                 )
             )
         }
@@ -369,11 +344,8 @@ fun UiProductCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            val formattedTitle = product.title
-                .split("|")
-                .take(2)
-                .map { it.trim().split(" ").firstOrNull().orEmpty() }
-                .joinToString(" | ")
+            val formattedTitle = product.title.split("|").take(2)
+                .map { it.trim().split(" ").firstOrNull().orEmpty() }.joinToString(" | ")
 
             Text(
                 text = formattedTitle,
@@ -396,7 +368,7 @@ fun UiProductCard(
                     fontWeight = FontWeight.SemiBold
                 )
 
-                IconButton(onClick =  {
+                IconButton(onClick = {
                     if (isFavourite) {
                         showAlert = true
                     } else {

@@ -210,9 +210,7 @@ fun SetupNavHost(
                     ApolloAdmin, StripeClient.api))
             }
                 ProductInfoScreen(
-                    productId = productId, repository = repository, navController = navController,
-                    //  variantId = variantId ,
-                    favouriteViewModel = favouriteViewModel,size = size,color = color
+                    productId = productId, repository = repository, navController = navController, favouriteViewModel = favouriteViewModel,size = size,color = color
                 )
 
         }
