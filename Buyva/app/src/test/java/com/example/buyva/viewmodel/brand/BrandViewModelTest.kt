@@ -23,7 +23,7 @@ class BrandViewModelTest {
     }
 
     @Test
-    fun getProductsByBrand_whenRepositoryReturnsData_setsProductsOfBrandSuccess() = runTest {
+    fun getProductsByBrand_whenRepositoryReturnsData_getProductsOfBrandSuccess() = runTest {
         val productNode = mockk<ProductsByCollectionQuery.Node>(relaxed = true)
 
         val edge = mockk<ProductsByCollectionQuery.Edge> {
@@ -56,7 +56,7 @@ class BrandViewModelTest {
     }
 
     @Test
-    fun getProductsByBrand_whenRepositoryReturnsNull_setsFailure() = runTest {
+    fun getProductsByBrand_whenRepositoryReturnsNull_getFailure() = runTest {
         val data = mockk<ProductsByCollectionQuery.Data> {
             coEvery { collection } returns null
         }

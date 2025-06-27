@@ -28,13 +28,3 @@ class CategoryViewModel @Inject constructor(private val categoryRepository: ICat
 
 
 }
-
-//class CategoryFactory(private val categoryRepository: ICategoryRepository) :
-//    ViewModelProvider.Factory {
-//    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-//        if (modelClass.isAssignableFrom(CategoryViewModel::class.java)) {
-//            @Suppress("UNCHECKED_CAST") return CategoryViewModel(categoryRepository) as T
-//        }
-//        throw IllegalArgumentException("Unknown ViewModel class")
-//    }
-//}
