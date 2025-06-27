@@ -86,7 +86,8 @@ fun ProductInfoScreen(
     navController: NavController, productId: String,
     repository: IHomeRepository, favouriteViewModel: FavouriteScreenViewModel?,
     size: String? = null,
-    color: String? = null) {
+    color: String? = null
+) {
     Log.i("1", "ProductInfoScreen productId: $productId")
     // Log.i("1", "ProductInfoScreen variantId: $variantId")
     val viewModel: ProductInfoViewModel = hiltViewModel()
@@ -123,7 +124,9 @@ fun ProductInfoScreen(
                     product = product,
                     navController = navController,
                     favouriteViewModel = favouriteViewModel,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    preSelectedSize = size,
+                    preSelectedColor = color
                 )
             }
         }
@@ -135,7 +138,11 @@ fun ProductInfoContent(
     product: GetProductByIdQuery.Product,
     navController: NavController,
     favouriteViewModel: FavouriteScreenViewModel?,
-    viewModel: ProductInfoViewModel
+    viewModel: ProductInfoViewModel,
+    preSelectedSize: String? = null,
+    preSelectedColor: String? = null
+
+
 ) {
     var selectedImage by remember { mutableStateOf<String?>(null) }
     val favouriteProducts by favouriteViewModel?.favouriteProducts?.collectAsState() ?: remember {
@@ -143,6 +150,7 @@ fun ProductInfoContent(
             emptyList()
         )
     }
+
     val isFavorite = favouriteProducts.any { it.id == product.id }
     var showDeleteAlert by remember { mutableStateOf(false) }
 
@@ -175,9 +183,18 @@ fun ProductInfoContent(
     val availableColors =
         allSelectedOptions.filter { it.name.equals("Color", ignoreCase = true) }.map { it.value }
             .distinct()
-
-    var selectedSize by remember { mutableStateOf(availableSizes.firstOrNull()) }
-    var selectedColor by remember { mutableStateOf(availableColors.firstOrNull()) }
+    var selectedSize by remember(product) {
+        mutableStateOf(
+            preSelectedSize?.takeIf { it in availableSizes }
+                ?: availableSizes.firstOrNull()
+        )
+    }
+    var selectedColor by remember(product) {
+        mutableStateOf(
+            preSelectedColor?.takeIf { it in availableColors }
+                ?: availableColors.firstOrNull()
+        )
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -373,13 +390,10 @@ fun ProductInfoContent(
                         return@OutlinedButton
                     }
 
-                    val matchedVariant =
-                        product.variants.edges.map { it.node }.firstOrNull { variant ->
-                            val options =
-                                variant.selectedOptions.associate { it.name.lowercase() to it.value.lowercase() }
-                            val selectedSizeMatch = options["size"] == selectedSize?.lowercase()
-                            val selectedColorMatch = options["color"] == selectedColor?.lowercase()
-                            selectedSizeMatch && selectedColorMatch
+                    val matchedVariant = product.variants.edges.map { it.node }
+                        .firstOrNull { variant ->
+                            variant.selectedOptions.any { it.name.equals("size", true) && it.value.equals(selectedSize, true) } &&
+                                    variant.selectedOptions.any { it.name.equals("color", true) && it.value.equals(selectedColor, true) }
                         }
 
                     val productVariantId = matchedVariant?.id
