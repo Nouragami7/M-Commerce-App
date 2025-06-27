@@ -390,20 +390,24 @@ fun ProductInfoContent(
                         ).show()
                         return@OutlinedButton
                     }
+                    Log.i("3", "ProductInfoContent quantityAvailable: ${matchedVariant.quantityAvailable}")
 
                     isAddedToCart = true
-                    viewModel.addToCartById(
-                        email = userEmail,
-                        cartId = cartId,
-                        quantity = 1,
-                        variantId = productVariantId
-                    )
-                    Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show()
-                  //  navController.currentBackStackEntry?.savedStateHandle?.set("REFRESH_CART", true)
+                    if( matchedVariant.quantityAvailable!! > 0) {
+                        viewModel.addToCartById(
+                            email = userEmail,
+                            cartId = cartId,
+                            quantity = 1,
+                            variantId = productVariantId
+                        )
+                        isAddedToCart = true
+
+                    }else {
+                        Toast.makeText(context, "Out of stock", Toast.LENGTH_SHORT).show()
+                    }
                 }, modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-
                 colors = ButtonDefaults.outlinedButtonColors(
                     containerColor = if (isAddedToCart) Sea else Color.White,
                     contentColor = if (isAddedToCart) Color.White else Sea
