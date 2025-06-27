@@ -11,6 +11,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -48,6 +49,23 @@ class HomeRepositoryTest {
 
     }
 
+
+    @Test
+    fun getBrandsAndProduct_whenRemoteFails_emitsNull() = runTest {
+        coEvery {
+            remoteDataSource.getBrandsAndProduct()
+        } returns flow {
+            throw RuntimeException("Simulated failure")
+        }
+
+        val result = homeRepository.getBrandsAndProduct()
+
+        result.collect { data ->
+            assertEquals(null, data)
+        }
+    }
+
+
     @Test
     fun getProductById_callsRemoteDataSource_returnProductByIdData() = runTest {
         val expectedData = mockk<GetProductByIdQuery.Data>()
@@ -62,6 +80,22 @@ class HomeRepositoryTest {
             assertEquals(expectedData, data)
         }
     }
+
+    @Test
+    fun getProductById_whenRemoteFails_emitsNull() = runTest {
+        val productId = "123"
+        coEvery {
+            remoteDataSource.getProductById(productId)
+        } returns flow {
+            throw RuntimeException("Simulated failure")
+        }
+        val result = homeRepository.getProductById(productId)
+
+        result.collect { data ->
+            assertEquals(null, data)
+        }
+    }
+
 
     @Test
     fun getProductsByBrand_callsRemoteDataSource_returnProductsByBrandData() = runTest {
@@ -81,6 +115,21 @@ class HomeRepositoryTest {
     }
 
     @Test
+    fun getProductsByBrand_whenRemoteFails_emitsNull() = runTest {
+        val collectionId = "123"
+        coEvery {
+            remoteDataSource.getProductsByCollection(collectionId)
+        } returns flow {
+            throw RuntimeException("Simulated failure")
+        }
+        val result = homeRepository.getProductsByBrand(collectionId)
+
+        result.collect { data ->
+            assertEquals(null, data)
+        }
+    }
+
+    @Test
     fun getDiscountDetails_callsRemoteDataSource_returnDiscountDetailsData() = runTest {
         val expectedData = mockk<GetDiscountAmountDetailsQuery.Data>()
         coEvery {
@@ -94,6 +143,25 @@ class HomeRepositoryTest {
             assertEquals(expectedData, data)
         }
 
+    }
+
+
+    @Test
+    fun getDiscountDetails_whenRemoteThrows_exceptionIsPropagated() = runTest {
+        coEvery {
+            remoteDataSource.getDiscountDetails()
+        } returns flow {
+            throw RuntimeException("Simulated GraphQL error")
+        }
+
+        val result = homeRepository.getDiscountDetails()
+
+        try {
+            result.collect {}
+            assert(false) { "Exception was expected but not thrown" }
+        } catch (e: RuntimeException) {
+            assertEquals("Simulated GraphQL error", e.message)
+        }
     }
 
 
