@@ -14,7 +14,7 @@ class PaymentRepoImpl@Inject constructor(private val remoteDataSource: RemoteDat
         currency: String,
         paymentMethod: String
         ): Response<com.google.gson.JsonObject> {
-        Log.d("1", "Calling Stripe with amount=$amount, currency=$currency")
+       // Log.d("1", "Calling Stripe with amount=$amount, currency=$currency")
         return remoteDataSource.createPaymentIntent(amount, currency)
     }
 
