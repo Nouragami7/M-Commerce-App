@@ -8,10 +8,15 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 
@@ -19,11 +24,21 @@ class CategoryViewModelTest {
 
     private lateinit var categoryViewModel: CategoryViewModel
     private lateinit var categoryRepository: ICategoryRepository
+    private val testDispatcher = StandardTestDispatcher()
 
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setup() {
+        Dispatchers.setMain(testDispatcher)
         categoryRepository = mockk()
         categoryViewModel = CategoryViewModel(categoryRepository)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
