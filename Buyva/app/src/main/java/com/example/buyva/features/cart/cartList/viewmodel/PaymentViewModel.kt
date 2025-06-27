@@ -38,7 +38,7 @@ class PaymentViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             try {
-                val response = repository.createPaymentIntent(amount, currency)
+                val response = repository.createPaymentIntent(amount, currency,"card")
                 Log.d("1", "Response code: ${response.code()}")
                 if (response.isSuccessful) {
                     val secret = response.body()?.get("client_secret")?.asJsonPrimitive?.asString

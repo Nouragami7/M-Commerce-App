@@ -15,7 +15,7 @@ class PaymentRepoImpl@Inject constructor(private val remoteDataSource: RemoteDat
         paymentMethod: String
         ): Response<com.google.gson.JsonObject> {
        // Log.d("1", "Calling Stripe with amount=$amount, currency=$currency")
-        return remoteDataSource.createPaymentIntent(amount, currency)
+        return remoteDataSource.createPaymentIntent(amount, currency,paymentMethod)
     }
 
     override suspend fun createDraftOrder(draftOrderInput: DraftOrderInput): Flow<ResponseState> {

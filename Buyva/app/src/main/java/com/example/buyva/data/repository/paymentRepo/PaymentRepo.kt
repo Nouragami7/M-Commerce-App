@@ -10,7 +10,7 @@ interface PaymentRepo {
         suspend fun createPaymentIntent(
             amount: Int,
             currency: String,
-            paymentMethod: String = "card"
+            paymentMethod: String
         ): Response<com.google.gson.JsonObject>
 
        suspend fun createDraftOrder(draftOrderInput: DraftOrderInput): Flow<ResponseState>
