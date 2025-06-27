@@ -276,6 +276,7 @@ fun CartScreen(
                                                         cartItems[index] = cartItems[index].copy(quantity = newQty)
                                                         quantityVersion++
                                                     }
+                                                    viewModel.updateCartLine(lineId = item.lineId, quantity = newQty)
                                                 }
                                             , onNavigateToProductInfo = onNavigateToProductInfo
                                         )})

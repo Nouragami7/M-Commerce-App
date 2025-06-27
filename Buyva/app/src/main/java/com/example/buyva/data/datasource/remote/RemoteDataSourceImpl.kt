@@ -1,12 +1,14 @@
 package com.example.buyva.data.datasource.remote
 
 import android.util.Log
+import androidx.compose.ui.graphics.PathSegment
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.exception.ApolloException
 import com.example.buyva.AddProductToCartMutation
 import com.example.buyva.BrandsAndProductsQuery
+import com.example.buyva.CartLinesUpdateMutation
 import com.example.buyva.CreateAddressMutation
 import com.example.buyva.CreateCartMutation
 import com.example.buyva.CustomerAddressUpdateMutation
@@ -28,6 +30,7 @@ import com.example.buyva.data.datasource.remote.stripe.StripeAPI
 import com.example.buyva.data.model.Address
 import com.example.buyva.data.model.UiProduct
 import com.example.buyva.data.model.uistate.ResponseState
+import com.example.buyva.type.CartLineUpdateInput
 import com.example.buyva.type.MailingAddressInput
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 import kotlinx.coroutines.flow.Flow
@@ -385,6 +388,32 @@ class RemoteDataSourceImpl @Inject constructor(
                 throw e
             }
         }
+
+
+    override fun updateCartLine(cartId: String, lineId: String, quantity: Int): Flow<ResponseState> = flow {
+        emit(ResponseState.Loading)
+        try {
+            val response = apolloClient.mutation(
+                CartLinesUpdateMutation(
+                    cartId = cartId,
+                    lines = listOf(
+                        CartLineUpdateInput(
+                            id = lineId,
+                            quantity = Optional.Present(quantity)
+                        )
+                    )
+                )
+            ).execute()
+
+            if (response.hasErrors()) {
+                emit(ResponseState.Failure(Throwable(response.errors?.firstOrNull()?.message)))
+            } else {
+                emit(ResponseState.Success(true))
+            }
+        } catch (e: Exception) {
+            emit(ResponseState.Failure(e))
+        }
+    }
 
 
 }

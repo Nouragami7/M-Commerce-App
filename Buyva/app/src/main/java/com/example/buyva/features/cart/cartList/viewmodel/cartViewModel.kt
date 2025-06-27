@@ -37,25 +37,8 @@ class CartViewModel @Inject constructor(
     val defaultAddress: StateFlow<Address?> = _defaultAddress
 
     private val token = SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
-
-
-//    fun getCartDetails() {
-//        viewModelScope.launch {
-//Log.i("1", "cart id in view model: $cartId")
-//            if (cartId != null) {
-//                cartRepo.getCartProducts(cartId).collect { response ->
-//                    _cartProducts.value = response
-//                    Log.i("1", "getCartDetails: $response")
-//                    if (response is ResponseState.Success<*>) {
-//                        cartLinesId = ((response.data as GetCartDetailsQuery.Data).cart?.lines?.edges
-//                            ?.map { edge ->
-//                                edge.node.id
-//                            } ?: emptyList()) as MutableStateFlow<List<String>>
-//                    }
-//                }
-//            }
-//            }
-//        }
+    private val _updateCartState = MutableStateFlow<ResponseState>(ResponseState.Success(true))
+    val updateCartState: StateFlow<ResponseState> = _updateCartState
 
 
         fun showCart() {
@@ -140,4 +123,26 @@ class CartViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateCartLine( lineId: String, quantity: Int) {
+        viewModelScope.launch {
+            if (cartId != null) {
+                cartRepo.updateCartLine(cartId, lineId, quantity).collect {
+                    when (it) {
+                        is ResponseState.Failure -> {
+                            Log.e("3", "Failed to update line: ${it.message.message}")
+                        }
+
+                        is ResponseState.Success<*> -> {
+                            showCart()
+                            Log.i("3", "Line updated successfully")
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
+        }
+    }
+
 }

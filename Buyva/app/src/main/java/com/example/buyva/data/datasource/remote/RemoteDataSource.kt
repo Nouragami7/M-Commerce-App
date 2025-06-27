@@ -36,6 +36,7 @@ interface RemoteDataSource {
 
     suspend fun createDraftOrder(draftOrderInput: DraftOrderInput): Flow<ResponseState>
     suspend fun completeDraftOrder(draftOrderId: String): Flow<CompleteDraftOrderMutation.Data>
+    fun updateCartLine(cartId: String, lineId: String, quantity: Int): Flow<ResponseState>
 
 
 }

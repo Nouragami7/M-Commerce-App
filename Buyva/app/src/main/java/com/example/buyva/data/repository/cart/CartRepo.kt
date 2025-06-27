@@ -17,6 +17,7 @@ interface CartRepo {
     //fun readCartIdFromSharedPreferences(): String
      suspend fun readUserToken(): String
      suspend fun removeProductFromCart(cartId: String, lineItemId: String): Flow<ResponseState>
+    fun updateCartLine(cartId: String, lineId: String, quantity: Int): Flow<ResponseState>
 
 
 

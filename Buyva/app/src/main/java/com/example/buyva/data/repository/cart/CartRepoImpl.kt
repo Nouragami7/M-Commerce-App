@@ -100,5 +100,7 @@ class CartRepoImpl @Inject constructor (
 
     }
 
-
+    override fun updateCartLine(cartId: String, lineId: String, quantity: Int): Flow<ResponseState> {
+        return remoteDataSource.updateCartLine(cartId, lineId, quantity)
+    }
 }
