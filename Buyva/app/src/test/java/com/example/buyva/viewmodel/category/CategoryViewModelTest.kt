@@ -61,7 +61,7 @@ class CategoryViewModelTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun getProductByCategory_whenRepositoryThrowsException_setsFailureState() = runTest {
+    fun getProductByCategory_whenRepositoryThrowsException_getFailureState() = runTest {
         val exception = RuntimeException("Something went wrong")
         coEvery { categoryRepository.getProductsByCategory("men") } throws exception
 
