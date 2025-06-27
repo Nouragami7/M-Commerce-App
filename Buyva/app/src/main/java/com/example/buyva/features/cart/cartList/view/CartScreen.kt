@@ -142,7 +142,7 @@ fun CartScreen(
                 } else {
                     Log.e("DraftOrder", "Failed to extract draft order ID")
                 }
-
+                onNavigateToOrders()
                 Toast.makeText(context, "Order placed successfully!", Toast.LENGTH_SHORT).show()
             }
 
@@ -161,17 +161,13 @@ fun CartScreen(
         when (result) {
             is PaymentSheetResult.Completed -> {
                 createOrder(cartItems, defaultAddress, paymentViewModel, context)
-                Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
-                onNavigateToOrders()
             }
 
             is PaymentSheetResult.Canceled -> {
-                onNavigateToOrders()
                 Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
             }
 
             is PaymentSheetResult.Failed -> {
-                onNavigateToOrders()
                 Toast.makeText(
                     context, "Payment Failed: ${result.error.message}", Toast.LENGTH_SHORT
                 ).show()
@@ -245,12 +241,6 @@ fun CartScreen(
 
                         LazyColumn(modifier = Modifier.weight(1f)) {
                             items(cartItems, key = { it.lineId }) { item ->
-//                                val index = cartItems.indexOfFirst { it.id == item.id }
-//                                if (index != -1) {
-//                                    cartItems[index] = cartItems[index].copy(quantity = item.quantity)
-//                                    quantityVersion++
-//                                }
-//                                quantityVersion++
                                 val dismissState =
                                     rememberDismissState(confirmStateChange = { dismissValue ->
                                         if (dismissValue == DismissValue.DismissedToStart || dismissValue == DismissValue.DismissedToEnd) {
@@ -392,7 +382,3 @@ fun CartScreen(
     }
 }
 
-fun calcualtions(
-){
-
-}

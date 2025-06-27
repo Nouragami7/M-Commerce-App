@@ -63,6 +63,14 @@ fun AddressDetails(
     editableTextFields: Boolean, prefillData: String? = null,  //from list to show and update
     onBackClick: () -> Unit = {}, onSaveClick: () -> Unit = {}
 ) {
+
+    val firstNameError = remember { mutableStateOf(false) }
+    val lastNameError = remember { mutableStateOf(false) }
+    val phoneNumberError = remember { mutableStateOf(false) }
+    val buildingNumberError = remember { mutableStateOf(false) }
+    val floorNumberError = remember { mutableStateOf(false) }
+    val addressError = remember { mutableStateOf(false) }
+
     Log.d("1", "AddressDetails called address $address")
     val addressFromMap = remember { mutableStateOf(address) }
 
@@ -171,6 +179,7 @@ fun AddressDetails(
             OutlinedTextField(
                 value = firstName.value,
                 onValueChange = { firstName.value = it },
+                isError = firstNameError.value,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Cold,
                     unfocusedBorderColor = Color.Black,
@@ -187,11 +196,20 @@ fun AddressDetails(
                     .weight(1f)
                     .height(textFieldHeight)
             )
+            if (firstNameError.value) {
+                Text(
+                    text = "First name is required",
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+                )
+            }
 
 
             OutlinedTextField(
                 value = lastName.value,
                 onValueChange = { lastName.value = it },
+                isError = lastNameError.value,
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Cold,
                     unfocusedBorderColor = Color.Black,
@@ -208,6 +226,9 @@ fun AddressDetails(
                     .weight(1f)
                     .height(textFieldHeight)
             )
+            if (lastNameError.value) {
+                Text("Last name is required", color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(start = 8.dp, top = 4.dp))
+            }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -216,6 +237,7 @@ fun AddressDetails(
             value = phoneNumber.value,
             onValueChange = { phoneNumber.value = it },
             enabled = isEditable.value,
+            isError = phoneNumberError.value,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Cold,
                 unfocusedBorderColor = Color.Black,
@@ -232,6 +254,9 @@ fun AddressDetails(
                 .fillMaxWidth()
                 .height(textFieldHeight)
         )
+        if (phoneNumberError.value) {
+            Text("Phone number is required", color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(start = 8.dp, top = 4.dp))
+        }
 
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -240,6 +265,7 @@ fun AddressDetails(
             value = addressFromMap.value ?: streetAddress.value,
             onValueChange = { addressFromMap.value = it },
             enabled = false,
+            isError = addressError.value,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Cold,
                 unfocusedBorderColor = Color.Gray,
@@ -271,7 +297,16 @@ fun AddressDetails(
             singleLine = false,
             maxLines = 5
         )
-
+        if(addressFromMap.value == null) {
+            if (addressError.value) {
+                Text(
+                    "Address is required",
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(16.dp))
 
 
@@ -288,6 +323,7 @@ fun AddressDetails(
                 unfocusedTextColor = Color.Black,
                 focusedLabelColor = Cold,
             ),
+            isError = buildingNumberError.value,
             leadingIcon = { Icon(Icons.Default.LocationCity, contentDescription = null) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             singleLine = true,
@@ -296,12 +332,16 @@ fun AddressDetails(
                 .fillMaxWidth()
                 .height(textFieldHeight)
         )
+        if (buildingNumberError.value) {
+            Text("Building number is required", color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(start = 8.dp, top = 4.dp))
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = floorNumber.value,
             onValueChange = { floorNumber.value = it },
+            isError = floorNumberError.value,
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = Cold,
                 unfocusedBorderColor = Color.Black,
@@ -319,7 +359,9 @@ fun AddressDetails(
                 .fillMaxWidth()
                 .height(textFieldHeight)
         )
-
+        if (floorNumberError.value) {
+            Text("Floor number is required", color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(start = 8.dp, top = 4.dp))
+        }
 
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -327,18 +369,26 @@ fun AddressDetails(
         if (isEditable.value && addressModel == null) {  // from map
             Button(
                 onClick = {
+                    val isValid = firstName.value.isNotBlank().also { firstNameError.value = !it } &&
+                            lastName.value.isNotBlank().also { lastNameError.value = !it } &&
+                            phoneNumber.value.isNotBlank().also { phoneNumberError.value = !it } &&
+                            buildingNumber.value.isNotBlank().also { buildingNumberError.value = !it } &&
+                            floorNumber.value.isNotBlank().also { floorNumberError.value = !it }
+                            //&&
+                           // (addressFromMap.value?.isNotBlank() == true).also { addressError.value = !it }
+
+                    if (!isValid) return@Button
+
                     val newAddress = Address(
                         firstName = firstName.value,
                         lastName = lastName.value,
                         phone = phoneNumber.value,
                         address1 = addressFromMap.value ?: "",
-                        address2 = "Building number: ${buildingNumber.value} Floor number:  ${floorNumber.value}",
+                        address2 = "Building number: ${buildingNumber.value} Floor number: ${floorNumber.value}",
                         city = city ?: "",
                         country = country ?: ""
                     )
-
                     viewModel.saveAddress(newAddress)
-                   //                                          onSaveClick()
                 },
                 modifier = Modifier
                     .fillMaxWidth()

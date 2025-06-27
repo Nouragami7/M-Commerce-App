@@ -1,6 +1,7 @@
 package com.example.buyva.features.cart.cartList.view
 
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
@@ -73,6 +74,10 @@ fun PaymentSection(
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val snackbarHostState = remember { SnackbarHostState() }
     var showDialog by remember { mutableStateOf(false) }
+    val  voucherAfterDiscount = remember { mutableStateOf<String?>(null) }
+    val errorMessageAfterDiscount = remember { mutableStateOf<String?>(null) }
+    val priceAfterDiscount = remember { mutableStateOf<String?>(null) }
+
 
 
     val viewModel : CartViewModel = hiltViewModel()
@@ -91,6 +96,7 @@ LaunchedEffect(Unit) {
     homeViewModel.fetchDiscounts()
 
 }
+    Log.i("2", discountBanners.toString())
 
     if (showDialog) {
         CustomAlertDialog(
@@ -98,13 +104,14 @@ LaunchedEffect(Unit) {
             message = "Please choose default address",
             onConfirm = {
                 showDialog = false
-                Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
+                onAddressClick()
+
             },
             onDismiss = {
                 showDialog = false
                 Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
             },
-            confirmText = "OK",
+            confirmText = "Choose Address",
             dismissText = "Cancel"
         )
     }
@@ -165,18 +172,22 @@ LaunchedEffect(Unit) {
         ) {
             Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp)
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
             ) {
-                Box {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     OutlinedTextField(
                         value = voucherCode,
                         onValueChange = { voucherCode = it },
                         label = { Text("Voucher Code") },
                         singleLine = true,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
+                            .weight(1f)
+                            .height(70.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Cold,
                             unfocusedBorderColor = Color.Gray,
@@ -186,47 +197,84 @@ LaunchedEffect(Unit) {
                         ),
                         shape = RoundedCornerShape(12.dp)
                     )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Button(
+                        onClick = {
+                            if (discountBanners.isNotEmpty()) {
+                                val trimmedUserInput = voucherCode.trim()
+                                val matchedDiscount = discountBanners.find { banner ->
+                                    val regex = Regex("Use Code: (\\w+)")
+                                    val match = regex.find(banner.code)
+                                    val extractedCode = match?.groups?.get(1)?.value?.trim() ?: ""
+                                    extractedCode.equals(trimmedUserInput, ignoreCase = true)
+                                }
+                                voucherAfterDiscount.value = null
+Log.i("2","matchedDiscount: $matchedDiscount")
+                                Log.i("2","discountBanners: ${voucherAfterDiscount.value}")
+                                if (matchedDiscount != null) {
+                                    val discountValue = price * (matchedDiscount.percentage / 100f)
+                                    discountedPrice = price - discountValue
+                                    voucherAfterDiscount.value = "${matchedDiscount.percentage}% discount applied!"
+                                    errorMessageAfterDiscount.value = null
+                                    priceAfterDiscount.value = "After Discount ${matchedDiscount.percentage}% : ${CurrencyManager.currencyUnit.value} %.2f"
+                                        .format(discountedPrice * CurrencyManager.currencyRate.value)
+                                } else {
+                                    discountedPrice = price
+
+                                    voucherAfterDiscount.value = null
+                                    errorMessageAfterDiscount.value = "Invalid voucher code"
+                                    priceAfterDiscount.value = null
+                                }
+                            } else {
+                                errorMessageAfterDiscount.value = "Loading discount codes... Please try again"
+                            }
+                        },
+
+                                modifier = Modifier
+                            .height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Cold)
+                    ) {
+                        Text("Apply", fontWeight = FontWeight.Bold, color = Color.White)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
+                if (errorMessageAfterDiscount.value != null) {
+                    Text(
+                        text = errorMessageAfterDiscount.value ?: "",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Red,
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+
                 Text(
-                    text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(discountedPrice * CurrencyManager.currencyRate.value),
+                    text = "Total: ${CurrencyManager.currencyUnit.value} %.2f"
+                        .format(price * CurrencyManager.currencyRate.value),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Cold,
-                    modifier = Modifier.align(Alignment.Start)
+                    color = Cold
                 )
 
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Column(
-                modifier = Modifier.height(50.dp),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Button(
-                    onClick = {
-                        val matchedDiscount = discountBanners.find { it.code.contains(voucherCodeprice.trim(), ignoreCase = true) }
-                        if (matchedDiscount != null) {
-                            val discountValue = price * (matchedDiscount.percentage / 100f)
-                            discountedPrice = price - discountValue
-                        } else {
-                            discountedPrice = price
-                        }
-                    },
-                    modifier = Modifier
-                        .defaultMinSize(minHeight = 30.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Cold)
-                ) {
-                    Text("Apply", fontWeight = FontWeight.Bold, color = Color.White)
+                if (priceAfterDiscount.value != null) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = priceAfterDiscount.value ?: "",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Cold
+                    )
                 }
             }
         }
 
-        errorMessage?.let {
+            errorMessage?.let {
             Text(it, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(8.dp))
         }
 
@@ -242,7 +290,7 @@ LaunchedEffect(Unit) {
                         onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
                     }
                 } else {
-                    onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
+                   // onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
                     showDialog = true
                 }
             },

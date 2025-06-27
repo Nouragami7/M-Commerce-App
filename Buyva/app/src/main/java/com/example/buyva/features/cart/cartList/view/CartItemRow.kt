@@ -121,7 +121,7 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
                         onQuantityChange(quantity)
                     }
                 }) {
-                    Icon(Icons.Filled.Remove, contentDescription = "Decrease", tint = Cold)
+                    Icon(Icons.Filled.Remove, contentDescription = "Decrease", tint = Cold, modifier = Modifier.size(25.dp))
                 }
 
                 Text(
@@ -129,14 +129,13 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Black
                 )
-
                 IconButton(onClick = {
                     if (quantity < availableQuantity) {
                         quantity++
                         onQuantityChange(quantity)
                     }
                 }) {
-                    Icon(Icons.Filled.Add, contentDescription = "Increase", tint = Cold)
+                    Icon(Icons.Filled.Add, contentDescription = "Increase", tint = Cold, modifier = Modifier.size(25.dp))
                 }
 
             }
