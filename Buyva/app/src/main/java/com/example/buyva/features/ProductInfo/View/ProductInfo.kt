@@ -167,7 +167,7 @@ fun ProductInfoContent(
     val title = product.title
     val vendor = product.vendor
     val description = product.description
-    val inStock = (product.totalInventory ?: 0) > 0
+   // val inStock = (product.totalInventory ?: 0) > 0
 
     val allVariants = product.variants.edges.map { it.node }
     val allSelectedOptions = allVariants.flatMap { it.selectedOptions }
@@ -297,11 +297,11 @@ fun ProductInfoContent(
 
                     Text("$newPrice", color = Cold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        if (inStock) "In Stock" else "Out of Stock",
-                        color = if (inStock) Color.Red else Color.Gray,
-                        fontSize = 12.sp
-                    )
+//                    Text(
+//                        if (inStock) "In Stock" else "Out of Stock",
+//                        color = if (inStock) Color.Red else Color.Gray,
+//                        fontSize = 12.sp
+//                    )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(description, fontSize = 16.sp, lineHeight = 22.sp)
                 }

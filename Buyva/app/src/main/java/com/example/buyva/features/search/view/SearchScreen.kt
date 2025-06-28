@@ -88,6 +88,8 @@ fun SearchScreen(
             .verticalScroll(scrollState)
             .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
+        Spacer(modifier = Modifier.height(28.dp))
+
         Row(
             verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()
         ) {
@@ -176,15 +178,16 @@ fun SearchBarWithCartIcon(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier.padding(start = 12.dp, end = 12.dp, bottom = 3.dp),
+
+                verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(
             value = searchText,
             onValueChange = onSearchTextChange,
             modifier = Modifier
                 .weight(1f)
-                .height(48.dp)
+                .height(56.dp)
                 .shadow(elevation = 4.dp, shape = RoundedCornerShape(12.dp)),
             placeholder = { Text("Search") },
             leadingIcon = {
