@@ -2,7 +2,6 @@ package com.example.buyva.features.cart.cartList.view
 
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -53,6 +52,8 @@ import com.example.buyva.ui.theme.Teal
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.functions.createOrder
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 
@@ -66,17 +67,18 @@ fun PaymentSection(
     onAddressClick: () -> Unit,
     paymentViewModel: PaymentViewModel,
     cartItems: SnapshotStateList<CartItem>,
-    defaultAddress: Address?
+    defaultAddress: Address?,
+    coroutineScope: CoroutineScope
 ) {
     var selectedMethod by remember { mutableStateOf(PaymentMethod.CashOnDelivery) }
     var voucherCode by remember { mutableStateOf("") }
     val errorMessage by remember { mutableStateOf<String?>(null) }
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
     var showDialog by remember { mutableStateOf(false) }
     val voucherAfterDiscount = remember { mutableStateOf<String?>(null) }
     val errorMessageAfterDiscount = remember { mutableStateOf<String?>(null) }
     val priceAfterDiscount = remember { mutableStateOf<String?>(null) }
-    var isApplyed by remember { mutableStateOf(false) }
+    var isApplied by remember { mutableStateOf(false) }
 
 
     val viewModel: CartViewModel = hiltViewModel()
@@ -104,7 +106,9 @@ fun PaymentSection(
 
         }, onDismiss = {
             showDialog = false
-            Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
+            coroutineScope.launch {
+                snackBarHostState.showSnackbar("Payment Cancelled")
+            }
         }, confirmText = "Choose Address", dismissText = "Cancel"
         )
     }
@@ -214,7 +218,7 @@ fun PaymentSection(
                                         "%.2f".format(discountedPrice * CurrencyManager.currencyRate.value)
                                     priceAfterDiscount.value =
                                         "After Discount $percentage%: $currency $formattedPrice"
-                                    isApplyed = true
+                                    isApplied = true
 
                                 } else {
                                     discountedPrice = price
@@ -222,7 +226,7 @@ fun PaymentSection(
                                     voucherAfterDiscount.value = null
                                     errorMessageAfterDiscount.value = "Invalid voucher code"
                                     priceAfterDiscount.value = null
-                                    isApplyed = false
+                                    isApplied = false
                                 }
                             } else {
                                 errorMessageAfterDiscount.value =
@@ -232,7 +236,7 @@ fun PaymentSection(
 
                         modifier = Modifier.height(50.dp),
                         shape = RoundedCornerShape(12.dp),
-                        colors = if (isApplyed) ButtonDefaults.buttonColors(containerColor = Teal) else ButtonDefaults.buttonColors(containerColor = Cold)
+                        colors = if (isApplied) ButtonDefaults.buttonColors(containerColor = Teal) else ButtonDefaults.buttonColors(containerColor = Cold)
                     ) {
                         Text("Apply", fontWeight = FontWeight.Bold, color = Color.White)
                     }
@@ -282,7 +286,9 @@ fun PaymentSection(
                     } else {
                         createOrder(cartItems, defaultAddress, paymentViewModel, context)
                         viewModel.clearCart()
-                        Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar("Payment Successful")
+                        }
                         onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
                     }
                 } else {
@@ -298,7 +304,7 @@ fun PaymentSection(
             Text("Checkout")
         }
 
-        SnackbarHost(hostState = snackbarHostState, modifier = Modifier.padding(16.dp))
+        SnackbarHost(hostState = snackBarHostState, modifier = Modifier.padding(16.dp))
     }
 }
 

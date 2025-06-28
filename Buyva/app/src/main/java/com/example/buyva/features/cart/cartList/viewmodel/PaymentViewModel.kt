@@ -1,6 +1,5 @@
 package com.example.buyva.features.cart.cartList.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.buyva.admin.type.DraftOrderInput
@@ -91,5 +90,9 @@ class PaymentViewModel @Inject constructor(
             }
         }
     }
+    fun resetOrderCompleteState() {
+        _completeOrderState.value = ResponseState.Loading
+    }
+
 
 }

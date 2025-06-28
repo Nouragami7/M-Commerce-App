@@ -1,7 +1,6 @@
 
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +18,7 @@ import androidx.compose.material.DismissValue
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberDismissState
 import androidx.compose.material3.Button
@@ -30,6 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -84,6 +84,7 @@ fun CartScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val snackBarHostState = remember { SnackbarHostState() }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showSheet by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -95,7 +96,9 @@ fun CartScreen(
     val defaultAddress by viewModel.defaultAddress.collectAsState()
 
     val orderState by paymentViewModel.order.collectAsState()
+    val orderCompleteState by paymentViewModel.completeOrderState.collectAsState()
     val cartState by viewModel.cartProducts.collectAsState()
+
     val cartItems = remember {
         mutableStateListOf<CartItem>()
     }
@@ -114,14 +117,6 @@ fun CartScreen(
     }
 
 
-//
-//    val totalPrice by remember(cartItems) {
-//        derivedStateOf {
-//            cartItems.sumOf { it.price * it.quantity }
-//        }
-//    }
-
-
     LaunchedEffect(orderState) {
         when (orderState) {
             is ResponseState.Success<*> -> {
@@ -137,12 +132,12 @@ fun CartScreen(
                 } else {
                     Log.e("DraftOrder", "Failed to extract draft order ID")
                 }
-                Toast.makeText(context, "Order placed successfully!", Toast.LENGTH_SHORT).show()
-                onNavigateToOrders()
             }
 
             is ResponseState.Failure -> {
-                Toast.makeText(context, "Failed to place order.", Toast.LENGTH_SHORT).show()
+                scope.launch {
+                    snackBarHostState.showSnackbar("Failed to place order")
+                }
             }
 
             ResponseState.Loading -> {
@@ -159,44 +154,62 @@ fun CartScreen(
             }
 
             is PaymentSheetResult.Canceled -> {
-                Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
+                scope.launch {
+                    snackBarHostState.showSnackbar("Payment Cancelled")
+                }
             }
 
             is PaymentSheetResult.Failed -> {
-                Toast.makeText(
-                    context, "Payment Failed: ${result.error.message}", Toast.LENGTH_SHORT
-                ).show()
+                scope.launch {
+                    snackBarHostState.showSnackbar("Payment Failed")
+                }
             }
         }
     })
 
+    LaunchedEffect(orderCompleteState) {
+        when (orderCompleteState) {
+            is ResponseState.Failure -> {
+                paymentViewModel.resetOrderCompleteState()
+            }
 
-    Scaffold (
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Cart",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Cold,
-                        fontWeight = MaterialTheme.typography.titleLarge.fontWeight
-                    )
-                },
-                navigationIcon = {
+            ResponseState.Loading -> {
+                Log.d("DraftOrder", "Completing draft order...")
+            }
 
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Cold
-                        )
-
-
-                    }
+            is ResponseState.Success<*> -> {
+                paymentViewModel.resetOrderCompleteState()
+                scope.launch {
+                    snackBarHostState.showSnackbar("Order placed successfully!")
+                    onNavigateToOrders()
                 }
-            )
+
+            }
         }
-    ){ paddingValues ->
+
+    }
+    Scaffold(topBar = {
+        TopAppBar(title = {
+            Text(
+                text = "Cart",
+                style = MaterialTheme.typography.titleLarge,
+                color = Cold,
+                fontWeight = MaterialTheme.typography.titleLarge.fontWeight
+            )
+        }, navigationIcon = {
+
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Cold
+                )
+
+
+            }
+        })
+    },
+        snackbarHost = { androidx.compose.material3.SnackbarHost(snackBarHostState) }) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -245,8 +258,7 @@ fun CartScreen(
                                         } else false
                                     })
 
-                                SwipeToDismiss(
-                                    state = dismissState,
+                                SwipeToDismiss(state = dismissState,
                                     directions = setOf(DismissDirection.EndToStart),
                                     background = {
                                         Box(
@@ -263,25 +275,28 @@ fun CartScreen(
                                         }
                                     },
                                     dismissContent = {
-                                        CartItemRow(
-                                                item = item,
-                                                onQuantityChange = { newQty ->
-                                                    val index = cartItems.indexOfFirst { it.id == item.id }
-                                                    if (index != -1) {
-                                                        cartItems[index] = cartItems[index].copy(quantity = newQty)
-                                                        quantityVersion++
-                                                    }
-                                                    viewModel.updateCartLine(lineId = item.lineId, quantity = newQty)
-                                                }
-                                            , onNavigateToProductInfo = onNavigateToProductInfo
-                                        )})
+                                        CartItemRow(item = item, onQuantityChange = { newQty ->
+                                            val index = cartItems.indexOfFirst { it.id == item.id }
+                                            if (index != -1) {
+                                                cartItems[index] =
+                                                    cartItems[index].copy(quantity = newQty)
+                                                quantityVersion++
+                                            }
+                                            viewModel.updateCartLine(
+                                                lineId = item.lineId,
+                                                quantity = newQty
+                                            )
+                                        }, onNavigateToProductInfo = onNavigateToProductInfo)
+                                    })
 
 
                             }
                         }
 
                         Text(
-                            text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(CurrencyManager.currencyRate.value*totalPrice),
+                            text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(
+                                CurrencyManager.currencyRate.value * totalPrice
+                            ),
                             modifier = Modifier
                                 .align(Alignment.End)
                                 .padding(horizontal = 16.dp, vertical = 4.dp),
@@ -323,32 +338,38 @@ fun CartScreen(
             containerColor = Color.White,
             tonalElevation = 10.dp
         ) {
-            PaymentSection(price = totalPrice, address = defaultAddress ?: Address(
-                firstName = "choose default address",
-                lastName = "",
-                address1 = "",
-                city = "",
-                country = "",
-                address2 = "",
-                phone = ""
-            ), onConfirm = { _, _, _ ->
-                showSheet = false
-                Toast.makeText(context, "Order Placed", Toast.LENGTH_SHORT).show()
-            }, onPayWithCardClick = {
-                paymentViewModel.initiatePaymentFlow(
-                    amount = (totalPrice * 100).toInt(),
-                    onClientSecretReady = { secret ->
-                        paymentSheet.presentWithPaymentIntent(
-                            paymentIntentClientSecret = secret,
-                            configuration = PaymentSheet.Configuration(
-                                merchantDisplayName = "Buyva"
+            PaymentSection(price = totalPrice,
+                address = defaultAddress ?: Address(
+                    firstName = "choose default address",
+                    lastName = "",
+                    address1 = "",
+                    city = "",
+                    country = "",
+                    address2 = "",
+                    phone = ""
+                ),
+                onConfirm = { _, _, _ ->
+                    showSheet = false
+                    scope.launch {
+                        snackBarHostState.showSnackbar("Thank you! Your order is on its way.")
+                    }
+                },
+                onPayWithCardClick = {
+                    paymentViewModel.initiatePaymentFlow(amount = (totalPrice * 100).toInt(),
+                        onClientSecretReady = { secret ->
+                            paymentSheet.presentWithPaymentIntent(
+                                paymentIntentClientSecret = secret,
+                                configuration = PaymentSheet.Configuration(
+                                    merchantDisplayName = "Buyva"
+                                )
                             )
-                        )
-                    })
-            },  onAddressClick = { onNavigateToAddresses() },
+                        })
+                },
+                onAddressClick = { onNavigateToAddresses() },
                 paymentViewModel = paymentViewModel,
                 cartItems = cartItems,
-                defaultAddress = defaultAddress
+                defaultAddress = defaultAddress,
+                coroutineScope  = scope
 
             )
         }
