@@ -18,7 +18,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class AddressRepoImplTest {
 
     private lateinit var remoteDataSource: RemoteDataSource
