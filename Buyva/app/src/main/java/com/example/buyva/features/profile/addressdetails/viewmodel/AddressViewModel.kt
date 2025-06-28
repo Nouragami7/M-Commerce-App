@@ -37,35 +37,26 @@ class AddressViewModel@Inject constructor(application: Application, private val 
     fun loadAddresses() {
         viewModelScope.launch {
             if (!token.isNullOrEmpty()) {
-                Log.i("1", "Loading addresses with token: $token")
                 repo.getAddresses(token).collect { response ->
-                    Log.i("1", "Address response: $response")
                     _addresses.value = response
 
                     if (response is ResponseState.Success<*>) {
-                        Log.i("1", "Address response data: ${response.data}")
                         val addressList = response.data as? List<Address>
                         if (addressList?.size == 1) {
-                            Log.i("1", "Only one address found")
                             val defaultKey = "${DEFAULT_ADDRESS_ID}_$token"
                             val alreadySaved =
                                 SharedPreferenceImpl.getFromSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token")
-                            Log.i("1", "Already saved: $alreadySaved")
                             if (alreadySaved.isNullOrEmpty()) {
-                                Log.i("1", "Saving as default")
                                 val onlyAddress = addressList.first()
                                 val cleanedId = onlyAddress.id?.stripTokenFromShopifyGid()
-                                Log.i("1", "Cleaned ID: $cleanedId")
                                 if (cleanedId != null) {
                                     SharedPreferenceImpl.saveToSharedPreferenceInGeneral("${DEFAULT_ADDRESS_ID}_$token", cleanedId)
                                 }
-                                Log.d("1", "Only one address found. Saved as default: ${onlyAddress.id}")
                             }
                         }
                     }
                 }
             } else {
-                Log.e("1", "Token is null or empty")
                 _addresses.value = ResponseState.Failure(Throwable("User token is missing"))
             }
         }
