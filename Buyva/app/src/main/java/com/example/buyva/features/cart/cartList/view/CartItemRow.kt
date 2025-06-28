@@ -67,8 +67,6 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(containerColor = Gray),
         onClick = {
-            Log.i("1", "CartItemRow id: ${item.id}")
-            Log.i("1", "CartItemRow title: ${item.selectedOptions[0].value}")
             onNavigateToProductInfo(item.id, item.selectedOptions[0].value,item.selectedOptions[1].value)
 
         }
@@ -119,6 +117,8 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
                     if (quantity > 1) {
                         quantity--
                         onQuantityChange(quantity)
+                    }else{
+
                     }
                 }) {
                     Icon(Icons.Filled.Remove, contentDescription = "Decrease", tint = Cold, modifier = Modifier.size(25.dp))

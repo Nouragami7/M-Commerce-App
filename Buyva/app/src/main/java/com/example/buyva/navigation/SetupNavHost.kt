@@ -243,7 +243,7 @@ fun SetupNavHost(
                 editableTextFields = backStackEntry.toRoute<ScreensRoute.AddressDetails>().editableTextFields,
                 prefillData = backStackEntry.toRoute<ScreensRoute.AddressDetails>().prefillData,
                 onSaveClick = {
-                    navController.navigate(ScreensRoute.DeliveryAddressListScreen)
+                    navController.popBackStack()
                 }
             )
         }
