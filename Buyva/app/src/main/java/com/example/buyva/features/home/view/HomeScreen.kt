@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -43,6 +46,8 @@ fun HomeScreen(
     favouriteViewModel: FavouriteScreenViewModel?
 
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     val homeViewModel: HomeViewModel = hiltViewModel(
     )
@@ -50,7 +55,6 @@ fun HomeScreen(
 //    addressViewModel.clearCart()
 
     SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
-    Log.i("1", "HomeScreen: ${SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)}")
     val brandsAndProducts by homeViewModel.brandsAndProducts.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = true
@@ -70,7 +74,7 @@ fun HomeScreen(
         SearchBarWithCartIcon(onCartClick, onSearchClick = onSearchClick)
         Spacer(modifier = Modifier.height(16.dp))
         if (banners.isNotEmpty()) {
-            OfferBanner(banner = banners)
+            OfferBanner(banner = banners, snackbarHostState, scope = scope)
         } else {
             LoadingIndicator()
         }

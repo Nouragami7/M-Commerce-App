@@ -28,11 +28,13 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -52,9 +54,16 @@ import com.example.buyva.ui.theme.Teal
 import coil.compose.AsyncImage
 import com.example.buyva.data.model.SelectedOption
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToProductInfo: ( String,String,String) -> Unit) {
+fun CartItemRow(item: CartItem,
+                onQuantityChange: (Int) -> Unit,
+                onNavigateToProductInfo: ( String,String,String) -> Unit,
+                snackbarHostState: SnackbarHostState,
+                scope: CoroutineScope
+                ) {
     var availableQuantity by remember { mutableStateOf(item.quantityAvailable) }
     var quantity by remember { mutableStateOf(item.quantity) }
 
@@ -118,6 +127,9 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
                         quantity--
                         onQuantityChange(quantity)
                     }else{
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Minimum quantity is 1")
+                        }
 
                     }
                 }) {
@@ -133,6 +145,10 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
                     if (quantity < availableQuantity) {
                         quantity++
                         onQuantityChange(quantity)
+                    }else{
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Maximum quantity is $availableQuantity")
+                        }
                     }
                 }) {
                     Icon(Icons.Filled.Add, contentDescription = "Increase", tint = Cold, modifier = Modifier.size(25.dp))

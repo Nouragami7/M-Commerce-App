@@ -38,6 +38,7 @@ import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.features.categories.viewmodel.CategoryViewModel
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.home.view.SearchBarWithCartIcon
+import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.DarkGray
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.utils.components.EmptyScreen
@@ -77,6 +78,9 @@ fun CategoryScreen(
 
     LaunchedEffect(selectedCategory) {
         categoryViewModel.getProductByCategory(selectedCategory.lowercase())
+    }
+    LaunchedEffect(Unit) {
+        NavigationBar.mutableNavBarState.value = true
     }
 
     val categories = listOf(
