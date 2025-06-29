@@ -144,11 +144,20 @@ fun PaymentSection(
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             PaymentMethod.entries.forEach { method ->
+                val isCashDisabled = method == PaymentMethod.CashOnDelivery && discountedPrice > 1000
+
                 OutlinedButton(
-                    onClick = { selectedMethod = method },
+                    onClick = {
+                        if (!isCashDisabled) {
+                            selectedMethod = method
+                        }
+                    },
+                    enabled = !isCashDisabled,
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (selectedMethod == method) Cold else Color.Transparent,
-                        contentColor = if (selectedMethod == method) Color.White else Cold
+                        contentColor = if (selectedMethod == method) Color.White else Cold,
+                        disabledContainerColor = Color.LightGray,
+                        disabledContentColor = Color.Gray
                     ),
                     modifier = Modifier
                         .weight(1f)
@@ -157,6 +166,17 @@ fun PaymentSection(
                     Text(method.displayName)
                 }
             }
+
+        }
+        Spacer(modifier = Modifier.height(9.dp))
+
+        if (discountedPrice > 1000) {
+            Text(
+                "Cash on Delivery is not available for orders above 1000 EGP",
+                color = Color.Red,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
