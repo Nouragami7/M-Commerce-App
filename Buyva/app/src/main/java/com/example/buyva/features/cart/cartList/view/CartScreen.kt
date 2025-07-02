@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -61,6 +62,7 @@ import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Teal
+import com.example.buyva.ui.theme.ubuntuMedium
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.components.LoadingIndicator
@@ -195,7 +197,8 @@ fun CartScreen(
                 text = "Cart",
                 style = MaterialTheme.typography.titleLarge,
                 color = Cold,
-                fontWeight = MaterialTheme.typography.titleLarge.fontWeight
+                fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
+                fontFamily = ubuntuMedium
             )
         }, navigationIcon = {
 
@@ -249,6 +252,8 @@ fun CartScreen(
                         }
                         Log.i("1", "CartScreen not empty")
 
+                        Text("Just one step away from your favorites", color = Cold, fontSize = 18.sp, modifier = Modifier.padding(start = 4.dp).padding(12.dp), fontFamily = ubuntuMedium, textAlign = TextAlign.Start)
+
                         LazyColumn(modifier = Modifier.weight(1f)) {
                             items(cartItems, key = { it.lineId }) { item ->
                                 val dismissState =
@@ -300,7 +305,7 @@ fun CartScreen(
                         }
 
                         Text(
-                            text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(
+                            text = "Total:%.2f ${CurrencyManager.currencyUnit.value}".format(
                                 CurrencyManager.currencyRate.value * totalPrice
                             ),
                             modifier = Modifier
@@ -308,7 +313,8 @@ fun CartScreen(
                                 .padding(horizontal = 16.dp, vertical = 4.dp),
                             fontSize = 25.sp,
                             fontWeight = MaterialTheme.typography.titleLarge.fontWeight,
-                            color = Cold
+                            color = Cold,
+                            fontFamily = ubuntuMedium
                         )
 
                         Button(
@@ -321,8 +327,9 @@ fun CartScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .height(55.dp)
                         ) {
-                            Text("Proceed to Payment", color = Color.White)
+                            Text("Proceed to Payment", color = Color.White, fontFamily = ubuntuMedium, fontSize = 18.sp)
                         }
 
                         Spacer(modifier = Modifier.height(56.dp))

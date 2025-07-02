@@ -19,10 +19,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.example.buyva.R
@@ -34,10 +32,11 @@ import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.navigation.navbar.NavigationBar.ShowCurvedNavBar
 import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.functions.ConnectivityObserver
+import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity()  {
+class MainActivity : ComponentActivity() {
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -49,11 +48,15 @@ class MainActivity : ComponentActivity()  {
             var displaySplashScreen by remember { mutableStateOf(true) }
             var startDestination by remember { mutableStateOf("splash") }
             LaunchedEffect(Unit) {
-                val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-                val isGuest = user == null
-                UserSessionManager.setGuestMode(isGuest)
+                val firebaseUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+                val isLoggedIn = firebaseUser != null && firebaseUser.isEmailVerified
+                val loggedIn = SharedPreferenceImpl.getFromSharedPreference(
+                    context = this@MainActivity,
+                    "SignIn"
+                )
+                UserSessionManager.setGuestMode(!isLoggedIn)
 
-                startDestination = if (!isGuest) {
+                startDestination = if (isLoggedIn && loggedIn == "true") {
                     ScreensRoute.HomeScreen::class.qualifiedName!!
                 } else {
                     ScreensRoute.WelcomeScreen::class.qualifiedName!!
@@ -81,8 +84,7 @@ class MainActivity : ComponentActivity()  {
         val connectivityObserver = ConnectivityObserver(context)
         val isConnected by connectivityObserver.isConnected.collectAsStateWithLifecycle()
 
-        Scaffold(
-            bottomBar = {
+        Scaffold(bottomBar = {
             when (isNavBarVisible.value) {
 
                 true -> {
@@ -97,7 +99,9 @@ class MainActivity : ComponentActivity()  {
         }
 
         ) { _ ->
-            Box(modifier = Modifier.fillMaxSize().background(color = Color.White)) {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.White)) {
                 SetupNavHost(navController = navController, startDestination = startDestination)
             }
             if (!isConnected) {
@@ -106,7 +110,7 @@ class MainActivity : ComponentActivity()  {
                         .fillMaxSize()
                         .background(Color.White.copy(alpha = 0.95f)),
                     contentAlignment = Alignment.Center
-                )  {
+                ) {
                     EmptyScreen(
                         text = "No internet connection",
                         fontSize = 24.sp,

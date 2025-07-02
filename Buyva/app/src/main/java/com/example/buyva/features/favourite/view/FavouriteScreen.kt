@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -12,12 +13,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.buyva.R
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
+import com.example.buyva.ui.theme.Cold
+import com.example.buyva.ui.theme.ubuntuMedium
 import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.components.ScreenTitle
 
@@ -46,6 +50,8 @@ fun FavouriteScreen(
             }
         } else {
             item {
+                Text("Saved with love, worn with style", color = Cold, fontSize = 18.sp, modifier = Modifier.padding(start = 4.dp).padding(12.dp), fontFamily = ubuntuMedium, textAlign = TextAlign.Start)
+
                 ProductSection(
                     products = favouriteProducts, onProductClick = { productId ->
                         navController.navigate("productInfo/$productId")

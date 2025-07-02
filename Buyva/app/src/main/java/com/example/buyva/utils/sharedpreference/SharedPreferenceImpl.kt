@@ -12,6 +12,7 @@ object SharedPreferenceImpl : SharedPreference {
     private const val KEY_CUSTOMER_EMAIL = "customer_email"
     private const val KEY_CUSTOMER_FIRST_NAME = "customer_first_name"
     private const val KEY_CUSTOMER_LAST_NAME = "customer_last_name"
+
     private var appContext: Context? = null
 
     fun init(context: Context) {

@@ -78,7 +78,8 @@ fun SetupNavHost(
         }
 
         composable<ScreensRoute.SignUpScreen> {
-            SignupScreenHost(onSignInClick = { navController.navigate(ScreensRoute.LoginScreen) },
+            SignupScreenHost(
+                onSignInClick = { navController.navigate(ScreensRoute.LoginScreen) },
                 onSuccess = {
                     navController.navigate(ScreensRoute.LoginScreen)
                 },

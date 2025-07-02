@@ -36,12 +36,10 @@ import com.example.buyva.ui.theme.ubuntuMedium
 
 @Composable
 fun WelcomeScreen(
-    onSignInClick: () -> Unit,
-    onSignUpClick: () -> Unit,
-    onSkipClick: () -> Unit
+    onSignInClick: () -> Unit, onSignUpClick: () -> Unit, onSkipClick: () -> Unit
 ) {
     LaunchedEffect(Unit) {
-      NavigationBar.mutableNavBarState.value = false
+        NavigationBar.mutableNavBarState.value = false
     }
     Box(
         modifier = Modifier
@@ -62,7 +60,8 @@ fun WelcomeScreen(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .clickable(onClick = onSkipClick)
-                    .padding(end = 4.dp)
+                    .padding(end = 4.dp),
+                fontFamily = ubuntuMedium
             )
         }
 
@@ -91,15 +90,20 @@ fun WelcomeScreen(
 
             Spacer(modifier = Modifier.height(50.dp))
 
-            Text("Your style, your store ", color = Color.White, fontSize = 28.sp,fontFamily = ubuntuMedium)
+            Text(
+                "Your style, your store ",
+                color = Color.White,
+                fontSize = 28.sp,
+                fontFamily = ubuntuMedium
+            )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(50.dp))
 
             Button(
                 onClick = onSignInClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(60.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 contentPadding = PaddingValues()
@@ -110,31 +114,36 @@ fun WelcomeScreen(
                         .background(
                             brush = Brush.horizontalGradient(
                                 colors = listOf(Color(0xFF48A6A7), Color(0xFF006A71))
-                            ),
-                            shape = RoundedCornerShape(15.dp)
-                        ),
-                    contentAlignment = Alignment.Center
+                            ), shape = RoundedCornerShape(15.dp)
+                        ), contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "SIGN IN",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp
+                        fontSize = 22.sp,
+                        fontFamily = ubuntuMedium
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
             Button(
                 onClick = onSignUpClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(60.dp),
                 shape = RoundedCornerShape(15.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White)
             ) {
-                Text("Create your account", color = Color.Black, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    "Create your account",
+                    color = Color.Black,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = ubuntuMedium
+                )
             }
 
             Spacer(modifier = Modifier.height(40.dp))

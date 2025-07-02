@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -51,6 +52,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buyva.R
 import com.example.buyva.features.authentication.login.viewmodel.LoginViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
+import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 
 @Composable
 fun LoginScreen(
@@ -58,7 +60,6 @@ fun LoginScreen(
     onSignUpClick: () -> Unit = {},
     onLoginSuccess: () -> Unit = {}
 ) {
-    //Hide nav bar
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
     }
@@ -70,6 +71,7 @@ fun LoginScreen(
 
     val loginState by viewModel.loginState.collectAsState()
     val error = viewModel.errorMessage.collectAsState().value
+    val context = LocalContext.current
 
 
     LaunchedEffect(loginState) {
@@ -177,6 +179,7 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         viewModel.signIn(email.trim(), password.trim())
+                        SharedPreferenceImpl.saveToSharedPreference(context, "SignIn", "true")
                     },
                     modifier = Modifier
                         .width(280.dp)
@@ -201,7 +204,8 @@ fun LoginScreen(
                             text = "SIGN IN",
                             color = Color.White,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = UbuntuFontFamily
                         )
                     }
                 }

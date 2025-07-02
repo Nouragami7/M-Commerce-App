@@ -172,7 +172,7 @@ fun PaymentSection(
 
         if (discountedPrice > 1000) {
             Text(
-                "Cash on Delivery is not available for orders above 1000 EGP",
+                "Cash on Delivery is not available for orders above ${1000*CurrencyManager.currencyRate.value} ${CurrencyManager.currencyUnit.value}",
                 color = Color.Red,
                 fontSize = 12.sp,
                 modifier = Modifier.padding(start = 4.dp, top = 4.dp)
@@ -276,7 +276,7 @@ fun PaymentSection(
                 }
 
                 Text(
-                    text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(price * CurrencyManager.currencyRate.value),
+                    text = "Total: %.2f ${CurrencyManager.currencyUnit.value}".format(price * CurrencyManager.currencyRate.value),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = Cold
