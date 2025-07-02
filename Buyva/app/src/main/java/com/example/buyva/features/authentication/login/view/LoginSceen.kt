@@ -1,8 +1,5 @@
 package com.example.buyva.features.authentication.login.ui
 
-import android.graphics.fonts.FontStyle
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -28,7 +24,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -44,7 +39,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -62,7 +56,6 @@ import com.example.buyva.navigation.navbar.NavigationBar
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     onSignUpClick: () -> Unit = {},
-    onGoogleClick: () -> Unit = {},
     onLoginSuccess: () -> Unit = {}
 ) {
     //Hide nav bar
@@ -179,7 +172,7 @@ fun LoginScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(80.dp))
 
                 Button(
                     onClick = {
@@ -226,48 +219,18 @@ fun LoginScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-
-                OutlinedButton(
-                    onClick = onGoogleClick,
-                    modifier = Modifier
-                        .width(280.dp)
-                        .height(60.dp),
-                    shape = RoundedCornerShape(30.dp),
-                    border = BorderStroke(1.dp, Color.Gray),
-                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.google_logo),
-                            contentDescription = "Google Logo",
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Continue with Google",
-                            color = Color.Black,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(100.dp))
+                Spacer(Modifier.height(80.dp))
 
                 Row {
-                    Text("Don't have an account?", color = Color.Gray)
+                    Text("Don't have an account?", color = Color.Gray, fontSize = 20.sp
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Sign up",
                         color = Color(0xFF006A71),
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable(onClick = onSignUpClick)
+                        modifier = Modifier.clickable(onClick = onSignUpClick) ,
+                        fontSize = 20.sp
                     )
                 }
             }

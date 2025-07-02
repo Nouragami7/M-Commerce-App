@@ -356,9 +356,6 @@ fun CartScreen(
                 ),
                 onConfirm = { _, _, _ ->
                     showSheet = false
-                    scope.launch {
-                        snackBarHostState.showSnackbar("Thank you! Your order is on its way.")
-                    }
                 },
                 onPayWithCardClick = {
                     paymentViewModel.initiatePaymentFlow(amount = (totalPrice * 100).toInt(),

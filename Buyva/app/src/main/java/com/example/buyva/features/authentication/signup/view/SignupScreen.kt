@@ -1,5 +1,6 @@
 package com.youssef
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -24,13 +24,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,18 +37,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.example.buyva.R
 import com.example.buyva.features.authentication.signup.viewmodel.SignupViewModel
+import com.example.buyva.navigation.ScreensRoute
 import com.example.buyva.navigation.navbar.NavigationBar
 
 @Composable
@@ -58,8 +57,7 @@ fun SignupScreen(
     viewModel: SignupViewModel = hiltViewModel(),
     onSignInClick: () -> Unit = {},
     onSuccess: () -> Unit = {},
-    onGoogleClick: () -> Unit = {}
-
+    navController: NavController
 ) {
     //Hide nav bar
     LaunchedEffect(Unit) {
@@ -68,15 +66,20 @@ fun SignupScreen(
     val UbuntuFontFamily = FontFamily(
         Font(R.font.ubuntu_medium,FontWeight.Medium)
     )
-    val user by viewModel.user.collectAsState()
-    val error by viewModel.error.collectAsState()
+  //  val user by viewModel.user.collectAsStateWithLifecycle()
+    val error by viewModel.error.collectAsStateWithLifecycle()
 
-    LaunchedEffect(user) {
-        if (user != null) {
-            if (user?.isEmailVerified == true) {
+    val isEmailVerified by viewModel.isEmailVerified.collectAsStateWithLifecycle()
+
+    LaunchedEffect(isEmailVerified) {
+            Log.d("SignupScreen", "User is not null")
+            if (isEmailVerified) {
                 onSuccess()
-            } else {
-            }
+                Log.d("SignupScreen", "User is verified")
+                navController.navigate(ScreensRoute.LoginScreen)
+                Log.d("SignupScreen", "Navigating to LoginScreen")
+            } else{
+            Log.d("SignupScreen", "User is null")
         }
     }
 
@@ -255,31 +258,12 @@ fun SignupScreen(
                         Text(
                             text = "SIGN UP",
                             color = Color.White,
-                            fontSize = 18.sp,
+                            fontSize = 24.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
                 }
 
-                Spacer(Modifier.height(5.dp))
-
-                OutlinedButton(
-                    onClick = onGoogleClick,
-                    modifier = Modifier
-                        .width(280.dp)
-                        .height(50.dp),
-                    shape = RoundedCornerShape(30.dp),
-                    border = ButtonDefaults.outlinedButtonBorder
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.google_logo),
-                        contentDescription = "Google Icon",
-                        modifier = Modifier.size(20.dp),
-                        tint = Color.Unspecified
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text("Sign up with Google", color = Color.Black, fontSize = 16.sp)
-                }
 
                 Spacer(Modifier.height(30.dp))
 
@@ -290,57 +274,18 @@ fun SignupScreen(
                 Spacer(Modifier.height(20.dp))
 
                 Row {
-                    Text("Already have an account?", color = Color.Gray)
+                    Text("Already have an account?", color = Color.Gray,fontSize = 20.sp
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Sign in",
                         color = Color(0xFF006A71),
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable(onClick = onSignInClick)
+                        modifier = Modifier.clickable(onClick = onSignInClick),
+                        fontSize = 20.sp
                     )
                 }
             }
         }
     }
 }
-@Composable
-fun PasswordTextField(
-    label: String,
-    value: String,
-    onValueChange: (String) -> Unit
-) {
-    var passwordVisible by remember { mutableStateOf(false) }
-
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label, fontSize = 18.sp) },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(60.dp),
-        textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
-        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-        trailingIcon = {
-            val image = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-            IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                Icon(imageVector = image, contentDescription = "Toggle Password Visibility")
-            }
-        },
-        singleLine = true,
-        shape = RoundedCornerShape(12.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color(0xFF006A71),
-            unfocusedBorderColor = Color.Gray
-        )
-    )
-}
-//
-//@Preview(showBackground = true)
-//@Composable
-//fun PreviewSignUpScreen() {
-//    SignupScreen(
-//        viewModel = TODO(),
-//        onSignInClick = TODO(),
-//        onSuccess = TODO()
-//    )
-//}

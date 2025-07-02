@@ -42,7 +42,10 @@ import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
-fun OrderScreen(onBack: () -> Unit = {}, onOrderClick: (GetOrdersByCustomerEmailQuery.Node?) -> Unit ) {
+fun OrderScreen(
+    onBack: () -> Unit = {},
+    onOrderClick: (GetOrdersByCustomerEmailQuery.Node?) -> Unit
+) {
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
     }
@@ -98,15 +101,15 @@ fun OrderScreen(onBack: () -> Unit = {}, onOrderClick: (GetOrdersByCustomerEmail
             is ResponseState.Success<*> -> {
                 val response = state.data as GetOrdersByCustomerEmailQuery.Data
                 val orders = response.orders.edges.map { it.node }
-                if(orders.isEmpty()) {
-                    EmptyScreen("No orders yet",22.sp, R.raw.empty_order)
+                if (orders.isEmpty()) {
+                    EmptyScreen("No orders yet", 22.sp, R.raw.empty_order)
 
-                }else{
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    item {
-                        OrderSection("Your Orders", orders, onOrderClick)
+                } else {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        item {
+                            OrderSection("Your Orders", orders, onOrderClick)
+                        }
                     }
-                }
                 }
             }
         }
@@ -118,7 +121,8 @@ fun OrderScreen(onBack: () -> Unit = {}, onOrderClick: (GetOrdersByCustomerEmail
 
 @Composable
 fun OrderSection(
-    title: String, orders: List<GetOrdersByCustomerEmailQuery.Node>,
+    title: String,
+    orders: List<GetOrdersByCustomerEmailQuery.Node>,
     onOrderClick: (GetOrdersByCustomerEmailQuery.Node?) -> Unit
 ) {
 
@@ -140,7 +144,7 @@ fun OrderSection(
         Spacer(modifier = Modifier.height(16.dp))
 
         orders.forEach { order ->
-            OrderCard(order,onOrderClick)
+            OrderCard(order, onOrderClick)
             Spacer(modifier = Modifier.height(16.dp))
         }
     }

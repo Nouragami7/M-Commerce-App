@@ -80,10 +80,11 @@ fun SetupNavHost(
         composable<ScreensRoute.SignUpScreen> {
             SignupScreenHost(onSignInClick = { navController.navigate(ScreensRoute.LoginScreen) },
                 onSuccess = {
-                    navController.navigate(ScreensRoute.HomeScreen) {
-                        popUpTo(0)
-                    }
-                })
+                    navController.navigate(ScreensRoute.LoginScreen)
+                },
+                navController = navController
+            )
+
         }
         composable<ScreensRoute.HomeScreen> {
             val favouriteViewModel =
@@ -248,8 +249,7 @@ fun SetupNavHost(
                     navController.popBackStack()
                     navController.popBackStack()
 
-                }
-            )
+                })
         }
 
         composable<ScreensRoute.DeliveryAddressListScreen> {

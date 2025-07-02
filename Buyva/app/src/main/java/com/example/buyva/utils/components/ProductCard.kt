@@ -45,9 +45,6 @@ import com.example.buyva.features.authentication.login.viewmodel.UserSessionMana
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Sea
-import com.example.buyva.utils.constants.CURRENCY_RATE
-import com.example.buyva.utils.constants.CURRENCY_UNIT
-import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
 
 @Composable
@@ -63,10 +60,6 @@ fun ProductCard(
     var showGuestAlert by remember { mutableStateOf(false) }
     var guestActionType by remember { mutableStateOf("") }
 
-    val currencyRate: Double =
-        SharedPreferenceImpl.getLongFromSharedPreferenceInGeneral(CURRENCY_RATE)
-    val currencyUnit: String =
-        SharedPreferenceImpl.getFromSharedPreferenceInGeneral(CURRENCY_UNIT).toString()
 
     val id = when (product) {
         is BrandsAndProductsQuery.Node -> product.id
@@ -159,7 +152,7 @@ fun ProductCard(
             Text(
                 text = productTitle,
                 style = MaterialTheme.typography.bodyMedium,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
 
@@ -169,7 +162,7 @@ fun ProductCard(
                 text = productType,
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray,
-                fontSize = 14.sp,
+                fontSize = 13.sp,
                 modifier = Modifier.padding(start = 2.dp)
             )
 

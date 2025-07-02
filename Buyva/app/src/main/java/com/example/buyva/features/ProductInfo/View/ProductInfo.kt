@@ -65,7 +65,6 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.buyva.GetProductByIdQuery
 import com.example.buyva.R
-import com.example.buyva.data.model.SelectedOption
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.data.repository.home.IHomeRepository
 import com.example.buyva.features.ProductInfo.viewmodel.ProductInfoViewModel
@@ -93,11 +92,13 @@ fun ProductInfoScreen(
     val viewModel: ProductInfoViewModel = hiltViewModel()
     val state by viewModel.product.collectAsState()
     val addingState by viewModel.addingToCart.collectAsState()
+    val context = LocalContext.current
+
 
 
     LaunchedEffect(addingState) {
         if (addingState is ResponseState.Success<*>) {
-            navController.navigate(ScreensRoute.CartScreen)
+            Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -297,11 +298,6 @@ fun ProductInfoContent(
 
                     Text("$newPrice", color = Cold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(8.dp))
-//                    Text(
-//                        if (inStock) "In Stock" else "Out of Stock",
-//                        color = if (inStock) Color.Red else Color.Gray,
-//                        fontSize = 12.sp
-//                    )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(description, fontSize = 16.sp, lineHeight = 22.sp)
                 }

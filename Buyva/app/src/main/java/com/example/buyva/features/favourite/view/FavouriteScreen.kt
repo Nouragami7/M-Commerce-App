@@ -34,7 +34,7 @@ fun FavouriteScreen(
         NavigationBar.mutableNavBarState.value = true
     }
     LazyColumn(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize().padding(16.dp)
     ) {
         item {
             ScreenTitle("Favourite")

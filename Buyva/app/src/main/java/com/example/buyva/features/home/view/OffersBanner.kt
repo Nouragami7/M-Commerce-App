@@ -40,6 +40,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.buyva.R
 import com.example.buyva.data.model.DiscountBanner
 import com.example.buyva.ui.theme.Cold
+import com.example.buyva.ui.theme.ubuntuMedium
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -108,29 +109,25 @@ fun OfferBanner(banner: List<DiscountBanner>,
                                 Color.Black.copy(alpha = 0.5f),
                                 shape = RoundedCornerShape(bottomEnd = 12.dp)
                             )
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Use Code ",
+                            text = "Use Code: ",
                             color = Color.White,
                             fontSize = 14.sp,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontFamily = ubuntuMedium
                         )
                         SelectionContainer {
                             Text(
                                 text = extractedCode,
                                 color = Color.White,
                                 fontSize = 14.sp,
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontFamily = ubuntuMedium
                             )
                         }
-                        Text(
-                            text = " For ${bannerItem.percentage}% Off",
-                            color = Color.White,
-                            fontSize = 14.sp,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
 
 
                         Spacer(modifier = Modifier.width(8.dp))
