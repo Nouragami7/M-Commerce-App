@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.buyva.GetCartDetailsQuery
 import com.example.buyva.data.datasource.remote.RemoteDataSource
 import com.example.buyva.data.model.CartItem
+import com.example.buyva.data.model.SelectedOption
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.utils.constants.USER_TOKEN
 import com.example.buyva.utils.sharedpreference.SharedPreference
@@ -41,11 +42,11 @@ class CartRepoImpl @Inject constructor (
                 is ResponseState.Success<*> -> {
                     val cart = response.data as? GetCartDetailsQuery.Cart
                     if (cart != null) {
-                        Log.i("1", "getCartProductList: ${cart.lines.edges}")
+                      //  Log.i("1", "getCartProductList: ${cart.lines.edges}")
                         val products = cart.lines.edges.mapNotNull { edge ->
                             val variant = edge.node.merchandise.onProductVariant ?: return@mapNotNull null
                             val product = variant.product
-                            Log.d("1", "amount type: ${variant.price.amount!!::class.qualifiedName}")
+//                            Log.d("1", "amount type: ${variant.price.amount!!::class.qualifiedName}")
 
                             val priceString = variant.price.amount.toString()
                             val price = priceString.toDoubleOrNull() ?: 0.0
@@ -59,11 +60,14 @@ class CartRepoImpl @Inject constructor (
                                 imageUrl = (product.featuredImage?.url ?: "").toString(),
                                 price = price,
                                 quantity = edge.node.quantity,
-                                quantityAvailable = edge.node.merchandise.onProductVariant.quantityAvailable ?: 0
+                                quantityAvailable = edge.node.merchandise.onProductVariant.quantityAvailable ?: 0,
+                                selectedOptions = edge.node.merchandise.onProductVariant.selectedOptions.map {
+                                    SelectedOption(name = it.name, value = it.value)
+                                }
                             )
                         }
                         emit(ResponseState.Success(products))
-                        Log.i("1", "getCartProductList: $products")
+                       // Log.i("1", "getCartProductList: $products")
                     } else {
                         emit(ResponseState.Failure(Exception("Cart is null")))
                     }
@@ -80,13 +84,9 @@ class CartRepoImpl @Inject constructor (
 
 
     override suspend fun writeCartIdToSharedPreferences(key: String, value: String) {
-        Log.i("ShoppingCartFragment", "writeCartIdToSharedPreferences: ")
+     //   Log.i("ShoppingCartFragment", "writeCartIdToSharedPreferences: ")
         sharedPreferences.saveToSharedPreferenceInGeneral( key, value)   }
 
-//    override fun readCartIdFromSharedPreferences(): String {
-//        Log.i("ShoppingCartFragment", "readCartIdFromSharedPreferences: ")
-//        return sharedPreferences.getFromSharedPreferenceInGeneral(CART_ID) ?: ""
-//    }
     override suspend fun readUserToken(): String {
         return sharedPreferences.getFromSharedPreferenceInGeneral(USER_TOKEN) ?: ""
     }
@@ -95,10 +95,12 @@ class CartRepoImpl @Inject constructor (
         cartId: String,
         lineItemId: String
     ): Flow<ResponseState> {
-        Log.i("1", "removeProductFromCart: $cartId $lineItemId")
+      //  Log.i("1", "removeProductFromCart: $cartId $lineItemId")
         return remoteDataSource.removeProductFromCart(cartId, lineItemId)
 
     }
 
-
+    override fun updateCartLine(cartId: String, lineId: String, quantity: Int): Flow<ResponseState> {
+        return remoteDataSource.updateCartLine(cartId, lineId, quantity)
+    }
 }

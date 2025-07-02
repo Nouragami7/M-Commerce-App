@@ -223,4 +223,13 @@ class AuthRepository @Inject constructor(
             Log.e("AuthRepository", "Failed to delete user", e)
         }
     }
+    override suspend fun sendPasswordResetEmail(email: String): Result<Unit> {
+        return try {
+            auth.sendPasswordResetEmail(email).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 }

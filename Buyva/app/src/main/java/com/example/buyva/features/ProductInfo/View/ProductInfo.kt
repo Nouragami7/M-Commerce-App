@@ -75,6 +75,7 @@ import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
+import com.example.buyva.ui.theme.ubuntuMedium
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
@@ -83,18 +84,22 @@ import com.google.firebase.auth.FirebaseAuth
 @Composable
 fun ProductInfoScreen(
     navController: NavController, productId: String,
-    //  variantId: String,
-    repository: IHomeRepository, favouriteViewModel: FavouriteScreenViewModel?
+    repository: IHomeRepository, favouriteViewModel: FavouriteScreenViewModel?,
+    size: String? = null,
+    color: String? = null
 ) {
     Log.i("1", "ProductInfoScreen productId: $productId")
     // Log.i("1", "ProductInfoScreen variantId: $variantId")
     val viewModel: ProductInfoViewModel = hiltViewModel()
     val state by viewModel.product.collectAsState()
     val addingState by viewModel.addingToCart.collectAsState()
+    val context = LocalContext.current
+
+
 
     LaunchedEffect(addingState) {
         if (addingState is ResponseState.Success<*>) {
-            navController.navigate(ScreensRoute.CartScreen)
+            Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -121,7 +126,9 @@ fun ProductInfoScreen(
                     product = product,
                     navController = navController,
                     favouriteViewModel = favouriteViewModel,
-                    viewModel = viewModel
+                    viewModel = viewModel,
+                    preSelectedSize = size,
+                    preSelectedColor = color
                 )
             }
         }
@@ -133,7 +140,11 @@ fun ProductInfoContent(
     product: GetProductByIdQuery.Product,
     navController: NavController,
     favouriteViewModel: FavouriteScreenViewModel?,
-    viewModel: ProductInfoViewModel
+    viewModel: ProductInfoViewModel,
+    preSelectedSize: String? = null,
+    preSelectedColor: String? = null
+
+
 ) {
     var selectedImage by remember { mutableStateOf<String?>(null) }
     val favouriteProducts by favouriteViewModel?.favouriteProducts?.collectAsState() ?: remember {
@@ -141,6 +152,7 @@ fun ProductInfoContent(
             emptyList()
         )
     }
+
     val isFavorite = favouriteProducts.any { it.id == product.id }
     var showDeleteAlert by remember { mutableStateOf(false) }
 
@@ -157,7 +169,7 @@ fun ProductInfoContent(
     val title = product.title
     val vendor = product.vendor
     val description = product.description
-    val inStock = (product.totalInventory ?: 0) > 0
+   // val inStock = (product.totalInventory ?: 0) > 0
 
     val allVariants = product.variants.edges.map { it.node }
     val allSelectedOptions = allVariants.flatMap { it.selectedOptions }
@@ -173,9 +185,25 @@ fun ProductInfoContent(
     val availableColors =
         allSelectedOptions.filter { it.name.equals("Color", ignoreCase = true) }.map { it.value }
             .distinct()
+    var selectedSize by remember(product) {
+        mutableStateOf(
+            preSelectedSize?.takeIf { it in availableSizes }
+                ?: availableSizes.firstOrNull()
+        )
+    }
+    var selectedColor by remember(product) {
+        mutableStateOf(
+            preSelectedColor?.takeIf { it in availableColors }
+                ?: availableColors.firstOrNull()
+        )
+    }
 
-    var selectedSize by remember { mutableStateOf(availableSizes.firstOrNull()) }
-    var selectedColor by remember { mutableStateOf(availableColors.firstOrNull()) }
+    val matchedVariant = product.variants.edges.map { it.node }
+        .firstOrNull { variant ->
+            variant.selectedOptions.any { it.name.equals("size", true) && it.value.equals(selectedSize, true) } &&
+                    variant.selectedOptions.any { it.name.equals("color", true) && it.value.equals(selectedColor, true) }
+        }
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -204,7 +232,8 @@ fun ProductInfoContent(
                 Text(
                     "Product Info",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Sea
+                    color = Sea,
+                    fontFamily = ubuntuMedium
                 )
             }
 
@@ -275,21 +304,13 @@ fun ProductInfoContent(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(vendor, color = Color.Gray, fontSize = 12.sp)
                     Spacer(modifier = Modifier.height(8.dp))
-//                     Text(
-//                         "$price $currency",
-//                         color = Cold,
-//                         fontWeight = FontWeight.Bold,
-//                         fontSize = 16.sp
-//                     )
-                    Text("$newPrice", color = Cold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+
+                    Text(newPrice, color = Cold, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        if (inStock) "In Stock" else "Out of Stock",
-                        color = if (inStock) Color.Red else Color.Gray,
-                        fontSize = 12.sp
-                    )
+                    Text(if (matchedVariant?.quantityAvailable!!>0) "In Stock" else "Out of Stock", color = Color.Red, fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(description, fontSize = 16.sp, lineHeight = 22.sp)
+
                 }
             }
 
@@ -362,60 +383,63 @@ fun ProductInfoContent(
                 .background(Color.White)
                 .padding(16.dp)
         ) {
-            OutlinedButton(
-                onClick = {
-                    if (UserSessionManager.isGuest()) {
-                        guestActionType = "cart"
-                        showGuestAlert = true
-                        return@OutlinedButton
-                    }
+            if (matchedVariant != null) {
+                OutlinedButton(
+                    enabled =  if(matchedVariant.quantityAvailable!!>0){
+                        true
+                    }else{
+                        false
+                    },
+                    onClick = {
 
-                    if (selectedSize == null || selectedColor == null) {
-                        Toast.makeText(context, "Please select size and color", Toast.LENGTH_SHORT)
-                            .show()
-                        return@OutlinedButton
-                    }
-
-                    val matchedVariant =
-                        product.variants.edges.map { it.node }.firstOrNull { variant ->
-                            val options =
-                                variant.selectedOptions.associate { it.name.lowercase() to it.value.lowercase() }
-                            val selectedSizeMatch = options["size"] == selectedSize?.lowercase()
-                            val selectedColorMatch = options["color"] == selectedColor?.lowercase()
-                            selectedSizeMatch && selectedColorMatch
+                        if (UserSessionManager.isGuest()) {
+                            guestActionType = "cart"
+                            showGuestAlert = true
+                            return@OutlinedButton
                         }
 
-                    val productVariantId = matchedVariant?.id
+                        if (selectedSize == null || selectedColor == null) {
+                            Toast.makeText(context, "Please select size and color", Toast.LENGTH_SHORT)
+                                .show()
+                            return@OutlinedButton
+                        }
 
-                    if (productVariantId == null) {
-                        Toast.makeText(
-                            context, "No variant matches selected size/color", Toast.LENGTH_SHORT
-                        ).show()
-                        return@OutlinedButton
-                    }
 
-                    isAddedToCart = true
-                    viewModel.addToCartById(
-                        email = userEmail,
-                        cartId = cartId,
-                        quantity = 1,
-                        variantId = productVariantId
-                    )
-                    Toast.makeText(context, "Product added to cart", Toast.LENGTH_SHORT).show()
-                    navController.currentBackStackEntry?.savedStateHandle?.set("REFRESH_CART", true)
-                    navController.navigate(ScreensRoute.CartScreen)
-                }, modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
+                        val productVariantId = matchedVariant?.id
 
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = if (isAddedToCart) Sea else Color.White,
-                    contentColor = if (isAddedToCart) Color.White else Sea
-                ), border = BorderStroke(1.dp, Sea)
-            ) {
-                Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Add to Cart", fontWeight = FontWeight.Bold)
+                        if (productVariantId == null) {
+                            Toast.makeText(
+                                context, "No variant matches selected size/color", Toast.LENGTH_SHORT
+                            ).show()
+                            return@OutlinedButton
+                        }
+                        Log.i("3", "ProductInfoContent quantityAvailable: ${matchedVariant.quantityAvailable}")
+
+                        isAddedToCart = true
+                        if( matchedVariant.quantityAvailable!! > 0) {
+                            viewModel.addToCartById(
+                                email = userEmail,
+                                cartId = cartId,
+                                quantity = 1,
+                                variantId = productVariantId
+                            )
+                            isAddedToCart = true
+
+                        }else {
+                            Toast.makeText(context, "Out of stock", Toast.LENGTH_SHORT).show()
+                        }
+                    }, modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = if (isAddedToCart) Sea else Color.White,
+                        contentColor = if (isAddedToCart) Color.White else Sea
+                    ), border = BorderStroke(1.dp, Sea)
+                ) {
+                    Icon(Icons.Default.ShoppingCart, contentDescription = "Cart")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Add to Cart", fontWeight = FontWeight.Bold)
+                }
             }
         }
     }

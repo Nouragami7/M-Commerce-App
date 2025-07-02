@@ -72,7 +72,7 @@ class CurrencyViewModel @Inject constructor(private val repository: CurrencyRepo
                     }
 
                     is ResponseState.Failure -> {
-                        Log.e("CurrencyViewModel", "Failed: ${result.message}")
+                      //  Log.e("CurrencyViewModel", "Failed: ${result.message}")
                     }
 
                     else -> Unit

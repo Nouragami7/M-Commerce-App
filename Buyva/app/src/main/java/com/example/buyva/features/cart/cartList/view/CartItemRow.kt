@@ -1,33 +1,25 @@
 package com.example.buyva.features.cart.cartList.view
 
-import android.util.Log
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Maximize
-import androidx.compose.material.icons.filled.Minimize
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,22 +31,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.buyva.data.model.CartItem
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
-import com.example.buyva.ui.theme.Teal
-import coil.compose.AsyncImage
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
-fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToProductInfo: ( String) -> Unit) {
+fun CartItemRow(item: CartItem,
+                onQuantityChange: (Int) -> Unit,
+                onNavigateToProductInfo: ( String,String,String) -> Unit,
+                snackbarHostState: SnackbarHostState,
+                scope: CoroutineScope
+                ) {
     var availableQuantity by remember { mutableStateOf(item.quantityAvailable) }
+    var quantity by remember { mutableStateOf(item.quantity) }
 
     Card(
         modifier = Modifier
@@ -65,9 +63,7 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(containerColor = Gray),
         onClick = {
-            Log.i("1", "CartItemRow id: ${item.id}")
-            Log.i("1", "CartItemRow title: ${item.variantId}")
-            onNavigateToProductInfo(item.id)
+            onNavigateToProductInfo(item.id, item.selectedOptions[0].value,item.selectedOptions[1].value)
 
         }
     ) {
@@ -101,7 +97,7 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "${CurrencyManager.currencyUnit.value} %.2f".format(CurrencyManager.currencyRate.value*(item.price.toDouble())),
+                    text = "%.2f ${CurrencyManager.currencyUnit.value} , ${item.selectedOptions?.get(0)?.name} ${item.selectedOptions?.get(0)?.value} ".format(CurrencyManager.currencyRate.value*(item.price.toDouble())),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.DarkGray
                 )
@@ -114,26 +110,35 @@ fun CartItemRow(item: CartItem, onQuantityChange: (Int) -> Unit, onNavigateToPro
                 verticalArrangement = Arrangement.Center
             ) {
                 IconButton(onClick = {
-                    if (item.quantity > 1) {
-                        onQuantityChange(item.quantity - 1)
+                    if (quantity > 1) {
+                        quantity--
+                        onQuantityChange(quantity)
+                    }else{
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Minimum quantity is 1")
+                        }
+
                     }
                 }) {
-                    Icon(Icons.Filled.Remove, contentDescription = "Decrease", tint = Cold)
+                    Icon(Icons.Filled.Remove, contentDescription = "Decrease", tint = Cold, modifier = Modifier.size(25.dp))
                 }
 
                 Text(
-                    item.quantity.toString(),
+                    quantity.toString(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Black
                 )
-
                 IconButton(onClick = {
-                    if (item.quantity < item.quantityAvailable) {
-                        onQuantityChange(item.quantity + 1)
+                    if (quantity < availableQuantity) {
+                        quantity++
+                        onQuantityChange(quantity)
+                    }else{
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Maximum quantity is $availableQuantity")
+                        }
                     }
-                },
-                ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Increase", tint = Cold)
+                }) {
+                    Icon(Icons.Filled.Add, contentDescription = "Increase", tint = Cold, modifier = Modifier.size(25.dp))
                 }
 
             }

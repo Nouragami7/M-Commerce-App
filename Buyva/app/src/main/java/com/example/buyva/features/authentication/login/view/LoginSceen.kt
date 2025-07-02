@@ -1,7 +1,5 @@
 package com.example.buyva.features.authentication.login.ui
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -27,7 +24,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -43,7 +39,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -54,24 +52,26 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.buyva.R
 import com.example.buyva.features.authentication.login.viewmodel.LoginViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
+import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     onSignUpClick: () -> Unit = {},
-    onGoogleClick: () -> Unit = {},
     onLoginSuccess: () -> Unit = {}
 ) {
-    //Hide nav bar
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
     }
-
+    val UbuntuFontFamily = FontFamily(
+        Font(R.font.ubuntu_medium,FontWeight.Medium)
+    )
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
     val loginState by viewModel.loginState.collectAsState()
     val error = viewModel.errorMessage.collectAsState().value
+    val context = LocalContext.current
 
 
     LaunchedEffect(loginState) {
@@ -95,8 +95,23 @@ fun LoginScreen(
                 .padding(top = 50.dp, start = 24.dp),
             horizontalAlignment = Alignment.Start
         ) {
-            Text("Hello", color = Color.White, fontSize = 40.sp, fontWeight = FontWeight.Bold)
-            Text("Sign in!", color = Color.White, fontSize = 35.sp)
+            Text(
+                text = "Hello",
+                color = Color.White,
+                fontSize = 40.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = UbuntuFontFamily
+            )
+
+
+            Text(
+                text = "Sign in!",
+                color = Color.White,
+                fontSize = 35.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = UbuntuFontFamily
+            )
+
         }
 
         Card(
@@ -120,16 +135,18 @@ fun LoginScreen(
                     onValueChange = { email = it },
                     label = { Text("Enter your email", fontSize = 18.sp) },
                     textStyle = LocalTextStyle.current.copy(fontSize = 18.sp),
+                    singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = Color(0xFF006A71),
-                        unfocusedTextColor = Color(0xFF006A71),
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
                         focusedBorderColor = Color(0xFF006A71),
                         unfocusedBorderColor = Color.Gray,
                         cursorColor = Color(0xFF006A71),
                         focusedLabelColor = Color(0xFF006A71),
-                        unfocusedLabelColor = Color(0xFF006A71)
-                        ),
+                        unfocusedLabelColor =Color.Gray,
+
+                    ),
                     shape = RoundedCornerShape(12.dp)
                 )
 
@@ -149,15 +166,20 @@ fun LoginScreen(
                         color = Color(0xFF006A71),
                         fontSize = 15.sp,
                         textAlign = TextAlign.End,
-                        modifier = Modifier.padding(end = 4.dp)
+                        modifier = Modifier
+                            .padding(end = 4.dp)
+                            .clickable {
+                                viewModel.forgotPassword(email.trim())
+                            }
                     )
                 }
 
-                Spacer(modifier = Modifier.height(50.dp))
+                Spacer(modifier = Modifier.height(80.dp))
 
                 Button(
                     onClick = {
                         viewModel.signIn(email.trim(), password.trim())
+                        SharedPreferenceImpl.saveToSharedPreference(context, "SignIn", "true")
                     },
                     modifier = Modifier
                         .width(280.dp)
@@ -182,7 +204,8 @@ fun LoginScreen(
                             text = "SIGN IN",
                             color = Color.White,
                             fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = UbuntuFontFamily
                         )
                     }
                 }
@@ -200,48 +223,18 @@ fun LoginScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-
-                OutlinedButton(
-                    onClick = onGoogleClick,
-                    modifier = Modifier
-                        .width(280.dp)
-                        .height(60.dp),
-                    shape = RoundedCornerShape(30.dp),
-                    border = BorderStroke(1.dp, Color.Gray),
-                    colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.White)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.google_logo),
-                            contentDescription = "Google Logo",
-                            modifier = Modifier.size(24.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Continue with Google",
-                            color = Color.Black,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(100.dp))
+                Spacer(Modifier.height(80.dp))
 
                 Row {
-                    Text("Don't have an account?", color = Color.Gray)
+                    Text("Don't have an account?", color = Color.Gray, fontSize = 20.sp
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Sign up",
                         color = Color(0xFF006A71),
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable(onClick = onSignUpClick)
+                        modifier = Modifier.clickable(onClick = onSignUpClick) ,
+                        fontSize = 20.sp
                     )
                 }
             }
@@ -256,6 +249,7 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
         value = password,
         onValueChange = onPasswordChange,
         label = { Text("Password", fontSize = 18.sp) },
+       // singleLine = true,
         modifier = Modifier
             .fillMaxWidth()
             .height(60.dp),
@@ -268,13 +262,14 @@ fun PasswordTextField(password: String, onPasswordChange: (String) -> Unit) {
             }
         },
         colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = Color(0xFF006A71),
-            unfocusedTextColor = Color(0xFF006A71),
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.Black,
             focusedBorderColor = Color(0xFF006A71),
             unfocusedBorderColor = Color.Gray,
             cursorColor = Color(0xFF006A71),
             focusedLabelColor = Color(0xFF006A71),
-            unfocusedLabelColor = Color(0xFF006A71)
+            unfocusedLabelColor =Color.Gray,
+
         ),
         singleLine = true,
         shape = RoundedCornerShape(12.dp)

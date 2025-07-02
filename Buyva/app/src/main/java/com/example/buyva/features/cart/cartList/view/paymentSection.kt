@@ -1,14 +1,12 @@
 package com.example.buyva.features.cart.cartList.view
 
 import android.os.Build
-import android.widget.Toast
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -50,9 +48,12 @@ import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
 import com.example.buyva.features.cart.cartList.viewmodel.PaymentViewModel
 import com.example.buyva.features.home.viewmodel.HomeViewModel
 import com.example.buyva.ui.theme.Cold
+import com.example.buyva.ui.theme.Teal
 import com.example.buyva.utils.components.CustomAlertDialog
 import com.example.buyva.utils.functions.createOrder
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 
@@ -66,17 +67,22 @@ fun PaymentSection(
     onAddressClick: () -> Unit,
     paymentViewModel: PaymentViewModel,
     cartItems: SnapshotStateList<CartItem>,
-    defaultAddress: Address?
+    defaultAddress: Address?,
+    coroutineScope: CoroutineScope
 ) {
     var selectedMethod by remember { mutableStateOf(PaymentMethod.CashOnDelivery) }
     var voucherCode by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-    val snackbarHostState = remember { SnackbarHostState() }
+    val errorMessage by remember { mutableStateOf<String?>(null) }
+    val snackBarHostState = remember { SnackbarHostState() }
     var showDialog by remember { mutableStateOf(false) }
+    val voucherAfterDiscount = remember { mutableStateOf<String?>(null) }
+    val errorMessageAfterDiscount = remember { mutableStateOf<String?>(null) }
+    val priceAfterDiscount = remember { mutableStateOf<String?>(null) }
+    var isApplied by remember { mutableStateOf(false) }
 
 
-    val viewModel : CartViewModel = hiltViewModel()
-    val homeViewModel : HomeViewModel = hiltViewModel()
+    val viewModel: CartViewModel = hiltViewModel()
+    val homeViewModel: HomeViewModel = hiltViewModel()
     val context = LocalContext.current
     val addressDetails = if (address.lastName != "") {
         "${address.firstName} ${address.lastName}\n${address.address1}"
@@ -87,33 +93,30 @@ fun PaymentSection(
     var voucherCodeprice by remember { mutableStateOf("") }
     val discountBanners by homeViewModel.discountBanners.collectAsState()
 
-LaunchedEffect(Unit) {
-    homeViewModel.fetchDiscounts()
+    LaunchedEffect(Unit) {
+        homeViewModel.fetchDiscounts()
 
-}
+    }
+    Log.i("2", discountBanners.toString())
 
     if (showDialog) {
-        CustomAlertDialog(
-            title = "Error",
-            message = "Please choose default address",
-            onConfirm = {
-                showDialog = false
-                Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
-            },
-            onDismiss = {
-                showDialog = false
-                Toast.makeText(context, "Payment Cancelled", Toast.LENGTH_SHORT).show()
-            },
-            confirmText = "OK",
-            dismissText = "Cancel"
+        CustomAlertDialog(title = "Error", message = "Please choose default address", onConfirm = {
+            showDialog = false
+            onAddressClick()
+
+        }, onDismiss = {
+            showDialog = false
+            coroutineScope.launch {
+                snackBarHostState.showSnackbar("Payment Cancelled")
+            }
+        }, confirmText = "Choose Address", dismissText = "Cancel"
         )
     }
 
     Column(modifier = Modifier.padding(16.dp)) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = addressDetails,
+        OutlinedTextField(value = addressDetails,
             onValueChange = {},
             label = { Text("Default Address") },
             readOnly = true,
@@ -141,11 +144,20 @@ LaunchedEffect(Unit) {
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             PaymentMethod.entries.forEach { method ->
+                val isCashDisabled = method == PaymentMethod.CashOnDelivery && discountedPrice > 1000
+
                 OutlinedButton(
-                    onClick = { selectedMethod = method },
+                    onClick = {
+                        if (!isCashDisabled) {
+                            selectedMethod = method
+                        }
+                    },
+                    enabled = !isCashDisabled,
                     colors = ButtonDefaults.outlinedButtonColors(
                         containerColor = if (selectedMethod == method) Cold else Color.Transparent,
-                        contentColor = if (selectedMethod == method) Color.White else Cold
+                        contentColor = if (selectedMethod == method) Color.White else Cold,
+                        disabledContainerColor = Color.LightGray,
+                        disabledContentColor = Color.Gray
                     ),
                     modifier = Modifier
                         .weight(1f)
@@ -154,29 +166,41 @@ LaunchedEffect(Unit) {
                     Text(method.displayName)
                 }
             }
+
+        }
+        Spacer(modifier = Modifier.height(9.dp))
+
+        if (discountedPrice > 1000) {
+            Text(
+                "Cash on Delivery is not available for orders above ${1000*CurrencyManager.currencyRate.value} ${CurrencyManager.currencyUnit.value}",
+                color = Color.Red,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 4.dp, top = 4.dp)
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.Top
+            modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top
         ) {
             Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp)
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
             ) {
-                Box {
-                    OutlinedTextField(
-                        value = voucherCode,
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(value = voucherCode,
                         onValueChange = { voucherCode = it },
                         label = { Text("Voucher Code") },
                         singleLine = true,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
+                            .weight(1f)
+                            .height(70.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = Cold,
                             unfocusedBorderColor = Color.Gray,
@@ -186,41 +210,86 @@ LaunchedEffect(Unit) {
                         ),
                         shape = RoundedCornerShape(12.dp)
                     )
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Button(
+                        onClick = {
+                            if (discountBanners.isNotEmpty()) {
+                                val trimmedUserInput = voucherCode.trim()
+                                val matchedDiscount = discountBanners.find { banner ->
+                                    val regex = Regex("Use Code: (\\w+)")
+                                    val match = regex.find(banner.code)
+                                    val extractedCode = match?.groups?.get(1)?.value?.trim() ?: ""
+                                    extractedCode.equals(trimmedUserInput, ignoreCase = true)
+                                }
+                                voucherAfterDiscount.value = null
+                                Log.i("2", "matchedDiscount: $matchedDiscount")
+                                Log.i("2", "discountBanners: ${voucherAfterDiscount.value}")
+                                if (matchedDiscount != null) {
+                                    val discountValue = price * (matchedDiscount.percentage / 100f)
+                                    discountedPrice = price - discountValue
+                                    voucherAfterDiscount.value =
+                                        "${matchedDiscount.percentage}% discount applied!"
+                                    errorMessageAfterDiscount.value = null
+                                    val currency = CurrencyManager.currencyUnit.value
+                                    val percentage = matchedDiscount.percentage
+                                    val formattedPrice =
+                                        "%.2f".format(discountedPrice * CurrencyManager.currencyRate.value)
+                                    priceAfterDiscount.value =
+                                        "After Discount $percentage%: $currency $formattedPrice"
+                                    isApplied = true
+
+                                } else {
+                                    discountedPrice = price
+
+                                    voucherAfterDiscount.value = null
+                                    errorMessageAfterDiscount.value = "Invalid voucher code"
+                                    priceAfterDiscount.value = null
+                                    isApplied = false
+                                }
+                            } else {
+                                errorMessageAfterDiscount.value =
+                                    "Loading discount codes... Please try again"
+                            }
+                        },
+
+                        modifier = Modifier.height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = if (isApplied) ButtonDefaults.buttonColors(containerColor = Teal) else ButtonDefaults.buttonColors(containerColor = Cold)
+                    ) {
+                        Text("Apply", fontWeight = FontWeight.Bold, color = Color.White)
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
+                if (errorMessageAfterDiscount.value != null) {
+                    Text(
+                        text = errorMessageAfterDiscount.value ?: "",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Red,
+                        modifier = Modifier.padding(start = 4.dp)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                }
+
                 Text(
-                    text = "Total: ${CurrencyManager.currencyUnit.value} %.2f".format(discountedPrice * CurrencyManager.currencyRate.value),
+                    text = "Total: %.2f ${CurrencyManager.currencyUnit.value}".format(price * CurrencyManager.currencyRate.value),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Cold,
-                    modifier = Modifier.align(Alignment.Start)
+                    color = Cold
                 )
-            }
 
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Column(
-                modifier = Modifier.height(50.dp),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Button(
-                    onClick = {
-                        val matchedDiscount = discountBanners.find { it.code.contains(voucherCodeprice.trim(), ignoreCase = true) }
-                        if (matchedDiscount != null) {
-                            val discountValue = price * (matchedDiscount.percentage / 100f)
-                            discountedPrice = price - discountValue
-                        } else {
-                            discountedPrice = price
-                        }
-                    },
-                    modifier = Modifier
-                        .defaultMinSize(minHeight = 30.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Cold)
-                ) {
-                    Text("Apply", fontWeight = FontWeight.Bold, color = Color.White)
+                if (priceAfterDiscount.value != null) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = priceAfterDiscount.value ?: "",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Cold
+                    )
                 }
             }
         }
@@ -237,11 +306,13 @@ LaunchedEffect(Unit) {
                     } else {
                         createOrder(cartItems, defaultAddress, paymentViewModel, context)
                         viewModel.clearCart()
-                        Toast.makeText(context, "Payment Successful", Toast.LENGTH_SHORT).show()
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar("Payment Successful")
+                        }
                         onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
                     }
                 } else {
-                    onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
+                    // onConfirm(LocalDateTime.now(), selectedMethod, voucherCode)
                     showDialog = true
                 }
             },
@@ -253,7 +324,7 @@ LaunchedEffect(Unit) {
             Text("Checkout")
         }
 
-        SnackbarHost(hostState = snackbarHostState, modifier = Modifier.padding(16.dp))
+        SnackbarHost(hostState = snackBarHostState, modifier = Modifier.padding(16.dp))
     }
 }
 

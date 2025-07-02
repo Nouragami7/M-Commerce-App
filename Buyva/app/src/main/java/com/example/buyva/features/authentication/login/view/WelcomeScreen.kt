@@ -3,9 +3,20 @@ package com.example.buyva.features.authentication.login.view
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -16,22 +27,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.buyva.R
 import com.example.buyva.navigation.navbar.NavigationBar
+import com.example.buyva.ui.theme.ubuntuMedium
 
 
 @Composable
 fun WelcomeScreen(
-    onSignInClick: () -> Unit,
-    onSignUpClick: () -> Unit,
-    onSkipClick: () -> Unit
+    onSignInClick: () -> Unit, onSignUpClick: () -> Unit, onSkipClick: () -> Unit
 ) {
-    //Hide nav bar
     LaunchedEffect(Unit) {
-      NavigationBar.mutableNavBarState.value = false
+        NavigationBar.mutableNavBarState.value = false
     }
     Box(
         modifier = Modifier
@@ -39,7 +47,6 @@ fun WelcomeScreen(
             .background(Brush.verticalGradient(listOf(Color(0xFF48A6A7), Color(0xFF006A71))))
             .padding(32.dp)
     ) {
-        // Skip Text at topEnd
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -53,7 +60,8 @@ fun WelcomeScreen(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .clickable(onClick = onSkipClick)
-                    .padding(end = 4.dp)
+                    .padding(end = 4.dp),
+                fontFamily = ubuntuMedium
             )
         }
 
@@ -76,21 +84,26 @@ fun WelcomeScreen(
                 text = "Buyva",
                 color = Color.White,
                 fontSize = 32.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                fontFamily = ubuntuMedium
             )
 
             Spacer(modifier = Modifier.height(50.dp))
 
-            Text("Welcome Back", color = Color.White, fontSize = 30.sp)
+            Text(
+                "Your style, your store ",
+                color = Color.White,
+                fontSize = 28.sp,
+                fontFamily = ubuntuMedium
+            )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(50.dp))
 
-            // SIGN IN Button with Gradient Background
             Button(
                 onClick = onSignInClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(60.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
                 contentPadding = PaddingValues()
@@ -101,32 +114,36 @@ fun WelcomeScreen(
                         .background(
                             brush = Brush.horizontalGradient(
                                 colors = listOf(Color(0xFF48A6A7), Color(0xFF006A71))
-                            ),
-                            shape = RoundedCornerShape(15.dp)
-                        ),
-                    contentAlignment = Alignment.Center
+                            ), shape = RoundedCornerShape(15.dp)
+                        ), contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "SIGN IN",
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
+                        fontSize = 22.sp,
+                        fontFamily = ubuntuMedium
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-            // SIGN UP Button
             Button(
                 onClick = onSignUpClick,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
+                    .height(60.dp),
                 shape = RoundedCornerShape(15.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White)
             ) {
-                Text("Create your account", color = Color.Black, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    "Create your account",
+                    color = Color.Black,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = ubuntuMedium
+                )
             }
 
             Spacer(modifier = Modifier.height(40.dp))
@@ -134,12 +151,3 @@ fun WelcomeScreen(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PreviewWelcomeScreen() {
-    WelcomeScreen(
-        onSignInClick = {},
-        onSignUpClick = {},
-        onSkipClick = {}
-    )
-}

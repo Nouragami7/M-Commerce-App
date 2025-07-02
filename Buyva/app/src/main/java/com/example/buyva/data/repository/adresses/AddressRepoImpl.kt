@@ -11,7 +11,6 @@ class AddressRepoImpl @Inject constructor(
 ) : IAddressRepo {
     override suspend fun createAddress(address: Address, token: String): Flow<ResponseState> {
         return remoteDataSource.createCustomerAddress(token, address)
-
     }
 
     override suspend fun getAddresses(token: String): Flow<ResponseState> {

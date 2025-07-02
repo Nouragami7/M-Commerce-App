@@ -11,19 +11,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.buyva.BrandsAndProductsQuery
 import com.example.buyva.data.model.uistate.ResponseState
+import com.example.buyva.features.cart.cartList.viewmodel.CartViewModel
 import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.home.viewmodel.HomeViewModel
+import com.example.buyva.features.profile.addressdetails.viewmodel.AddressViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
@@ -37,16 +42,19 @@ fun HomeScreen(
     onCartClick: () -> Unit = {},
     onBrandClick: (String, String, String) -> Unit = { _, _, _ -> },
     onSearchClick: () -> Unit = {},
-    //  onTextChanged: (String) -> Unit,
     onProductClick: (String) -> Unit = {},
     favouriteViewModel: FavouriteScreenViewModel?
 
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    val homeViewModel: HomeViewModel = hiltViewModel()
+    val homeViewModel: HomeViewModel = hiltViewModel(
+    )
+//    val addressViewModel: CartViewModel = hiltViewModel()
+//    addressViewModel.clearCart()
 
     SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)
-    Log.i("1", "HomeScreen: ${SharedPreferenceImpl.getFromSharedPreferenceInGeneral(USER_TOKEN)}")
     val brandsAndProducts by homeViewModel.brandsAndProducts.collectAsStateWithLifecycle()
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = true
@@ -66,7 +74,7 @@ fun HomeScreen(
         SearchBarWithCartIcon(onCartClick, onSearchClick = onSearchClick)
         Spacer(modifier = Modifier.height(16.dp))
         if (banners.isNotEmpty()) {
-            OfferBanner(banner = banners)
+            OfferBanner(banner = banners, snackbarHostState, scope = scope)
         } else {
             LoadingIndicator()
         }

@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.Text
@@ -76,6 +77,13 @@ fun CurrencyScreen(viewModel: CurrencyViewModel, onBackClick: () -> Unit = {}) {
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Currency") },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Cold,
+                    unfocusedBorderColor = Color.Black,
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    focusedLabelColor = Cold,
+                ),
                 trailingIcon = {
                     IconButton(onClick = { expanded = !expanded }) {
                         Icon(

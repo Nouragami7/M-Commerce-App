@@ -16,7 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Search
@@ -57,7 +57,9 @@ import com.example.buyva.features.favourite.viewmodel.FavouriteScreenViewModel
 import com.example.buyva.features.search.viewmodel.SearchViewModel
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.utils.components.CustomAlertDialog
+import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.sharedpreference.currency.CurrencyManager
+
 
 @Composable
 fun SearchScreen(
@@ -86,12 +88,13 @@ fun SearchScreen(
             .verticalScroll(scrollState)
             .padding(horizontal = 8.dp, vertical = 8.dp)
     ) {
+        Spacer(modifier = Modifier.height(28.dp))
+
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()
         ) {
             IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
             }
 
             Spacer(modifier = Modifier.width(8.dp))
@@ -100,7 +103,7 @@ fun SearchScreen(
                 searchText = state.searchText,
                 onSearchTextChange = { searchViewModel.updateSearchText(it) },
                 onSearchClick = {
-                  //  searchViewModel.performSearch(state.searchText)
+                    //  searchViewModel.performSearch(state.searchText)
                 },
                 onCartClick = onCartClick,
                 modifier = Modifier.weight(1f)
@@ -124,8 +127,7 @@ fun SearchScreen(
         when {
             state.isLoading -> {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(color = Color.Black)
                 }
@@ -133,25 +135,26 @@ fun SearchScreen(
 
             state.error != null -> {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = state.error ?: "Search error",
-                        color = Color.Red
+                        text = state.error ?: "Search error", color = Color.Red
                     )
                 }
             }
 
+
             state.filteredProducts.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "No products found",
-                        color = Color.Gray
-                    )
+                if (state.searchText.isNotEmpty()) {
+                    EmptyScreen("No products found", 22.sp, R.raw.empty_order)
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No products found", color = Color.Gray
+                        )
+                    }
                 }
             }
 
@@ -175,23 +178,22 @@ fun SearchBarWithCartIcon(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier
-            .padding(horizontal = 12.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = modifier.padding(start = 12.dp, end = 12.dp, bottom = 3.dp),
+
+                verticalAlignment = Alignment.CenterVertically
     ) {
         OutlinedTextField(
             value = searchText,
             onValueChange = onSearchTextChange,
             modifier = Modifier
                 .weight(1f)
-                .height(48.dp)
+                .height(56.dp)
                 .shadow(elevation = 4.dp, shape = RoundedCornerShape(12.dp)),
             placeholder = { Text("Search") },
             leadingIcon = {
                 IconButton(onClick = onSearchClick) {
                     Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search"
+                        imageVector = Icons.Default.Search, contentDescription = "Search"
                     )
                 }
             },
@@ -255,7 +257,9 @@ fun UiProductSection(
             }
         }
     }
-}@Composable
+}
+
+@Composable
 fun PriceFilterSlider(
     minPrice: Float?,
     maxPrice: Float,
@@ -287,9 +291,7 @@ fun PriceFilterSlider(
                     .fillMaxWidth()
                     .graphicsLayer { scaleY = 0.6f },
                 colors = SliderDefaults.colors(
-                    thumbColor = Cold,
-                    activeTrackColor = Cold,
-                    inactiveTrackColor = Color.LightGray
+                    thumbColor = Cold, activeTrackColor = Cold, inactiveTrackColor = Color.LightGray
                 )
             )
         }
@@ -345,11 +347,8 @@ fun UiProductCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            val formattedTitle = product.title
-                .split("|")
-                .take(2)
-                .map { it.trim().split(" ").firstOrNull().orEmpty() }
-                .joinToString(" | ")
+            val formattedTitle = product.title.split("|").take(2)
+                .map { it.trim().split(" ").firstOrNull().orEmpty() }.joinToString(" | ")
 
             Text(
                 text = formattedTitle,
@@ -372,7 +371,7 @@ fun UiProductCard(
                     fontWeight = FontWeight.SemiBold
                 )
 
-                IconButton(onClick =  {
+                IconButton(onClick = {
                     if (isFavourite) {
                         showAlert = true
                     } else {

@@ -25,8 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.buyva.R
 import com.example.buyva.admin.GetOrdersByCustomerEmailQuery
 import com.example.buyva.data.model.uistate.ResponseState
 import com.example.buyva.features.order.view.OrderCard
@@ -34,12 +36,16 @@ import com.example.buyva.features.order.viewmodel.OrderViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.ubuntuMedium
+import com.example.buyva.utils.components.EmptyScreen
 import com.example.buyva.utils.components.LoadingIndicator
 import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
-fun OrderScreen(onBack: () -> Unit = {}, onOrderClick: (GetOrdersByCustomerEmailQuery.Node?) -> Unit ) {
+fun OrderScreen(
+    onBack: () -> Unit = {},
+    onOrderClick: (GetOrdersByCustomerEmailQuery.Node?) -> Unit
+) {
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = false
     }
@@ -95,9 +101,14 @@ fun OrderScreen(onBack: () -> Unit = {}, onOrderClick: (GetOrdersByCustomerEmail
             is ResponseState.Success<*> -> {
                 val response = state.data as GetOrdersByCustomerEmailQuery.Data
                 val orders = response.orders.edges.map { it.node }
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    item {
-                        OrderSection("Your Orders", orders, onOrderClick)
+                if (orders.isEmpty()) {
+                    EmptyScreen("No orders yet", 22.sp, R.raw.empty_order)
+
+                } else {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        item {
+                            OrderSection("Your Orders", orders, onOrderClick)
+                        }
                     }
                 }
             }
@@ -110,7 +121,8 @@ fun OrderScreen(onBack: () -> Unit = {}, onOrderClick: (GetOrdersByCustomerEmail
 
 @Composable
 fun OrderSection(
-    title: String, orders: List<GetOrdersByCustomerEmailQuery.Node>,
+    title: String,
+    orders: List<GetOrdersByCustomerEmailQuery.Node>,
     onOrderClick: (GetOrdersByCustomerEmailQuery.Node?) -> Unit
 ) {
 
@@ -132,7 +144,7 @@ fun OrderSection(
         Spacer(modifier = Modifier.height(16.dp))
 
         orders.forEach { order ->
-            OrderCard(order,onOrderClick)
+            OrderCard(order, onOrderClick)
             Spacer(modifier = Modifier.height(16.dp))
         }
     }

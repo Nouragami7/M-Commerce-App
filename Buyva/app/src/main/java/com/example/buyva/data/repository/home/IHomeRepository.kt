@@ -10,6 +10,6 @@ interface IHomeRepository {
     fun getBrandsAndProduct(): Flow<BrandsAndProductsQuery.Data?>
     fun getProductById(productId: String): Flow<GetProductByIdQuery.Data?>
     fun getProductsByBrand(collectionId: String): Flow<ProductsByCollectionQuery.Data?>
-      suspend fun getDiscountDetails(): Flow<GetDiscountAmountDetailsQuery.Data>
+    suspend fun getDiscountDetails(): Flow<GetDiscountAmountDetailsQuery.Data>
 
-    }
+}

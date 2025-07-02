@@ -1,6 +1,5 @@
 package com.example.buyva.features.profile.profileoptions.view
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,16 +42,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.buyva.features.authentication.login.viewmodel.UserSessionManager
 import com.example.buyva.features.authentication.signup.viewmodel.LogoutViewModel
 import com.example.buyva.navigation.navbar.NavigationBar
+import com.example.buyva.navigation.navbar.NavigationBar.resetToDefaultTab
 import com.example.buyva.ui.theme.Cold
 import com.example.buyva.ui.theme.Gray
 import com.example.buyva.ui.theme.Sea
 import com.example.buyva.ui.theme.Teal
 import com.example.buyva.utils.components.ScreenTitle
-import com.example.buyva.utils.constants.CURRENCY_RATE
-import com.example.buyva.utils.constants.CURRENCY_UNIT
-import com.example.buyva.utils.sharedpreference.SharedPreferenceImpl
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -62,15 +60,13 @@ fun ProfileScreen(
     onOrdersClick: () -> Unit = {},
     onLoggedOut: () -> Unit = {},
     onCurrencyClick: () -> Unit = {},
-    logoutViewModel : LogoutViewModel = hiltViewModel()
-
+    logoutViewModel: LogoutViewModel = hiltViewModel()
 ) {
-    Log.d("1", "${SharedPreferenceImpl.getFromSharedPreferenceInGeneral(CURRENCY_UNIT)}")
-    Log.d("1", "${SharedPreferenceImpl.getLongFromSharedPreferenceInGeneral(CURRENCY_RATE)}")
+    val isGuest = UserSessionManager.isGuest()
+
     LaunchedEffect(Unit) {
         NavigationBar.mutableNavBarState.value = true
     }
-
 
     Column(
         modifier = Modifier
@@ -100,7 +96,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Hello, ${FirebaseAuth.getInstance().currentUser?.displayName}",
+            text = if (isGuest) "Hello, Guest" else "Hello, ${FirebaseAuth.getInstance().currentUser?.displayName}",
             fontStyle = FontStyle.Italic,
             fontSize = 18.sp,
             color = Cold
@@ -108,12 +104,13 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            ProfileOption(Icons.Default.LocalShipping, "My Orders", Sea, onOrdersClick)
-            ProfileOption(Icons.Default.FavoriteBorder, "My Wishlist", Sea, onFavClick)
-            ProfileOption(Icons.Default.LocationOn, "Delivery Address", Sea, onAddressClick)
+        Column(modifier = Modifier.fillMaxWidth()) {
+            if (!isGuest) {
+                ProfileOption(Icons.Default.LocalShipping, "My Orders", Sea, onOrdersClick)
+                ProfileOption(Icons.Default.FavoriteBorder, "My Wishlist", Sea, onFavClick)
+                ProfileOption(Icons.Default.LocationOn, "Delivery Address", Sea, onAddressClick)
+            }
+
             ProfileOption(Icons.Default.Money, "Currency", Sea, onCurrencyClick)
         }
 
@@ -121,20 +118,30 @@ fun ProfileScreen(
 
         OutlinedButton(
             onClick = {
-                logoutViewModel.logout()
-                onLoggedOut()
+                if (isGuest) {
+                    onLoggedOut()
+                    resetToDefaultTab()
+                } else {
+                    logoutViewModel.logout()
+                    onLoggedOut()
+                    resetToDefaultTab()
+                }
             },
             colors = ButtonDefaults.outlinedButtonColors(contentColor = Sea),
             border = BorderStroke(1.dp, Sea)
         ) {
-            Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
+            Icon(Icons.Default.ExitToApp, contentDescription = if (isGuest) "Register" else "Logout")
             Spacer(Modifier.width(8.dp))
-            Text("Log Out", fontWeight = FontWeight.SemiBold)
+            Text(
+                text = if (isGuest) "Log In" else "Log Out",
+                fontWeight = FontWeight.SemiBold
+            )
         }
 
         Spacer(modifier = Modifier.height(40.dp))
     }
 }
+
 
 @Composable
 fun ProfileOption(icon: ImageVector, title: String, iconColor: Color, onAddressClick: () -> Unit = {}) {
